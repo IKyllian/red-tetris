@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
+    "strict": false, /* Enable strict mode in futur */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true

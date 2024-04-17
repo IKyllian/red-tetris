@@ -9,7 +9,7 @@
 .cell {
     border: 1px solid purple;
     position: relative;
-    border-radius: 8px;
+    border-radius: 5px;
     padding: 2px;
 }
 
@@ -20,7 +20,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 .tetromino_I {

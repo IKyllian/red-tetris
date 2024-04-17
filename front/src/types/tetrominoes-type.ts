@@ -5,29 +5,29 @@ export interface ITetromino {
     className: string;
 }
 
-export const TETROMINOS = {
+export const TETROMINOES = {
     I: {
         shape: [
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0]
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
         ],
         className: `${className} ${className}_I`
     },
     J: {
         shape: [
-            [0, 0, 0],
             [1, 0, 0],
-            [1, 1, 1]
+            [1, 1, 1],
+            [0, 0, 0]
         ],
         className: `${className} ${className}_J`
     },
     L: {
         shape: [
-            [0, 0, 0],
             [0, 0, 1],
-            [1, 1, 1]
+            [1, 1, 1],
+            [0, 0, 0]
         ],
         className: `${className} ${className}_L`
     },
@@ -40,17 +40,17 @@ export const TETROMINOS = {
     },
     S: {
         shape: [
-            [0, 0, 0],
             [0, 1, 1],
-            [1, 1, 0]
+            [1, 1, 0],
+            [0, 0, 0]
         ],
         className: `${className} ${className}_S`
     },
     T: {
         shape: [
-            [0, 0, 0],
             [0, 1, 0],
-            [1, 1, 1]
+            [1, 1, 1],
+            [0, 0, 0]
         ],
         className: `${className} ${className}_T`
     },
