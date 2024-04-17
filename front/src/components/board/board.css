@@ -1,0 +1,52 @@
+.board {
+    display: grid;
+    gap: 2px;
+    border: 1px solid red;
+    width: 50vw;
+    height: 50vh;
+}
+
+.cell {
+    border: 1px solid purple;
+    position: relative;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.tetromino {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border-radius: 8px;
+}
+
+.tetromino_I {
+    background-color: aqua;
+}
+
+.tetromino_J{
+    background-color: blue;
+}
+
+.tetromino_L {
+    background-color: orange;
+}
+
+.tetromino_O {
+    background-color: yellow;
+}
+
+.tetromino_S {
+    background-color: green;
+}
+
+.tetromino_T {
+    background-color: purple;
+}
+
+.tetromino_Z {
+    background-color: red;
+}
