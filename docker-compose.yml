@@ -1,0 +1,18 @@
+services:
+
+# Front
+  red_tetris:
+    build:
+      context: ./front
+    networks:
+      - red_tetris_network
+    restart: always
+    volumes:
+      - ./front/:/usr/app/front
+    ports:
+      - "5173:5173"
+
+networks:
+  red_tetris_network:
+    name: red_tetris_network
+    driver: bridge
