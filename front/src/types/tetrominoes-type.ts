@@ -5,6 +5,16 @@ export interface ITetromino {
     className: string;
 }
 
+export interface IPosition {
+    x: number;
+    y: number;
+}
+
+export const defaultPosition: IPosition = {
+    x: 3,
+    y: 0
+}
+
 export const TETROMINOES = {
     I: {
         shape: [
