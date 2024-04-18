@@ -1,6 +1,8 @@
 import { TETROMINOES } from "../types/tetrominoes-type";
+import _ from 'lodash';
 
 export const transferPieceToBoard = ({rows, tetromino, position, isOccupied}) => {
+    let newRows = _.cloneDeep(rows);
     tetromino.shape.forEach((row: number[], y: number) => {
         row.forEach((cell: number, x: number) => {
             // console.log(cell)
@@ -9,11 +11,11 @@ export const transferPieceToBoard = ({rows, tetromino, position, isOccupied}) =>
                 const occupied = isOccupied;
                 const _x = x + position.x;
                 const _y = y + position.y;
-                rows[_y][_x] = {className: tetromino.className, occupied }
+                newRows[_y][_x] = {className: tetromino.className, occupied }
             }
         })
     })
-    return rows;
+    return newRows;
 }
 
 export const getRandomPiece = () => {
@@ -24,16 +26,16 @@ export const getRandomPiece = () => {
 }
 
 // Rotate 2d array -> https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
-export const rotatePiece = (shape: number[][], direction: number) => {
+export const rotatePiece = (shape: number[][]) => {
     // console.log("Shape Before Rotation: ", shape);
-    const newPiece = shape.map((_, index) =>
-        shape.map((column) => column[index])
-    );
-
-    console.log("Shape After Rotation (1): ", newPiece)
-    if (direction > 0) {
-        return newPiece.map((row) => row.reverse());
-    }
-    
-    return newPiece.reverse();
+    // const newPiece = shape.map((_, index) => {
+    //     console.log("Index: ", index);
+    //     return shape.map((column) => {
+    //         console.log("Column: ", column);
+    //         console.log("Column: ", column[index]);
+    //         return column[index]
+    //     })
+    // });
+    const newPiece = _.zip(...shape)
+    return newPiece.map((row) => row.reverse());
 }
