@@ -4,15 +4,15 @@ import { Player } from './player';
 
 export class Lobby {
 	public name: string;
-	private players: Player[] = [];
+	public id: string;
+	public players: Player[] = [];
 	private games: Game[] = [];
-	private lobbyId: string;
 	private pieces: Piece[] = [];
 	isStarted: boolean;
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
-		this.lobbyId = this.createRandomId();
+		this.id = this.createRandomId();
 	}
 
 	private createRandomId(length: number = 5) {
