@@ -1,4 +1,4 @@
-import { TETROMINOES } from "../types/tetrominoes-type";
+import { TETROMINOES } from "../types/tetrominoes.type";
 import _ from 'lodash';
 
 export const transferPieceToBoard = ({rows, tetromino, position, isOccupied}) => {

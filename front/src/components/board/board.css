@@ -2,8 +2,8 @@
     display: grid;
     gap: 2px;
     border: 1px solid red;
-    width: 50vw;
-    height: 50vh;
+    width: 500px;
+    height: 800px;
 }
 
 .cell {

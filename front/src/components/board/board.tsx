@@ -1,25 +1,27 @@
 import "./board.css"
-import { IPosition, ITetromino, defaultPosition } from "../../types/tetrominoes-type"
-import { ICell } from "../../types/board-types";
-import { getRandomPiece, rotatePiece, transferPieceToBoard } from "../../utils/tetromino-utils";
+import { IPosition, ITetromino, defaultPosition } from "../../types/tetrominoes.type"
+import { ICell, ISize } from "../../types/board.types";
+import { getRandomPiece, rotatePiece, transferPieceToBoard } from "../../utils/tetromino.utils";
 import { useEffect, useState } from "react";
 import { useInterval } from "../../hooks/useInterval";
-import { buildBoard } from "../../utils/board-utils";
+import { buildBoard } from "../../utils/board.utils";
+import { isCommandType } from "../../types/command.types";
+import { useAppDispatch } from "../../store/hook";
+import { commandPressed } from "../../store/socket.slice";
 
 export interface BoardProps {
-    rowsSize: number;
-    columnsSize: number;
+    size: ISize,
 }
 
-const Cell = ({cell, cellIndex}) => (
-    <div className='cell'key={cellIndex}>
+const Cell = ({cell}) => (
+    <div className='cell'>
         <div className={cell.className}></div>
     </div>
 )
 
 // Return false if there is no colision
 const checkColision = (rowsSize, boardRows, position) => {
-    console.log("position.y = ", position.y, " rowsSize - 1 = ", rowsSize - 1);
+    // console.log("position.y = ", position.y, " rowsSize - 1 = ", rowsSize - 1);
     console.log(boardRows);
     if (!(position.y < rowsSize - 1)) {
         return true;
@@ -30,30 +32,31 @@ const checkColision = (rowsSize, boardRows, position) => {
     return false;
 }
 
-export function Board({rowsSize, columnsSize} : BoardProps) {
+export function Board({size} : BoardProps) {
     const [currentPiece, setCurrentPiece] = useState(getRandomPiece());
     const [position, setPosition] = useState<IPosition>(defaultPosition);
-    const [board, setBoard] = useState(buildBoard({ rows: rowsSize, columns: columnsSize }));
-    console.log(board)
-    const [prevBoard, setPrevBoard] = useState(buildBoard({ rows: rowsSize, columns: columnsSize }));
+    const [board, setBoard] = useState(buildBoard({ rows: size.rows, columns: size.columns }));
+    const [prevBoard, setPrevBoard] = useState(buildBoard({ rows: size.rows, columns: size.columns }));
     const boardStyles = {
         gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
         gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`
     };
+    const dispatch = useAppDispatch();
+
     useEffect(() => {
         setBoard(prev => ({...prev, rows: transferPieceToBoard({rows: board.cells, tetromino: currentPiece, position, isOccupied: false})}));
     }, [])
 
     const generateNewPieceToBoard = () => {
-        if (checkColision(rowsSize, board.cells, position)) {
-            console.log("colision");
+        if (checkColision(size.rows, board.cells, position)) {
+            // console.log("colision");
             const newBoard = transferPieceToBoard({rows: prevBoard.cells, tetromino: currentPiece, position : {...position, y: position.y - 1}, isOccupied: true});
             // setBoard(prev => ({...prev, rows: newBoard}));
             setPrevBoard(prev => ({...prev, cells: newBoard}));
             const newPiece = getRandomPiece();
             setPosition(defaultPosition);
             setCurrentPiece(newPiece);
-            console.log(newBoard);
+            // console.log(newBoard);
             setBoard(prev => ({...prev, cells: transferPieceToBoard({rows: newBoard, tetromino: newPiece, position: defaultPosition, isOccupied: false})}));
         } else {
             setBoard(prev => ({...prev, cells: transferPieceToBoard({rows: prevBoard.cells, tetromino: currentPiece, position, isOccupied: false})}));
@@ -62,12 +65,20 @@ export function Board({rowsSize, columnsSize} : BoardProps) {
     }
     useInterval(() => generateNewPieceToBoard(), 1000);
     
+
+    const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const code = event.code;
+        console.log(code);
+        if (isCommandType(code)) {
+            dispatch(commandPressed(code));
+        }
+    }
     return (
-        <div className="board" style={boardStyles}>
+        <div className="board" style={boardStyles} onKeyDown={resolveKeyPress} tabIndex={0}>
             {
                 board.cells.map((row) => (
                     row.map((cell, cellIndex) => (
-                        <Cell cell={cell} cellIndex={cellIndex} />
+                        <Cell key={cellIndex} cell={cell} />
                     ))
                 ))
             }
@@ -96,7 +107,7 @@ export function BoardPreview({tetromino} : {tetromino: ITetromino}) {
             {
                 rows.map((row) => (
                     row.map((cell: ICell, cellIndex: number) => (
-                        <Cell cell={cell} cellIndex={cellIndex} />
+                        <Cell key={cellIndex} cell={cell} />
                     ))
                 ))
             }

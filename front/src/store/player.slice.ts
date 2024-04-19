@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { RootState } from './store';
-import { IPlayer } from '../types/player-type';
+import { IPlayer } from '../types/player.type';
 
 const defaultPlayer: IPlayer = {
     name: null
@@ -19,6 +19,6 @@ export const playerSlice = createSlice({
 export const { setName } = playerSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectCount = (state: RootState) => state.counter.value
+export const selectPlayerName = (state: RootState) => state.player.name;
 
 export default playerSlice.reducer

@@ -1,4 +1,4 @@
-import { IBoard, defaultCell } from "../types/board-types";
+import { IBoard, defaultCell } from "../types/board.types";
 
 export const buildBoard = ({ rows, columns }): IBoard => {
     const builtRows = Array.from({ length: rows }, () =>

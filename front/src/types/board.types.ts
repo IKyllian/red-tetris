@@ -9,6 +9,11 @@ export interface ISize {
     rows: number;
 }
 
+export const defaultBoardSize: ISize = {
+    columns: 10,
+    rows: 20
+}
+
 export interface IBoard {
     cells: ICell[][],
     size: ISize
