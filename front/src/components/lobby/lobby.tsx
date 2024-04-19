@@ -4,13 +4,14 @@ import { useAppSelector } from "../../store/hook"
 import { useNavigate } from 'react-router-dom';
 
 export function Lobby() {
-    const playerName: IPlayer = {name: useAppSelector(state => state.player.name)};
+    const playerName = {name: useAppSelector(state => state.player.name), id: "", isLeader: false};
     const [players, _] = useState<IPlayer[]>([playerName])
     const navigate = useNavigate();
 
     const handleClick = () => {
         navigate('/game');
     }
+
     return (
         <div>
             <h2> Lobby </h2>

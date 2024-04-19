@@ -3,12 +3,14 @@ import PlayerReducer from './player.slice'
 import BoardReducer from './board.slice'
 import SocketReducer from './socket.slice'
 import socketMiddleware from './socketMiddleware'
+import LobbyReducer from './lobby.slice'
 
 export const store = configureStore({
   reducer: {
     player: PlayerReducer,
     board: BoardReducer,
-    socket: SocketReducer
+    socket: SocketReducer,
+    lobby: LobbyReducer
   },
   middleware(getDefaultMiddleware) {
     return getDefaultMiddleware().concat([socketMiddleware]);

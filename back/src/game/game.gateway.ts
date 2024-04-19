@@ -38,9 +38,10 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: { name: string; playerName: string }
 	) {
+		console.log('Data = ', data);
 		const lobby = new Lobby(data.name, data.playerName, socket.id);
 		this.lobbys.push(lobby);
-		socket.emit(SocketEvent.CreateLobby, lobby);
+		socket.emit(SocketEvent.UpdateLobby, lobby);
 	}
 
 	@SubscribeMessage(SocketEvent.JoinLobby)

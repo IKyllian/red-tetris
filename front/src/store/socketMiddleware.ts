@@ -6,18 +6,18 @@ import { ICell } from "../types/board.types";
 import { createLobby, joinLobby, leaveLobby, setLobby } from "./lobby.slice";
 import { ILobby } from "../types/lobby.type";
 
-enum SocketEvent {
-    Connect = "connect",
-    Disconnect = "disconnect",
-    // Emit events
-    CreateLobby = "create-lobby",
-    JoinLobby = "join-lobby",
-    LeaveLobby= "leave-lobby",
-    UpdateLobby = "update-lobby",
-    BoardUpdate = "board-update",
-    CommandPressed = "command-pressed",
-    // On events
-    Error = "error",
+export enum SocketEvent {
+	Connect = 'connect',
+	Disconnect = 'disconnect',
+	// Emit events
+	CreateLobby = 'create-lobby',
+	JoinLobby = 'join-lobby',
+	UpdateLobby = 'update-lobby',
+	LeaveLobby = 'leave-lobby',
+	BoardUpdate = 'board-update',
+	CommandPressed = 'command-pressed',
+	// On events
+	Error = 'error',
 }
 
 const socketMiddleware: Middleware = (store) => {
@@ -45,18 +45,20 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(connectionLost());
                 });
 
-                socket.socket.on(SocketEvent.JoinLobby, (lobby: ILobby) => {
+                socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
+                    console.log("UpdateLobby", lobby);
                     store.dispatch(setLobby(lobby));
                 })
             }
         }
 
         if (createLobby.match(action) && socket) {
-            socket.socket.emit(SocketEvent.CreateLobby, action.payload);
+            console.log('CreateLobby', action.payload);
+            socket.socket.emit(SocketEvent.CreateLobby, {data: action.payload} );
         }
 
         if (joinLobby.match(action) && socket) {
-            socket.socket.emit(SocketEvent.JoinLobby, action.payload);
+            socket.socket.emit(SocketEvent.JoinLobby, {data: action.payload});
         }
 
         if (leaveLobby.match(action) && socket) {
