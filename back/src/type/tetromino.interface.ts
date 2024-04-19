@@ -3,6 +3,11 @@ export interface ITetromino {
 	className: string;
 }
 
+export interface IPosition {
+	x: number;
+	y: number;
+}
+
 const className = 'tetromino';
 
 export const TETROMINOES = {

@@ -8,6 +8,7 @@ export enum SocketEvent {
 	LeaveLobby = 'leave-lobby',
 	BoardUpdate = 'board-update',
 	CommandPressed = 'command-pressed',
+	StartGame = 'start-game',
 	// On events
 	Error = 'error',
 }
