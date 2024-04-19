@@ -9,9 +9,8 @@ import {
 	WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Game } from './game';
 import { SocketEvent } from 'src/type/event.enum';
-import { Lobby } from './lobby';
+import { LobbyManager } from './lobby-manager';
 
 @WebSocketGateway({
 	cors: {
@@ -23,14 +22,14 @@ export class GameGateway
 {
 	@WebSocketServer() server: Server;
 
-	private lobbys: Lobby[] = [];
+	private lobbyManager = new LobbyManager();
 
 	async handleConnection(socket: Socket) {
 		console.log('TEST = ', socket.id);
 	}
 
 	async handleDisconnect(socket: Socket) {
-		// socket.rooms
+		this.lobbyManager.leaveLobby(socket);
 	}
 
 	afterInit(_server: Server) {}
@@ -41,9 +40,7 @@ export class GameGateway
 		@MessageBody('data') data: { name: string; playerName: string }
 	) {
 		console.log('Data = ', data);
-		const lobby = new Lobby(data.name, data.playerName, socket.id);
-		this.lobbys.push(lobby);
-		socket.emit(SocketEvent.UpdateLobby, lobby);
+		this.lobbyManager.createLobby(socket, data.playerName, data.name);
 	}
 
 	@SubscribeMessage(SocketEvent.JoinLobby)
@@ -51,40 +48,16 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: { playerName: string; lobbyId: string }
 	) {
-		const lobby: Lobby | undefined = this.lobbys.find(
-			(lobby: Lobby) => lobby.id === data.lobbyId
-		);
+		this.lobbyManager.joinLobby(socket, data.playerName, data.lobbyId);
 		//todo check if lobby is full
-		if (lobby) {
-			lobby.addPlayer(data.playerName, socket.id);
-			for (const player of lobby.players) {
-				this.server.to(player.id).emit(SocketEvent.UpdateLobby, lobby);
-			}
-		}
 	}
 
 	@SubscribeMessage(SocketEvent.LeaveLobby)
 	leaveLobby(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody('data') lobbyId: string
+		@MessageBody('data') lobbyId: string // TODO plus besoin
 	) {
-		const lobby: Lobby | undefined = this.lobbys.find(
-			(lobby: Lobby) => lobby.id === lobbyId
-		);
-		if (lobby) {
-			lobby.deletePlayer(socket.id);
-			if (lobby.players.length === 0) {
-				this.lobbys = this.lobbys.filter(
-					(lob: Lobby) => lob.id != lobby.id
-				);
-			} else {
-				for (const player of lobby.players) {
-					this.server
-						.to(player.id)
-						.emit(SocketEvent.UpdateLobby, lobby);
-				}
-			}
-		}
+		this.lobbyManager.leaveLobby(socket);
 	}
 
 	@SubscribeMessage(SocketEvent.StartGame)
