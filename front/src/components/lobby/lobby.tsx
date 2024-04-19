@@ -1,10 +1,32 @@
+import { useState } from "react"
+import { IPlayer } from "../../types/player.type"
+import { useAppSelector } from "../../store/hook"
+import { useNavigate } from 'react-router-dom';
+
 export function Lobby() {
+    const playerName: IPlayer = {name: useAppSelector(state => state.player.name)};
+    const [players, _] = useState<IPlayer[]>([playerName])
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate('/game');
+    }
     return (
-        <div className="lobby-container flex content-center items-center">
-            <div className="buttons-container flex flex-row gap8">
-                <button type="button"> Create Game </button>
-                <button type="button"> Join Game </button>
+        <div>
+            <h2> Lobby </h2>
+            <div>
+                <p> Player List : </p>
+                <ul>
+                    {
+                        players.map((player, index) => {
+                            return <li key={index}>{player.name}</li>
+                        })
+                    }
+                </ul>
+            </div>
+            <div>
+                <button type="button" onClick={handleClick}> Start Game </button>
             </div>
         </div>
-    );
+    )
 }

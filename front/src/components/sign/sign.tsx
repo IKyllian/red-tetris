@@ -18,7 +18,7 @@ export function SignIn() {
         console.log(data);
         dispatch(setName(data.name));
         dispatch(initSocket());
-        navigate('/lobby');
+        navigate('/home');
     }
 
     return (
