@@ -3,7 +3,9 @@ import { RootState } from './store';
 import { IPlayer } from '../types/player.type';
 
 const defaultPlayer: IPlayer = {
-    name: null
+    name: "",
+    id: "",
+    isLeader: false
 };
 
 export const playerSlice = createSlice({

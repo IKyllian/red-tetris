@@ -1,3 +1,5 @@
+import { IPlayer } from "./player.type";
+
 export interface ICell {
     occupied: boolean;
     className: string;
@@ -24,3 +26,9 @@ export const defaultCell: ICell = {
     className: "",
     isDestructible: true
 };
+
+export interface IGame {
+    board: IBoard,
+    player: IPlayer,
+    score: number,
+}

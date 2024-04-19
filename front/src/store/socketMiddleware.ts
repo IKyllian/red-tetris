@@ -3,13 +3,17 @@ import SocketFactory, { SocketInterface } from "./socketFactory";
 import { commandPressed, connectionEstablished, connectionLost, initSocket } from "./socket.slice";
 import { setBoard, setBoardListener } from "./board.slice";
 import { ICell } from "../types/board.types";
+import { createLobby, joinLobby, leaveLobby, setLobby } from "./lobby.slice";
+import { ILobby } from "../types/lobby.type";
 
 enum SocketEvent {
     Connect = "connect",
     Disconnect = "disconnect",
     // Emit events
-    JoinRoom = "join-room",
-    LeaveRoom = "leave-room",
+    CreateLobby = "create-lobby",
+    JoinLobby = "join-lobby",
+    LeaveLobby= "leave-lobby",
+    UpdateLobby = "update-lobby",
     BoardUpdate = "board-update",
     CommandPressed = "command-pressed",
     // On events
@@ -40,10 +44,25 @@ const socketMiddleware: Middleware = (store) => {
                     console.error(reason);
                     store.dispatch(connectionLost());
                 });
+
+                socket.socket.on(SocketEvent.JoinLobby, (lobby: ILobby) => {
+                    store.dispatch(setLobby(lobby));
+                })
             }
         }
-        
 
+        if (createLobby.match(action) && socket) {
+            socket.socket.emit(SocketEvent.CreateLobby, action.payload);
+        }
+
+        if (joinLobby.match(action) && socket) {
+            socket.socket.emit(SocketEvent.JoinLobby, action.payload);
+        }
+
+        if (leaveLobby.match(action) && socket) {
+            socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
+        }
+        
         // Listen for board updates
         if (setBoardListener.match(action) && socket) {
             socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
