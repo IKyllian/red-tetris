@@ -29,7 +29,9 @@ export class GameGateway
 		console.log('TEST = ', socket.id);
 	}
 
-	async handleDisconnect(socket: Socket) {}
+	async handleDisconnect(socket: Socket) {
+		// socket.rooms
+	}
 
 	afterInit(_server: Server) {}
 
@@ -84,8 +86,8 @@ export class GameGateway
 		}
 	}
 
-	@SubscribeMessage('play')
-	handlePlay(client: any, payload: any) {
+	@SubscribeMessage(SocketEvent.StartGame)
+	startGame(client: any, payload: any) {
 		console.log('play', payload);
 	}
 }
