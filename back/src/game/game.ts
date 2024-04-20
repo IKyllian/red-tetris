@@ -48,7 +48,7 @@ export class Game {
 		// 	});
 		// }
 
-		this.board.printBoard();
+		// this.board.printBoard();
 	}
 
 	public handleCommand(command: COMMANDS) {

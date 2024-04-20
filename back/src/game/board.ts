@@ -51,12 +51,11 @@ export class Board {
 				if (cell) {
 					// cell is 0 or 1
 					// console.log("X = ", x, " - Position X = ", position.x," - Y = ", y, " Position Y = ", position.y);
-					const occupied = isOccupied;
 					const _x = x + tetromino.position.x;
 					const _y = y + tetromino.position.y;
 					this.cells[_y][_x] = {
 						className: tetromino.className,
-						occupied,
+						occupied: isOccupied,
 						isDestructible: true,
 					};
 				}
