@@ -6,7 +6,6 @@ async function bootstrap() {
   app.enableCors({
     exposedHeaders: 'Content-Disposition',
     origin: true,
-    // Access-Control-Allow-Origin : *
   });
   await app.listen(3000);
 }

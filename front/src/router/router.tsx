@@ -6,7 +6,6 @@ import { Home } from "../components/home/home.tsx";
 import PrivateRoute from "./private-route.tsx";
 import PublicRoute from "./public-route.tsx";
 import { Lobby } from "../components/lobby/lobby.tsx";
-import { Game } from "../components/game/game.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -30,14 +29,6 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <Lobby />
-      </PrivateRoute>
-    ),
-  },
-  {
-    path: "game",
-    element: (
-      <PrivateRoute>
-        <Game />
       </PrivateRoute>
     ),
   },

@@ -11,7 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from './lobby-manager';
-import { COMMANDS } from 'src/type/command.types';
+import { COMMANDS, isCommandType } from 'src/type/command.types';
 import { Lobby } from './lobby';
 
 @WebSocketGateway({
@@ -76,13 +76,17 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.CommandPressed)
 	commandPressed(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody('command') command: COMMANDS
+		// @MessageBody('command') command: COMMANDS
+		@MessageBody('data') data: { command: COMMANDS }
 	) {
-		// console.log('Command pressed = ', command);
+		const command = data.command;
+		console.log('Command pressed = ', command);
 		//TODO check if command is valid
-		const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
-		if (lobby && lobby.gameStarted) {
-			lobby.getPlayerGame(socket.id)?.handleCommand(command);
-		}
+		if (isCommandType(command)) {
+            const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
+			if (lobby && lobby.gameStarted) {
+				lobby.getPlayerGame(socket.id)?.handleCommand(command);
+			}
+        }
 	}
 }

@@ -1,9 +1,9 @@
 import { Middleware } from "@reduxjs/toolkit";
 import SocketFactory, { SocketInterface } from "./socketFactory";
-import { commandPressed, connectionEstablished, connectionLost, initSocket } from "./socket.slice";
+import { connectionEstablished, connectionLost, initSocket } from "./socket.slice";
 import { setBoard, setBoardListener } from "./board.slice";
-import { ICell } from "../types/board.types";
-import { createLobby, joinLobby, leaveLobby, setLobby } from "./lobby.slice";
+import { ICell, IGame } from "../types/board.types";
+import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard } from "./lobby.slice";
 import { ILobby } from "../types/lobby.type";
 
 export enum SocketEvent {
@@ -16,6 +16,9 @@ export enum SocketEvent {
 	LeaveLobby = 'leave-lobby',
 	BoardUpdate = 'board-update',
 	CommandPressed = 'command-pressed',
+	StartGame = 'start-game',
+	StopGame = 'stop-game',
+	GamesUpdate = 'games-update',
 	// On events
 	Error = 'error',
 }
@@ -46,8 +49,11 @@ const socketMiddleware: Middleware = (store) => {
                 });
 
                 socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
-                    console.log("UpdateLobby", lobby);
                     store.dispatch(setLobby(lobby));
+                })
+
+                socket.socket.on(SocketEvent.GamesUpdate, (games: IGame[]) => {
+                    store.dispatch(updateGamesBoard(games));
                 })
             }
         }
@@ -64,6 +70,10 @@ const socketMiddleware: Middleware = (store) => {
         if (leaveLobby.match(action) && socket) {
             socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
         }
+
+        if (startGame.match(action) && socket) {
+            socket.socket.emit(SocketEvent.StartGame, {data: action.payload} );
+        }
         
         // Listen for board updates
         if (setBoardListener.match(action) && socket) {
@@ -74,10 +84,8 @@ const socketMiddleware: Middleware = (store) => {
 
         // Handle the commands action
         if (commandPressed.match(action) && socket) {
-            let command = action.payload;
-            console.log("command: " + command);
-            // Send command
-            // socket.socket.emit(SocketEvent.CommandPressed, command);
+            let command = {data: {...action.payload}};
+            socket.socket.emit(SocketEvent.CommandPressed, command);
         }
         next(action);
     };

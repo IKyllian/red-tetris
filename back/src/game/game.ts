@@ -32,12 +32,13 @@ export class Game {
 	}
 
 	public updateState() {
-		const currentPiece = this.pieces[0];
+		const currentPiece: Piece | undefined = this.pieces[0];
 		// if (!currentPiece.isFixed) {
 		// 	this.board.clearOldPosition(currentPiece);
 		// }
 		// this.board.moveDown(currentPiece);
-		if (currentPiece.isFixed) {
+		// console.log("currentPiece = ", currentPiece);
+		if (currentPiece?.isFixed) {
 			this.nbOfpieceDown++;
 			this.newPieceNeeded = true;
 		}

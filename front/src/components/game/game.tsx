@@ -1,11 +1,17 @@
-import { defaultBoardSize } from "../../types/board.types";
+import { IGame } from "../../types/board.types";
 import { Board } from "../board/board";
 
-export function Game() {
+interface GameProps {
+    games: IGame[];
+}
+export function Game({ games }: GameProps) {
     return (
         <div>
-            <Board size={defaultBoardSize} />
-
+            {
+                games.map((game, index) => (
+                    <Board key={index} board={game.board} />
+                ))
+            }
         </div>
     )
 }

@@ -18,10 +18,9 @@ export const socketSlice = createSlice({
         connectionLost: (state) => {
             state.isConnected = false;
         },
-        commandPressed: (_, __) => {}
     }
 })
 
-export const { initSocket, connectionEstablished, connectionLost, commandPressed } = socketSlice.actions
+export const { initSocket, connectionEstablished, connectionLost } = socketSlice.actions
 
 export default socketSlice.reducer

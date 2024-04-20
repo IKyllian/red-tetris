@@ -1,33 +1,38 @@
-import { useState } from "react"
-import { IPlayer } from "../../types/player.type"
-import { useAppSelector } from "../../store/hook"
-import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from "../../store/hook"
+import { ILobby } from "../../types/lobby.type";
+import { startGame } from "../../store/lobby.slice";
+import { Game } from "../game/game";
 
 export function Lobby() {
-    const playerName = {name: useAppSelector(state => state.player.name), id: "", isLeader: false};
-    const [players, _] = useState<IPlayer[]>([playerName])
-    const navigate = useNavigate();
+    const lobby: ILobby = useAppSelector(state => state.lobby);
+    const dispatch = useAppDispatch();
 
     const handleClick = () => {
-        navigate('/game');
+        dispatch(startGame());
     }
 
-    return (
-        <div>
-            <h2> Lobby </h2>
+    if (!lobby.gameStarted) {
+        return (
             <div>
-                <p> Player List : </p>
-                <ul>
-                    {
-                        players.map((player, index) => {
-                            return <li key={index}>{player.name}</li>
-                        })
-                    }
-                </ul>
+                <h2> Lobby </h2>
+                <div>
+                    <p> Player List : </p>
+                    <ul>
+                        {
+                            lobby.players.map((player, index) => {
+                                return <li key={index}>{player.name}</li>
+                            })
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <button type="button" onClick={handleClick}> Start Game </button>
+                </div>
             </div>
-            <div>
-                <button type="button" onClick={handleClick}> Start Game </button>
-            </div>
-        </div>
-    )
+        )
+    } else {
+        return (
+            <Game games={lobby.games} />
+        )
+    }
 }
