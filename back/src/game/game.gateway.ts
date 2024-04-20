@@ -11,6 +11,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from './lobby-manager';
+import { COMMANDS } from 'src/type/command.types';
+import { Lobby } from './lobby';
 
 @WebSocketGateway({
 	cors: {
@@ -61,7 +63,26 @@ export class GameGateway
 	}
 
 	@SubscribeMessage(SocketEvent.StartGame)
-	startGame(client: any, payload: any) {
-		console.log('play', payload);
+	startGame(@ConnectedSocket() socket: Socket) {
+		//TODO check if game is already started
+		this.lobbyManager.getLobby(socket.id)?.startGames(this.server);
+	}
+
+	@SubscribeMessage(SocketEvent.StopGame)
+	stopGame(@ConnectedSocket() socket: Socket) {
+		this.lobbyManager.getLobby(socket.id)?.stopGames();
+	}
+
+	@SubscribeMessage(SocketEvent.CommandPressed)
+	commandPressed(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody('command') command: COMMANDS
+	) {
+		// console.log('Command pressed = ', command);
+		//TODO check if command is valid
+		const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
+		if (lobby && lobby.gameStarted) {
+			lobby.getPlayerGame(socket.id)?.handleCommand(command);
+		}
 	}
 }

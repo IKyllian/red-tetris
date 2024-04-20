@@ -8,6 +8,11 @@ export interface IPosition {
 	y: number;
 }
 
+export const defaultPosition: IPosition = {
+	x: 3,
+	y: 0,
+};
+
 const className = 'tetromino';
 
 export const TETROMINOES = {
