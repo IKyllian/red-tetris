@@ -3,14 +3,16 @@ import { Game } from './game';
 import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
+import { ILobby } from 'src/type/lobby.interface';
+import { SocketEvent } from 'src/type/event.enum';
 
 export class Lobby {
 	public name: string;
 	public id: string;
 	public gameStarted: boolean = false;
 	public players: Player[] = [];
+	public games: Game[] = [];
 
-	private games: Game[] = [];
 	private pieces: Piece[] = [];
 	private tickRate: number = 500;
 	private gameInterval: NodeJS.Timeout | null = null;
@@ -57,7 +59,7 @@ export class Lobby {
 						game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
 					}
 				}
-				server.to(this.id).emit('update', this.games);
+				server.to(this.id).emit(SocketEvent.GamesUpdate, this.games);
 			}, this.tickRate);
 			this.downInterval = setInterval(() => {
 				for (const game of this.games) {

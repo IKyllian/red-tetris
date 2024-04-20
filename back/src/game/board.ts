@@ -108,7 +108,7 @@ export class Board {
 			x: tetromino.position.x - 1,
 		};
 		if (this.checkCollision(newPosition, tetromino)) {
-			this.transferPieceToBoard({ tetromino, isOccupied: true });
+			this.transferPieceToBoard({ tetromino, isOccupied: false });
 		} else {
 			this.clearOldPosition(tetromino);
 			tetromino.position = newPosition;
@@ -122,7 +122,7 @@ export class Board {
 			x: tetromino.position.x + 1,
 		};
 		if (this.checkCollision(newPosition, tetromino)) {
-			this.transferPieceToBoard({ tetromino, isOccupied: true });
+			this.transferPieceToBoard({ tetromino, isOccupied: false });
 		} else {
 			this.clearOldPosition(tetromino);
 			tetromino.position = newPosition;
