@@ -51,6 +51,7 @@ export class Lobby {
 	}
 
 	public startGames(server: Server) {
+		let nbOfGamesOver = 0;
 		this.games = [];
 		this.pieces = [];
 		this.gameStarted = true;
@@ -65,18 +66,24 @@ export class Lobby {
 					if (!game.gameOver) {
 						game.updateState();
 						if (game.newPieceNeeded) {
-							//TODO: generate new piece when needed
+							// generate new piece when needed
 							if (this.pieces.length - game.nbOfpieceDown < 10) {
 								this.generatePieces(50);
 							}
 							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
 						}
+					} else {
+						nbOfGamesOver++;
 					}
+					//TODO: send only game that are not over ?
 					this.dataToSend.push(game.getDataToSend());
 				}
 				server
 					.to(this.id)
 					.emit(SocketEvent.GamesUpdate, this.dataToSend);
+				if (nbOfGamesOver === this.games.length) {
+					this.stopGames();
+				}
 			}, this.tickRate);
 		} else {
 			console.log('The game is already running.');

@@ -96,6 +96,7 @@ export class Game {
 				this.moveDown();
 				break;
 			default:
+				this.clearInterval();
 				this.hardDrop();
 				break;
 		}
