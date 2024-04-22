@@ -1,9 +1,7 @@
-import { COMMANDS } from 'src/type/command.types';
 import { Game, IGame } from './game';
 import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
-import { ILobby } from 'src/type/lobby.interface';
 import { SocketEvent } from 'src/type/event.enum';
 
 export class Lobby {
@@ -16,7 +14,6 @@ export class Lobby {
 	private pieces: Piece[] = [];
 	private tickRate: number = 100;
 	private gameInterval: NodeJS.Timeout | null = null;
-	private downInterval: NodeJS.Timeout | null = null;
 	private dataToSend: IGame[] = [];
 
 	constructor(name: string, playerName: string, playerId: string) {
@@ -72,15 +69,15 @@ export class Lobby {
 								this.generatePieces(50);
 							}
 							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
-						} else if (game.destrucibleLinesToGive > 0) {
+						} else if (game.destructibleLinesToGive > 0) {
 							for (const otherGame of this.games) {
 								if (otherGame.player.id !== game.player.id) {
 									otherGame.addDestructibleLines(
-										game.destrucibleLinesToGive
+										game.destructibleLinesToGive
 									);
 								}
 							}
-							game.destrucibleLinesToGive = 0;
+							game.destructibleLinesToGive = 0;
 						}
 					} else {
 						nbOfGamesOver++;
