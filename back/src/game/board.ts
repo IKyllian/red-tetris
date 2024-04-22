@@ -1,17 +1,13 @@
 import { ICell, ISize, defaultCell } from 'src/type/cell.interface';
-import { cloneDeep } from 'lodash';
-import { IBoard } from 'src/type/board.interface';
-import {
-	IPosition,
-	ITetromino,
-	defaultPosition,
-} from 'src/type/tetromino.interface';
+import { IPosition } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
 interface State {
 	tetromino: Piece;
 	isOccupied: boolean;
 }
 export class Board {
+	public gameOver: boolean = false;
+
 	private cells: ICell[][];
 	private size: ISize;
 
@@ -41,18 +37,16 @@ export class Board {
 	}
 
 	public transferPieceToBoard = ({ tetromino, isOccupied }: State) => {
-		// if (!tetromino.isFixed) {
-		// 	//clear old pos if not fixed
-		// 	this.clearOldPosition(tetromino);
-		// }
 		tetromino.shape.forEach((row: number[], y: number) => {
 			row.forEach((cell: number, x: number) => {
-				// console.log(cell)
 				if (cell) {
 					// cell is 0 or 1
 					// console.log("X = ", x, " - Position X = ", position.x," - Y = ", y, " Position Y = ", position.y);
 					const _x = x + tetromino.position.x;
 					const _y = y + tetromino.position.y;
+					if (this.cells[_y][_x].occupied) {
+						this.gameOver = true;
+					}
 					this.cells[_y][_x] = {
 						className: tetromino.className,
 						occupied: isOccupied,
@@ -62,6 +56,24 @@ export class Board {
 			});
 		});
 	};
+
+	private checkForLines() {
+		// TODO: Do something with the lines ?
+		let lines = 0;
+		for (let i = this.cells.length - 1; i >= 0; i--) {
+			const row = this.cells[i];
+			if (row.every((cell) => cell.occupied)) {
+				lines++;
+				this.cells.splice(i, 1);
+				this.cells.unshift(
+					Array.from({ length: this.size.columns }, () => ({
+						...defaultCell,
+					}))
+				);
+			}
+		}
+		return lines;
+	}
 
 	public checkCollision(position: IPosition, tetromino: Piece) {
 		let isCollision = false;
@@ -77,7 +89,6 @@ export class Board {
 					) {
 						isCollision = true;
 					} else if (this.cells[_y][_x].occupied) {
-						console.log('Own cell>?');
 						isCollision = true;
 					}
 				}
@@ -94,6 +105,7 @@ export class Board {
 		if (this.checkCollision(newPosition, tetromino)) {
 			this.transferPieceToBoard({ tetromino, isOccupied: true });
 			tetromino.isFixed = true;
+			this.checkForLines();
 		} else {
 			this.clearOldPosition(tetromino);
 			tetromino.position = newPosition;
@@ -130,7 +142,6 @@ export class Board {
 	}
 
 	public spacePressed(tetromino: Piece) {
-		console.log('Space pressed');
 		while (!tetromino.isFixed) {
 			this.moveDown(tetromino);
 		}

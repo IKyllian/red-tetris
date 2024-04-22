@@ -32,6 +32,9 @@ export class LobbyManager {
 			this.socketRoomMap.delete(socket.id);
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
+				if (lobby.gameStarted) {
+					lobby.stopGames();
+				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
 				if (lobby.players.length === 0) {
@@ -50,13 +53,5 @@ export class LobbyManager {
 	public getLobby(socketId: string): Lobby | undefined {
 		const lobbyId = this.socketRoomMap.get(socketId);
 		return this.lobbys.get(lobbyId);
-	}
-
-	//TODO delete below
-	public getSocketLobby() {
-		return this.socketRoomMap;
-	}
-	public getLobbys() {
-		return this.lobbys;
 	}
 }

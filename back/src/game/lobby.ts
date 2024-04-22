@@ -1,5 +1,5 @@
 import { COMMANDS } from 'src/type/command.types';
-import { Game } from './game';
+import { Game, IGame } from './game';
 import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
@@ -14,9 +14,10 @@ export class Lobby {
 	public games: Game[] = [];
 
 	private pieces: Piece[] = [];
-	private tickRate: number = 500;
+	private tickRate: number = 100;
 	private gameInterval: NodeJS.Timeout | null = null;
 	private downInterval: NodeJS.Timeout | null = null;
+	private dataToSend: IGame[] = [];
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -25,7 +26,7 @@ export class Lobby {
 	}
 
 	private createRandomId(length: number = 5) {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		let result = '';
 		for (let i = 0; i < length; i++) {
 			result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -43,30 +44,40 @@ export class Lobby {
 		);
 	}
 
-	public startGames(server: Server) {
-		for (let i = 0; i < 100; ++i) {
+	private generatePieces(nb: number) {
+		for (let i = 0; i < nb; ++i) {
 			this.pieces.push(new Piece());
 		}
+	}
+
+	public startGames(server: Server) {
+		this.games = [];
+		this.pieces = [];
+		this.gameStarted = true;
+		this.generatePieces(100);
 		for (const player of this.players) {
 			this.games.push(new Game(player, this.pieces));
 		}
 		if (this.gameInterval === null) {
 			this.gameInterval = setInterval(() => {
+				this.dataToSend = [];
 				for (const game of this.games) {
-					game.updateState();
-					if (game.newPieceNeeded) {
-						//TODO: generate new piece when needed
-						game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+					if (!game.gameOver) {
+						game.updateState();
+						if (game.newPieceNeeded) {
+							//TODO: generate new piece when needed
+							if (this.pieces.length - game.nbOfpieceDown < 10) {
+								this.generatePieces(50);
+							}
+							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+						}
 					}
+					this.dataToSend.push(game.getDataToSend());
 				}
-				server.to(this.id).emit(SocketEvent.GamesUpdate, this.games);
+				server
+					.to(this.id)
+					.emit(SocketEvent.GamesUpdate, this.dataToSend);
 			}, this.tickRate);
-			this.downInterval = setInterval(() => {
-				for (const game of this.games) {
-					game.handleCommand(COMMANDS.KEY_DOWN);
-				}
-			}, 1000);
-			this.gameStarted = true;
 		} else {
 			console.log('The game is already running.');
 		}
@@ -75,7 +86,9 @@ export class Lobby {
 	public stopGames() {
 		if (this.gameInterval !== null) {
 			clearInterval(this.gameInterval);
-			clearInterval(this.downInterval);
+			for (const game of this.games) {
+				game.clearInterval();
+			}
 			this.gameInterval = null;
 			console.log('Game stopped.');
 		} else {

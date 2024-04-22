@@ -7,20 +7,32 @@ import { IPosition, defaultPosition } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
 import { COMMANDS } from 'src/type/command.types';
 
+export interface IGame {
+	player: Player;
+	pieces: Piece[];
+	board: Board;
+	gameOver: boolean;
+	score: number;
+}
+
 export class Game {
 	public player: Player;
 	public pieces: Piece[] = [];
 	public nbOfpieceDown: number = 0;
 	public newPieceNeeded: boolean = false;
+	public gameOver: boolean = false;
+	public downInterval: NodeJS.Timeout | null = null;
 
 	private board: Board;
 	private score: number = 0;
 	private levelSpeed: number;
+	private currentPiece: Piece;
 
 	constructor(player: Player, pieces: Piece[]) {
 		for (let i = 0; i < 4; ++i) {
 			this.pieces.push(cloneDeep(pieces[i]));
 		}
+		this.currentPiece = this.pieces[0];
 		this.board = new Board(defaultBoardSize);
 		this.player = player;
 	}
@@ -32,44 +44,68 @@ export class Game {
 	}
 
 	public updateState() {
-		const currentPiece: Piece | undefined = this.pieces[0];
-		// if (!currentPiece.isFixed) {
-		// 	this.board.clearOldPosition(currentPiece);
-		// }
-		// this.board.moveDown(currentPiece);
-		// console.log("currentPiece = ", currentPiece);
-		if (currentPiece?.isFixed) {
+		if (this.board.gameOver) {
+			this.gameOver = true;
+			this.clearInterval();
+			return;
+		}
+		if (this.currentPiece?.isFixed) {
+			this.currentPiece = this.pieces[1];
 			this.nbOfpieceDown++;
 			this.newPieceNeeded = true;
 		}
-		// else {
-		// 	this.board.transferPieceToBoard({
-		// 		tetromino: currentPiece,
-		// 		isOccupied: false,
-		// 	});
-		// }
+		if (this.downInterval === null && !this.gameOver) {
+			this.downInterval = setInterval(() => {
+				if (!this.currentPiece.isFixed) {
+					this.board.moveDown(this.currentPiece);
+				}
+			}, 1000);
+		}
+		if (!this.currentPiece.isFixed) {
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		}
+	}
 
-		// this.board.printBoard();
+	public clearInterval() {
+		if (this.downInterval !== null) {
+			clearInterval(this.downInterval);
+			this.downInterval = null;
+		}
 	}
 
 	public handleCommand(command: COMMANDS) {
-		const currentPiece = this.pieces[0];
+		if (this.gameOver || this.currentPiece.isFixed) return;
+
 		switch (command) {
 			case COMMANDS.KEY_UP:
-				this.board.rotate(currentPiece);
+				this.board.rotate(this.currentPiece);
 				break;
 			case COMMANDS.KEY_LEFT:
-				this.board.moveLeft(currentPiece);
+				this.board.moveLeft(this.currentPiece);
 				break;
 			case COMMANDS.KEY_RIGHT:
-				this.board.moveRight(currentPiece);
+				this.board.moveRight(this.currentPiece);
 				break;
 			case COMMANDS.KEY_DOWN:
-				this.board.moveDown(currentPiece);
+				this.clearInterval();
+				this.board.moveDown(this.currentPiece);
 				break;
 			default:
-				this.board.spacePressed(currentPiece);
+				this.board.spacePressed(this.currentPiece);
 				break;
 		}
+	}
+
+	public getDataToSend(): IGame {
+		return {
+			player: this.player,
+			pieces: this.pieces,
+			board: this.board,
+			gameOver: this.gameOver,
+			score: this.score,
+		};
 	}
 }

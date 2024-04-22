@@ -31,6 +31,7 @@ export class GameGateway
 	}
 
 	async handleDisconnect(socket: Socket) {
+		//TODO stop game if game is started
 		this.lobbyManager.leaveLobby(socket);
 	}
 
@@ -65,7 +66,10 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.StartGame)
 	startGame(@ConnectedSocket() socket: Socket) {
 		//TODO check if game is already started
-		this.lobbyManager.getLobby(socket.id)?.startGames(this.server);
+		const lobby = this.lobbyManager.getLobby(socket.id);
+		if (!lobby.gameStarted) {
+			lobby.startGames(this.server);
+		}
 	}
 
 	@SubscribeMessage(SocketEvent.StopGame)
@@ -80,13 +84,15 @@ export class GameGateway
 		@MessageBody('data') data: { command: COMMANDS }
 	) {
 		const command = data.command;
-		console.log('Command pressed = ', command);
+		// console.log('Command pressed = ', command);
 		//TODO check if command is valid
 		if (isCommandType(command)) {
-            const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
+			const lobby: Lobby | undefined = this.lobbyManager.getLobby(
+				socket.id
+			);
 			if (lobby && lobby.gameStarted) {
 				lobby.getPlayerGame(socket.id)?.handleCommand(command);
 			}
-        }
+		}
 	}
 }
