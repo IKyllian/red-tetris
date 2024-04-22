@@ -23,6 +23,7 @@ export class Lobby {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
 		this.id = this.createRandomId();
+		console.log('Lobby created with id: ', this.id);
 	}
 
 	private createRandomId(length: number = 5) {
@@ -71,6 +72,15 @@ export class Lobby {
 								this.generatePieces(50);
 							}
 							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+						} else if (game.destrucibleLinesToGive > 0) {
+							for (const otherGame of this.games) {
+								if (otherGame.player.id !== game.player.id) {
+									otherGame.addDestructibleLines(
+										game.destrucibleLinesToGive
+									);
+								}
+							}
+							game.destrucibleLinesToGive = 0;
 						}
 					} else {
 						nbOfGamesOver++;
@@ -81,7 +91,12 @@ export class Lobby {
 				server
 					.to(this.id)
 					.emit(SocketEvent.GamesUpdate, this.dataToSend);
-				if (nbOfGamesOver === this.games.length) {
+				if (
+					this.games.length > 1 &&
+					nbOfGamesOver === this.games.length - 1
+				) {
+					this.stopGames();
+				} else if (this.games.length === nbOfGamesOver) {
 					this.stopGames();
 				}
 			}, this.tickRate);
@@ -102,6 +117,10 @@ export class Lobby {
 			console.log('The game is not currently running.');
 		}
 		this.gameStarted = false;
+	}
+
+	public getPlayer(playerId: string): Player | undefined {
+		return this.players.find((player) => player.id === playerId);
 	}
 
 	public getPlayerGame(playerId: string): Game | undefined {

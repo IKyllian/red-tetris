@@ -1,6 +1,7 @@
 import { SocketEvent } from 'src/type/event.enum';
 import { Lobby } from './lobby';
 import { Socket } from 'socket.io';
+import { ILobby } from 'src/type/lobby.interface';
 
 export class LobbyManager {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
@@ -53,5 +54,17 @@ export class LobbyManager {
 	public getLobby(socketId: string): Lobby | undefined {
 		const lobbyId = this.socketRoomMap.get(socketId);
 		return this.lobbys.get(lobbyId);
+	}
+
+	public getLobbys(): ILobby[] {
+		const lobbys: ILobby[] = [];
+		for (const lobby of this.lobbys.values()) {
+			lobbys.push({
+				id: lobby.id,
+				name: lobby.name,
+				players: lobby.players,
+			});
+		}
+		return lobbys;
 	}
 }

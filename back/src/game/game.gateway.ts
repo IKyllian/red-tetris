@@ -72,7 +72,7 @@ export class GameGateway
 	startGame(@ConnectedSocket() socket: Socket) {
 		//TODO check if game is already started
 		const lobby = this.lobbyManager.getLobby(socket.id);
-		if (!lobby.gameStarted) {
+		if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
 			lobby.startGames(this.server);
 		}
 	}

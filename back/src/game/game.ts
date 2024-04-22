@@ -27,6 +27,7 @@ export class Game {
 	public level: number = 0;
 	public score: number = 0;
 	public totalLinesCleared: number = 0;
+	public destrucibleLinesToGive: number = 0;
 
 	private linesCleared: number = 0;
 	private board: Board;
@@ -120,6 +121,7 @@ export class Game {
 			this.nbOfpieceDown++;
 			const linesCleared = this.board.checkForLines();
 			if (linesCleared > 0) {
+				this.destrucibleLinesToGive = linesCleared - 1;
 				this.linesCleared += linesCleared;
 				if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
 					this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
@@ -216,6 +218,10 @@ export class Game {
 				isOccupied: false,
 			});
 		}
+	}
+
+	public addDestructibleLines(nbOfLines: number) {
+		this.board.addIndestructibleLines(nbOfLines);
 	}
 
 	public getDataToSend(): IGame {
