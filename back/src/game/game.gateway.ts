@@ -13,6 +13,8 @@ import { SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from './lobby-manager';
 import { COMMANDS, isCommandType } from 'src/type/command.types';
 import { Lobby } from './lobby';
+import { Board } from './board';
+import { defaultBoardSize } from 'src/type/board.interface';
 
 @WebSocketGateway({
 	cors: {
@@ -28,6 +30,10 @@ export class GameGateway
 
 	async handleConnection(socket: Socket) {
 		console.log('TEST = ', socket.id);
+		// const board = new Board(defaultBoardSize);
+		// board.printBoard();
+		// board.checkForLines();
+		// board.printBoard();
 	}
 
 	async handleDisconnect(socket: Socket) {
@@ -65,7 +71,10 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.StartGame)
 	startGame(@ConnectedSocket() socket: Socket) {
 		//TODO check if game is already started
-		this.lobbyManager.getLobby(socket.id)?.startGames(this.server);
+		const lobby = this.lobbyManager.getLobby(socket.id);
+		if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
+			lobby.startGames(this.server);
+		}
 	}
 
 	@SubscribeMessage(SocketEvent.StopGame)
@@ -80,13 +89,15 @@ export class GameGateway
 		@MessageBody('data') data: { command: COMMANDS }
 	) {
 		const command = data.command;
-		console.log('Command pressed = ', command);
+		// console.log('Command pressed = ', command);
 		//TODO check if command is valid
 		if (isCommandType(command)) {
-            const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
+			const lobby: Lobby | undefined = this.lobbyManager.getLobby(
+				socket.id
+			);
 			if (lobby && lobby.gameStarted) {
 				lobby.getPlayerGame(socket.id)?.handleCommand(command);
 			}
-        }
+		}
 	}
 }

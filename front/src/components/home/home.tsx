@@ -14,7 +14,7 @@ interface CreateFormValues {
 
 export function CreateGameButton({ playerName }: {playerName: string}) {
     const { register, handleSubmit, formState: { errors } } = useForm<CreateFormValues>();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const lobby: ILobby = useAppSelector(state => state.lobby);
     console.log("Lobby: ", lobby);
@@ -24,7 +24,7 @@ export function CreateGameButton({ playerName }: {playerName: string}) {
             name: data.lobbyName,
             playerName: playerName
         }));
-        // navigate('/lobby');
+        navigate('/lobby');
     }
 
     return (
@@ -38,7 +38,7 @@ export function CreateGameButton({ playerName }: {playerName: string}) {
 
 export function JoinGameButton({ playerName }: {playerName: string}) {
     const { register, handleSubmit, formState: { errors } } = useForm<JoinFormValues>();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const handleJoinLobby = (data: JoinFormValues) => {
@@ -46,7 +46,7 @@ export function JoinGameButton({ playerName }: {playerName: string}) {
             name: data.lobbyId,
             playerName: playerName
         }));
-        // navigate('/lobby');
+        navigate('/lobby');
     }
 
     return (

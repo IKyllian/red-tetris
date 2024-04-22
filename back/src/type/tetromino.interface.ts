@@ -15,6 +15,8 @@ export const defaultPosition: IPosition = {
 
 const className = 'tetromino';
 
+export const indestructibleCell = `${className} ${className}_indestructible`;
+
 export const TETROMINOES = {
 	I: {
 		shape: [

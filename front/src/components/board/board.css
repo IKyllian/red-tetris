@@ -50,3 +50,7 @@
 .tetromino_Z {
     background-color: red;
 }
+
+.tetromino_indestructible {
+    background-color: darkgray;
+}

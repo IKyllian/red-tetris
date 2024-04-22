@@ -1,9 +1,7 @@
-import { COMMANDS } from 'src/type/command.types';
-import { Game } from './game';
+import { Game, IGame } from './game';
 import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
-import { ILobby } from 'src/type/lobby.interface';
 import { SocketEvent } from 'src/type/event.enum';
 
 export class Lobby {
@@ -14,18 +12,19 @@ export class Lobby {
 	public games: Game[] = [];
 
 	private pieces: Piece[] = [];
-	private tickRate: number = 500;
+	private tickRate: number = 100;
 	private gameInterval: NodeJS.Timeout | null = null;
-	private downInterval: NodeJS.Timeout | null = null;
+	private dataToSend: IGame[] = [];
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
 		this.id = this.createRandomId();
+		console.log('Lobby created with id: ', this.id);
 	}
 
 	private createRandomId(length: number = 5) {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		let result = '';
 		for (let i = 0; i < length; i++) {
 			result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -43,30 +42,61 @@ export class Lobby {
 		);
 	}
 
-	public startGames(server: Server) {
-		for (let i = 0; i < 100; ++i) {
+	private generatePieces(nb: number) {
+		for (let i = 0; i < nb; ++i) {
 			this.pieces.push(new Piece());
 		}
+	}
+
+	public startGames(server: Server) {
+		let nbOfGamesOver = 0;
+		this.games = [];
+		this.pieces = [];
+		this.gameStarted = true;
+		this.generatePieces(100);
 		for (const player of this.players) {
 			this.games.push(new Game(player, this.pieces));
 		}
 		if (this.gameInterval === null) {
 			this.gameInterval = setInterval(() => {
+				this.dataToSend = [];
 				for (const game of this.games) {
-					game.updateState();
-					if (game.newPieceNeeded) {
-						//TODO: generate new piece when needed
-						game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+					if (!game.gameOver) {
+						game.updateState();
+						if (game.newPieceNeeded) {
+							// generate new piece when needed
+							if (this.pieces.length - game.nbOfpieceDown < 10) {
+								this.generatePieces(50);
+							}
+							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+						} else if (game.destructibleLinesToGive > 0) {
+							for (const otherGame of this.games) {
+								if (otherGame.player.id !== game.player.id) {
+									otherGame.addDestructibleLines(
+										game.destructibleLinesToGive
+									);
+								}
+							}
+							game.destructibleLinesToGive = 0;
+						}
+					} else {
+						nbOfGamesOver++;
 					}
+					//TODO: send only game that are not over ?
+					this.dataToSend.push(game.getDataToSend());
 				}
-				server.to(this.id).emit(SocketEvent.GamesUpdate, this.games);
+				server
+					.to(this.id)
+					.emit(SocketEvent.GamesUpdate, this.dataToSend);
+				if (
+					this.games.length > 1 &&
+					nbOfGamesOver === this.games.length - 1
+				) {
+					this.stopGames();
+				} else if (this.games.length === nbOfGamesOver) {
+					this.stopGames();
+				}
 			}, this.tickRate);
-			this.downInterval = setInterval(() => {
-				for (const game of this.games) {
-					game.handleCommand(COMMANDS.KEY_DOWN);
-				}
-			}, 1000);
-			this.gameStarted = true;
 		} else {
 			console.log('The game is already running.');
 		}
@@ -75,13 +105,19 @@ export class Lobby {
 	public stopGames() {
 		if (this.gameInterval !== null) {
 			clearInterval(this.gameInterval);
-			clearInterval(this.downInterval);
+			for (const game of this.games) {
+				game.clearInterval();
+			}
 			this.gameInterval = null;
 			console.log('Game stopped.');
 		} else {
 			console.log('The game is not currently running.');
 		}
 		this.gameStarted = false;
+	}
+
+	public getPlayer(playerId: string): Player | undefined {
+		return this.players.find((player) => player.id === playerId);
 	}
 
 	public getPlayerGame(playerId: string): Game | undefined {

@@ -1,6 +1,7 @@
 import { SocketEvent } from 'src/type/event.enum';
 import { Lobby } from './lobby';
 import { Socket } from 'socket.io';
+import { ILobby } from 'src/type/lobby.interface';
 
 export class LobbyManager {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
@@ -32,6 +33,9 @@ export class LobbyManager {
 			this.socketRoomMap.delete(socket.id);
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
+				if (lobby.gameStarted) {
+					lobby.stopGames();
+				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
 				if (lobby.players.length === 0) {
@@ -52,11 +56,15 @@ export class LobbyManager {
 		return this.lobbys.get(lobbyId);
 	}
 
-	//TODO delete below
-	public getSocketLobby() {
-		return this.socketRoomMap;
-	}
-	public getLobbys() {
-		return this.lobbys;
+	public getLobbys(): ILobby[] {
+		const lobbys: ILobby[] = [];
+		for (const lobby of this.lobbys.values()) {
+			lobbys.push({
+				id: lobby.id,
+				name: lobby.name,
+				players: lobby.players,
+			});
+		}
+		return lobbys;
 	}
 }
