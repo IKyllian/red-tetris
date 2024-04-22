@@ -13,6 +13,8 @@ import { SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from './lobby-manager';
 import { COMMANDS, isCommandType } from 'src/type/command.types';
 import { Lobby } from './lobby';
+import { Board } from './board';
+import { defaultBoardSize } from 'src/type/board.interface';
 
 @WebSocketGateway({
 	cors: {
@@ -28,10 +30,13 @@ export class GameGateway
 
 	async handleConnection(socket: Socket) {
 		console.log('TEST = ', socket.id);
+		// const board = new Board(defaultBoardSize);
+		// board.printBoard();
+		// board.checkForLines();
+		// board.printBoard();
 	}
 
 	async handleDisconnect(socket: Socket) {
-		//TODO stop game if game is started
 		this.lobbyManager.leaveLobby(socket);
 	}
 

@@ -16,9 +16,11 @@ export class Board {
 		this.cells = this.buildBoard(size);
 	}
 
-	private buildBoard = ({ rows, columns }: ISize): ICell[][] => {
+	public buildBoard = ({ rows, columns }: ISize): ICell[][] => {
 		const builtRows = Array.from({ length: rows }, () =>
-			Array.from({ length: columns }, () => ({ ...defaultCell }))
+			Array.from({ length: columns }, () => ({
+				...defaultCell,
+			}))
 		);
 
 		return builtRows;
@@ -57,10 +59,10 @@ export class Board {
 		});
 	};
 
-	private checkForLines() {
+	public checkForLines() {
 		// TODO: Do something with the lines ?
 		let lines = 0;
-		for (let i = this.cells.length - 1; i >= 0; i--) {
+		for (let i = this.size.rows - 1; i >= 0; i--) {
 			const row = this.cells[i];
 			if (row.every((cell) => cell.occupied)) {
 				lines++;
@@ -70,6 +72,7 @@ export class Board {
 						...defaultCell,
 					}))
 				);
+				++i;
 			}
 		}
 		return lines;
@@ -164,7 +167,7 @@ export class Board {
 			let rowString = '';
 			for (let j = 0; j < this.cells[i].length; j++) {
 				const cell = this.cells[i][j];
-				rowString += cell.className ? 'X ' : 'O ';
+				rowString += cell.occupied ? 'X ' : 'O ';
 			}
 			console.log(rowString);
 		}
