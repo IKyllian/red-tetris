@@ -6,6 +6,7 @@ import { cloneDeep, set } from 'lodash';
 import { IPosition, defaultPosition } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
 import { COMMANDS } from 'src/type/command.types';
+import { Scoring } from 'src/type/scoring.enum';
 
 export interface IGame {
 	player: Player;
@@ -13,6 +14,7 @@ export interface IGame {
 	board: Board;
 	gameOver: boolean;
 	score: number;
+	level: number;
 }
 
 export class Game {
@@ -22,11 +24,19 @@ export class Game {
 	public newPieceNeeded: boolean = false;
 	public gameOver: boolean = false;
 	public downInterval: NodeJS.Timeout | null = null;
+	public level: number = 0;
+	public score: number = 0;
+	public totalLinesCleared: number = 0;
 
+	private linesCleared: number = 0;
 	private board: Board;
-	private score: number = 0;
-	private levelSpeed: number;
 	private currentPiece: Piece;
+	private lineScores = [
+		Scoring.OneLine,
+		Scoring.TwoLines,
+		Scoring.ThreeLines,
+		Scoring.FourLines,
+	];
 
 	constructor(player: Player, pieces: Piece[]) {
 		for (let i = 0; i < 4; ++i) {
@@ -48,6 +58,7 @@ export class Game {
 	}
 
 	public updateState() {
+		// console.log('Score = ', this.score, ' - Level = ', this.level);
 		if (this.board.gameOver) {
 			this.gameOver = true;
 			this.clearInterval();
@@ -55,7 +66,7 @@ export class Game {
 		}
 		if (this.downInterval === null && !this.gameOver) {
 			this.downInterval = setInterval(() => {
-				this.moveDown();
+				this.moveDown(true);
 			}, 1000);
 		}
 	}
@@ -85,12 +96,15 @@ export class Game {
 				this.moveDown();
 				break;
 			default:
-				this.spacePressed();
+				this.hardDrop();
 				break;
 		}
 	}
 
-	public moveDown() {
+	public moveDown(fromInterval: boolean = false) {
+		if (!fromInterval) {
+			this.score += 1;
+		}
 		const newPosition = {
 			...this.currentPiece.position,
 			y: this.currentPiece.position.y + 1,
@@ -103,7 +117,22 @@ export class Game {
 			this.newPieceNeeded = true;
 			this.currentPiece = this.pieces[1];
 			this.nbOfpieceDown++;
-			this.board.checkForLines();
+			const linesCleared = this.board.checkForLines();
+			if (linesCleared > 0) {
+				this.linesCleared += linesCleared;
+				if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
+					this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
+					this.level++;
+					this.linesCleared = 0;
+				}
+				let lineScore = 0;
+				if (linesCleared <= this.lineScores.length) {
+					lineScore =
+						this.lineScores[linesCleared - 1] * (this.level + 1);
+				}
+				this.score += lineScore;
+				this.totalLinesCleared += linesCleared;
+			}
 			this.board.transferPieceToBoard({
 				tetromino: this.currentPiece,
 				isOccupied: false,
@@ -118,8 +147,9 @@ export class Game {
 		}
 	}
 
-	public spacePressed() {
+	public hardDrop() {
 		while (!this.newPieceNeeded) {
+			this.score += 1;
 			this.moveDown();
 		}
 	}
@@ -194,6 +224,7 @@ export class Game {
 			board: this.board,
 			gameOver: this.gameOver,
 			score: this.score,
+			level: this.level,
 		};
 	}
 }
