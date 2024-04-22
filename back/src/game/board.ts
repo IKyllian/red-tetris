@@ -100,68 +100,6 @@ export class Board {
 		return isCollision;
 	}
 
-	public moveDown(tetromino: Piece) {
-		const newPosition = {
-			...tetromino.position,
-			y: tetromino.position.y + 1,
-		};
-		if (this.checkCollision(newPosition, tetromino)) {
-			this.transferPieceToBoard({ tetromino, isOccupied: true });
-			tetromino.isFixed = true;
-			this.checkForLines();
-		} else {
-			this.clearOldPosition(tetromino);
-			tetromino.position = newPosition;
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		}
-	}
-
-	public moveLeft(tetromino: Piece) {
-		const newPosition = {
-			...tetromino.position,
-			x: tetromino.position.x - 1,
-		};
-		if (this.checkCollision(newPosition, tetromino)) {
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		} else {
-			this.clearOldPosition(tetromino);
-			tetromino.position = newPosition;
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		}
-	}
-
-	public moveRight(tetromino: Piece) {
-		const newPosition = {
-			...tetromino.position,
-			x: tetromino.position.x + 1,
-		};
-		if (this.checkCollision(newPosition, tetromino)) {
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		} else {
-			this.clearOldPosition(tetromino);
-			tetromino.position = newPosition;
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		}
-	}
-
-	public spacePressed(tetromino: Piece) {
-		while (!tetromino.isFixed) {
-			this.moveDown(tetromino);
-		}
-	}
-
-	public rotate(tetromino: Piece) {
-		const oldShape = tetromino.shape;
-		this.clearOldPosition(tetromino);
-		tetromino.rotatePiece();
-		if (this.checkCollision(tetromino.position, tetromino)) {
-			tetromino.shape = oldShape;
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		} else {
-			this.transferPieceToBoard({ tetromino, isOccupied: false });
-		}
-	}
-
 	public printBoard() {
 		for (let i = 0; i < this.cells.length; i++) {
 			let rowString = '';

@@ -10,7 +10,6 @@ export class Piece {
 	// Ou Tetromino
 	public shape: number[][];
 	public className: string;
-	public isFixed: boolean = false;
 	public position: IPosition;
 
 	constructor() {

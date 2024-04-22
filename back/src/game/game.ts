@@ -34,6 +34,10 @@ export class Game {
 		}
 		this.currentPiece = this.pieces[0];
 		this.board = new Board(defaultBoardSize);
+		this.board.transferPieceToBoard({
+			tetromino: this.currentPiece,
+			isOccupied: false,
+		});
 		this.player = player;
 	}
 
@@ -49,23 +53,10 @@ export class Game {
 			this.clearInterval();
 			return;
 		}
-		if (this.currentPiece?.isFixed) {
-			this.currentPiece = this.pieces[1];
-			this.nbOfpieceDown++;
-			this.newPieceNeeded = true;
-		}
 		if (this.downInterval === null && !this.gameOver) {
 			this.downInterval = setInterval(() => {
-				if (!this.currentPiece.isFixed) {
-					this.board.moveDown(this.currentPiece);
-				}
+				this.moveDown();
 			}, 1000);
-		}
-		if (!this.currentPiece.isFixed) {
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
 		}
 	}
 
@@ -77,25 +68,122 @@ export class Game {
 	}
 
 	public handleCommand(command: COMMANDS) {
-		if (this.gameOver || this.currentPiece.isFixed) return;
+		if (this.gameOver) return;
 
 		switch (command) {
 			case COMMANDS.KEY_UP:
-				this.board.rotate(this.currentPiece);
+				this.rotate();
 				break;
 			case COMMANDS.KEY_LEFT:
-				this.board.moveLeft(this.currentPiece);
+				this.moveLeft();
 				break;
 			case COMMANDS.KEY_RIGHT:
-				this.board.moveRight(this.currentPiece);
+				this.moveRight();
 				break;
 			case COMMANDS.KEY_DOWN:
 				this.clearInterval();
-				this.board.moveDown(this.currentPiece);
+				this.moveDown();
 				break;
 			default:
-				this.board.spacePressed(this.currentPiece);
+				this.spacePressed();
 				break;
+		}
+	}
+
+	public moveDown() {
+		const newPosition = {
+			...this.currentPiece.position,
+			y: this.currentPiece.position.y + 1,
+		};
+		if (this.board.checkCollision(newPosition, this.currentPiece)) {
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: true,
+			});
+			this.newPieceNeeded = true;
+			this.currentPiece = this.pieces[1];
+			this.nbOfpieceDown++;
+			this.board.checkForLines();
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		} else {
+			this.board.clearOldPosition(this.currentPiece);
+			this.currentPiece.position = newPosition;
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		}
+	}
+
+	public spacePressed() {
+		while (!this.newPieceNeeded) {
+			this.moveDown();
+		}
+	}
+
+	public rotate() {
+		const oldShape = this.currentPiece.shape;
+		this.board.clearOldPosition(this.currentPiece);
+		this.currentPiece.rotatePiece();
+		if (
+			this.board.checkCollision(
+				this.currentPiece.position,
+				this.currentPiece
+			)
+		) {
+			this.currentPiece.shape = oldShape;
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		} else {
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		}
+	}
+
+	public moveLeft() {
+		const newPosition = {
+			...this.currentPiece.position,
+			x: this.currentPiece.position.x - 1,
+		};
+		if (this.board.checkCollision(newPosition, this.currentPiece)) {
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		} else {
+			this.board.clearOldPosition(this.currentPiece);
+			this.currentPiece.position = newPosition;
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		}
+	}
+
+	public moveRight() {
+		const newPosition = {
+			...this.currentPiece.position,
+			x: this.currentPiece.position.x + 1,
+		};
+		if (this.board.checkCollision(newPosition, this.currentPiece)) {
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
+		} else {
+			this.board.clearOldPosition(this.currentPiece);
+			this.currentPiece.position = newPosition;
+			this.board.transferPieceToBoard({
+				tetromino: this.currentPiece,
+				isOccupied: false,
+			});
 		}
 	}
 
