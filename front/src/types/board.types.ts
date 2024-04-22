@@ -1,4 +1,5 @@
 import { IPlayer } from "./player.type";
+import { ITetromino } from "./tetrominoes.type";
 
 export interface ICell {
     occupied: boolean;
@@ -31,4 +32,7 @@ export interface IGame {
     board: IBoard,
     player: IPlayer,
     score: number,
+	pieces: ITetromino[];
+	gameOver: boolean;
+	level: number;
 }

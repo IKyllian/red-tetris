@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hook';
 import { createLobby, joinLobby } from "../../store/lobby.slice";
 import { useForm } from 'react-hook-form';
-import { ILobby } from '../../types/lobby.type';
 
 interface JoinFormValues {
     lobbyId: string;
@@ -16,10 +15,9 @@ export function CreateGameButton({ playerName }: {playerName: string}) {
     const { register, handleSubmit, formState: { errors } } = useForm<CreateFormValues>();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const lobby: ILobby = useAppSelector(state => state.lobby);
-    console.log("Lobby: ", lobby);
 
-    const handleCreateLobby = (data: CreateFormValues) => {
+    const handleCreateLobby = (data: CreateFormValues, e) => {
+        e?.preventDefault();
         dispatch(createLobby({
             name: data.lobbyName,
             playerName: playerName
@@ -43,7 +41,7 @@ export function JoinGameButton({ playerName }: {playerName: string}) {
 
     const handleJoinLobby = (data: JoinFormValues) => {
         dispatch(joinLobby({
-            name: data.lobbyId,
+            lobbyId: data.lobbyId,
             playerName: playerName
         }));
         navigate('/lobby');
