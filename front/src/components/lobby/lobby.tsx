@@ -11,10 +11,12 @@ export function Lobby() {
         dispatch(startGame());
     }
 
+    console.log(lobby);
+
     if (!lobby.gameStarted) {
         return (
             <div>
-                <h2> Lobby </h2>
+                <h2> {lobby.name} </h2>
                 <div>
                     <p> Player List : </p>
                     <ul>

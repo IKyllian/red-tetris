@@ -6,6 +6,7 @@ import { Home } from "../components/home/home.tsx";
 import PrivateRoute from "./private-route.tsx";
 import PublicRoute from "./public-route.tsx";
 import { Lobby } from "../components/lobby/lobby.tsx";
+import { JoinLobbyByPath } from "../components/lobby/join-lobby-by-path.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -32,4 +33,12 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
+  {
+    path: '/:lobbyId/:playerName',
+    element: (
+      // <PrivateRoute>
+        <JoinLobbyByPath />
+      // </PrivateRoute>
+    ),
+  }
 ]);

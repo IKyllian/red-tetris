@@ -49,6 +49,7 @@ const socketMiddleware: Middleware = (store) => {
                 });
 
                 socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
+                    console.log("Updated Lobby = ", lobby);
                     store.dispatch(setLobby(lobby));
                 })
 
