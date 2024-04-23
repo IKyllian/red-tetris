@@ -56,7 +56,12 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: { playerName: string; lobbyId: string }
 	) {
-		this.lobbyManager.joinLobby(socket, data.playerName, data.lobbyId);
+		this.lobbyManager.joinLobby(
+			socket,
+			data.playerName,
+			data.lobbyId,
+			this.server
+		);
 		//todo check if lobby is full
 	}
 

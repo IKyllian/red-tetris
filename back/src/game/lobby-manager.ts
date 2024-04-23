@@ -1,6 +1,6 @@
 import { SocketEvent } from 'src/type/event.enum';
 import { Lobby } from './lobby';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { ILobby } from 'src/type/lobby.interface';
 
 export class LobbyManager {
@@ -15,15 +15,18 @@ export class LobbyManager {
 		socket.emit(SocketEvent.UpdateLobby, lobby);
 	}
 
-	public joinLobby(socket: Socket, playerName: string, lobbyId: string) {
+	public joinLobby(
+		socket: Socket,
+		playerName: string,
+		lobbyId: string,
+		server: Server
+	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
 		if (lobby) {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
-			for (const player of lobby.players) {
-				socket.to(player.id).emit(SocketEvent.UpdateLobby, lobby);
-			}
+			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby);
 		}
 	}
 
@@ -41,11 +44,8 @@ export class LobbyManager {
 				if (lobby.players.length === 0) {
 					this.lobbys.delete(lobby.id);
 				} else {
-					for (const player of lobby.players) {
-						socket
-							.to(player.id)
-							.emit(SocketEvent.UpdateLobby, lobby);
-					}
+					lobby.players[0].isLeader = true;
+					socket.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby);
 				}
 			}
 		}
