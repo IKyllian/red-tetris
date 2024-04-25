@@ -12,7 +12,7 @@ export class Lobby {
 	public games: Game[] = [];
 
 	private pieces: Piece[] = [];
-	private tickRate: number = 100;
+	private tickRate: number = 1000 / 32;
 	private gameInterval: NodeJS.Timeout | null = null;
 	private dataToSend: IGame[] = [];
 
@@ -55,7 +55,7 @@ export class Lobby {
 		this.gameStarted = true;
 		this.generatePieces(100);
 		for (const player of this.players) {
-			this.games.push(new Game(player, this.pieces));
+			this.games.push(new Game(player, this.pieces, this.tickRate, 0));
 		}
 		if (this.gameInterval === null) {
 			this.gameInterval = setInterval(() => {
