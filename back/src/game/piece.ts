@@ -18,11 +18,11 @@ export class Piece {
 		this.className = tetromino.className;
 		this.position = defaultPosition;
 	}
-	public rotatePiece(): void {
+	public getRotatedShape(): number[][] {
 		// Transpose the shape matrix (columns become rows)
 		const transposed = zip(...this.shape);
 		// Reverse each row of the transposed matrix to rotate clockwise
-		this.shape = transposed.map((row) => row.reverse());
+		return transposed.map((row) => row.reverse());
 	}
 
 	public getRandomPiece = (): ITetromino => {

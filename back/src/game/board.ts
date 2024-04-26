@@ -38,7 +38,7 @@ export class Board {
 		});
 	}
 
-	public transferPieceToBoard = ({ tetromino, isOccupied }: State) => {
+	public transferPieceToBoard(tetromino: Piece, fixOnBoard: boolean) {
 		tetromino.shape.forEach((row: number[], y: number) => {
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
@@ -51,13 +51,13 @@ export class Board {
 					}
 					this.cells[_y][_x] = {
 						className: tetromino.className,
-						occupied: isOccupied,
+						occupied: fixOnBoard,
 						isDestructible: true,
 					};
 				}
 			});
 		});
-	};
+	}
 
 	public checkForLines() {
 		let lines = 0;
@@ -91,9 +91,9 @@ export class Board {
 		}
 	}
 
-	public checkCollision(position: IPosition, tetromino: Piece) {
+	public checkCollision(position: IPosition, shape: number[][]) {
 		let isCollision = false;
-		tetromino.shape.forEach((row: number[], y: number) => {
+		shape.forEach((row: number[], y: number) => {
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					const _x = x + position.x;

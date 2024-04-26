@@ -39,25 +39,15 @@ export class Game {
 		Scoring.ThreeLines,
 		Scoring.FourLines,
 	];
-	private tickRate: number;
 
-	constructor(
-		player: Player,
-		pieces: Piece[],
-		tickRate: number,
-		level: number
-	) {
-		this.tickRate = tickRate;
+	constructor(player: Player, pieces: Piece[], level: number) {
 		this.level = level;
 		for (let i = 0; i < 4; ++i) {
 			this.pieces.push(cloneDeep(pieces[i]));
 		}
 		this.currentPiece = this.pieces[0];
 		this.board = new Board(defaultBoardSize);
-		this.board.transferPieceToBoard({
-			tetromino: this.currentPiece,
-			isOccupied: false,
-		});
+		this.board.transferPieceToBoard(this.currentPiece, false);
 		this.player = player;
 	}
 
@@ -111,11 +101,9 @@ export class Game {
 			...this.currentPiece.position,
 			y: this.currentPiece.position.y + 1,
 		};
-		if (this.board.checkCollision(newPosition, this.currentPiece)) {
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: true,
-			});
+		if (this.board.checkCollision(newPosition, this.currentPiece.shape)) {
+			this.board.transferPieceToBoard(this.currentPiece, true);
+
 			this.newPieceNeeded = true;
 			this.currentPiece = this.pieces[1];
 			this.nbOfpieceDown++;
@@ -136,17 +124,12 @@ export class Game {
 				this.score += lineScore;
 				this.totalLinesCleared += linesCleared;
 			}
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
+			// add new piece to the board
+			this.board.transferPieceToBoard(this.currentPiece, false);
 		} else {
 			this.board.clearOldPosition(this.currentPiece);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
+			this.board.transferPieceToBoard(this.currentPiece, false);
 		}
 	}
 
@@ -158,25 +141,11 @@ export class Game {
 	}
 
 	public rotate() {
-		const oldShape = this.currentPiece.shape;
-		this.board.clearOldPosition(this.currentPiece);
-		this.currentPiece.rotatePiece();
-		if (
-			this.board.checkCollision(
-				this.currentPiece.position,
-				this.currentPiece
-			)
-		) {
-			this.currentPiece.shape = oldShape;
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
-		} else {
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
+		const newShape = this.currentPiece.getRotatedShape();
+		if (!this.board.checkCollision(this.currentPiece.position, newShape)) {
+			this.board.clearOldPosition(this.currentPiece);
+			this.currentPiece.shape = newShape;
+			this.board.transferPieceToBoard(this.currentPiece, false);
 		}
 	}
 
@@ -185,18 +154,10 @@ export class Game {
 			...this.currentPiece.position,
 			x: this.currentPiece.position.x - 1,
 		};
-		if (this.board.checkCollision(newPosition, this.currentPiece)) {
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
-		} else {
+		if (!this.board.checkCollision(newPosition, this.currentPiece.shape)) {
 			this.board.clearOldPosition(this.currentPiece);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
+			this.board.transferPieceToBoard(this.currentPiece, false);
 		}
 	}
 
@@ -205,18 +166,10 @@ export class Game {
 			...this.currentPiece.position,
 			x: this.currentPiece.position.x + 1,
 		};
-		if (this.board.checkCollision(newPosition, this.currentPiece)) {
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
-		} else {
+		if (!this.board.checkCollision(newPosition, this.currentPiece.shape)) {
 			this.board.clearOldPosition(this.currentPiece);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard({
-				tetromino: this.currentPiece,
-				isOccupied: false,
-			});
+			this.board.transferPieceToBoard(this.currentPiece, false);
 		}
 	}
 

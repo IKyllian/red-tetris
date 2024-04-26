@@ -16,6 +16,7 @@ export class Lobby {
 	private gameInterval: NodeJS.Timeout | null = null;
 	private dataToSend: IGame[] = [];
 	private server: Server;
+	private tick: number = 0;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -75,7 +76,6 @@ export class Lobby {
 			} else {
 				nbOfGamesOver++;
 			}
-			//TODO: send only game that are not over ?
 			this.dataToSend.push(game.getDataToSend());
 		}
 		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
@@ -89,6 +89,7 @@ export class Lobby {
 				this.tickRate
 			);
 		}
+		this.tick++;
 	}
 
 	public startGames(server: Server) {
@@ -98,7 +99,7 @@ export class Lobby {
 		this.gameStarted = true;
 		this.generatePieces(100);
 		for (const player of this.players) {
-			this.games.push(new Game(player, this.pieces, this.tickRate, 0));
+			this.games.push(new Game(player, this.pieces, 0));
 		}
 		this.updateState();
 	}
@@ -113,71 +114,6 @@ export class Lobby {
 		}
 		this.gameStarted = false;
 	}
-
-	// public startGames(server: Server) {
-	// 	let nbOfGamesOver = 0;
-	// 	this.games = [];
-	// 	this.pieces = [];
-	// 	this.gameStarted = true;
-	// 	this.generatePieces(100);
-	// 	for (const player of this.players) {
-	// 		this.games.push(new Game(player, this.pieces, this.tickRate, 0));
-	// 	}
-	// 	if (this.gameInterval === null) {
-	// 		this.gameInterval = setInterval(() => {
-	// 			this.dataToSend = [];
-	// 			for (const game of this.games) {
-	// 				if (!game.gameOver) {
-	// 					game.updateState();
-	// 					if (game.newPieceNeeded) {
-	// 						// generate new piece when needed
-	// 						if (this.pieces.length - game.nbOfpieceDown < 10) {
-	// 							this.generatePieces(50);
-	// 						}
-	// 						game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
-	// 					} else if (game.destructibleLinesToGive > 0) {
-	// 						for (const otherGame of this.games) {
-	// 							if (otherGame.player.id !== game.player.id) {
-	// 								otherGame.addDestructibleLines(
-	// 									game.destructibleLinesToGive
-	// 								);
-	// 							}
-	// 						}
-	// 						game.destructibleLinesToGive = 0;
-	// 					}
-	// 				} else {
-	// 					nbOfGamesOver++;
-	// 				}
-	// 				//TODO: send only game that are not over ?
-	// 				this.dataToSend.push(game.getDataToSend());
-	// 			}
-	// 			server
-	// 				.to(this.id)
-	// 				.emit(SocketEvent.GamesUpdate, this.dataToSend);
-	// 			if (
-	// 				this.games.length > 1 &&
-	// 				nbOfGamesOver === this.games.length - 1
-	// 			) {
-	// 				this.stopGames();
-	// 			} else if (this.games.length === nbOfGamesOver) {
-	// 				this.stopGames();
-	// 			}
-	// 		}, this.tickRate);
-	// 	} else {
-	// 		console.log('The game is already running.');
-	// 	}
-	// }
-
-	// public stopGames() {
-	// 	if (this.gameInterval !== null) {
-	// 		clearInterval(this.gameInterval);
-	// 		this.gameInterval = null;
-	// 		console.log('Game stopped.');
-	// 	} else {
-	// 		console.log('The game is not currently running.');
-	// 	}
-	// 	this.gameStarted = false;
-	// }
 
 	public getPlayer(playerId: string): Player | undefined {
 		return this.players.find((player) => player.id === playerId);
