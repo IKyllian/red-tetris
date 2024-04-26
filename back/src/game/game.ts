@@ -32,6 +32,7 @@ export class Game {
 	private linesCleared: number = 0;
 	private board: Board;
 	private currentPiece: Piece;
+	private tickToMoveDown: number = 0;
 	private lineScores = [
 		Scoring.OneLine,
 		Scoring.TwoLines,
@@ -70,21 +71,12 @@ export class Game {
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
 		if (this.board.gameOver) {
 			this.gameOver = true;
-			this.clearInterval();
 			return;
 		}
-		if (this.downInterval === null && !this.gameOver) {
-			const framesPerGridCell = this.getFramesPerGridCell(this.level) / 2;
-			this.downInterval = setInterval(() => {
-				this.moveDown(true);
-			}, this.tickRate * framesPerGridCell);
-		}
-	}
-
-	public clearInterval() {
-		if (this.downInterval !== null) {
-			clearInterval(this.downInterval);
-			this.downInterval = null;
+		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level) / 2) {
+			this.moveDown(true);
+		} else {
+			this.tickToMoveDown++;
 		}
 	}
 
@@ -102,11 +94,9 @@ export class Game {
 				this.moveRight();
 				break;
 			case COMMANDS.KEY_DOWN:
-				this.clearInterval();
 				this.moveDown();
 				break;
 			default:
-				this.clearInterval();
 				this.hardDrop();
 				break;
 		}
@@ -116,6 +106,7 @@ export class Game {
 		if (!fromInterval) {
 			this.score += 1;
 		}
+		this.tickToMoveDown = 0;
 		const newPosition = {
 			...this.currentPiece.position,
 			y: this.currentPiece.position.y + 1,
