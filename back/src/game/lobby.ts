@@ -54,6 +54,10 @@ export class Lobby {
 		let nbOfGamesOver = 0;
 
 		this.dataToSend = [];
+		if (this.gameStarted === false) {
+			this.stopGames();
+			return;
+		}
 		for (const game of this.games) {
 			if (!game.gameOver) {
 				game.updateState();
@@ -104,6 +108,10 @@ export class Lobby {
 		this.updateState();
 	}
 
+	public cancelGames() {
+		this.gameStarted = false;
+	}
+
 	public stopGames() {
 		if (this.gameInterval !== null) {
 			clearTimeout(this.gameInterval);
@@ -121,5 +129,13 @@ export class Lobby {
 
 	public getPlayerGame(playerId: string): Game | undefined {
 		return this.games.find((game) => game.player.id === playerId);
+	}
+
+	public getInfo() {
+		return {
+			id: this.id,
+			name: this.name,
+			players: this.players,
+		};
 	}
 }

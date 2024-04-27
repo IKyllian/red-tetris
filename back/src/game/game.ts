@@ -1,9 +1,7 @@
-import { IBoard, defaultBoardSize } from 'src/type/board.interface';
+import { defaultBoardSize } from 'src/type/board.interface';
 import { Board } from './board';
 import { Player } from './player';
-import { defaultCell } from 'src/type/cell.interface';
-import { cloneDeep, set } from 'lodash';
-import { IPosition, defaultPosition } from 'src/type/tetromino.interface';
+import { cloneDeep } from 'lodash';
 import { Piece } from './piece';
 import { COMMANDS } from 'src/type/command.types';
 import { Scoring } from 'src/type/scoring.enum';
@@ -141,12 +139,7 @@ export class Game {
 	}
 
 	public rotate() {
-		const newShape = this.currentPiece.getRotatedShape();
-		if (!this.board.checkCollision(this.currentPiece.position, newShape)) {
-			this.board.clearOldPosition(this.currentPiece);
-			this.currentPiece.shape = newShape;
-			this.board.transferPieceToBoard(this.currentPiece, false);
-		}
+		this.currentPiece.rotate(this.board);
 	}
 
 	public moveLeft() {

@@ -9,12 +9,17 @@ export interface IPosition {
 	y: number;
 }
 
-export const defaultPosition: IPosition = {
-	x: 3,
-	y: 0,
-};
-
 const className = 'tetromino';
+
+export enum TetrominoType {
+	I = `tetromino tetromino_I`,
+	J = `tetromino tetromino_J`,
+	L = `tetromino tetromino_L`,
+	O = `tetromino tetromino_O`,
+	S = `tetromino tetromino_S`,
+	T = `tetromino tetromino_T`,
+	Z = `tetromino tetromino_Z`,
+}
 
 export const indestructibleCell = `${className} ${className}_indestructible`;
 
@@ -26,7 +31,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[0, 0, 0, 0],
 			[0, 0, 0, 0],
 		],
-		className: `${className} ${className}_I`,
+		className: TetrominoType.I,
 		position: { x: 3, y: -1 },
 	},
 	{
@@ -35,7 +40,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[1, 1, 1],
 			[0, 0, 0],
 		],
-		className: `${className} ${className}_J`,
+		className: TetrominoType.J,
 		position: { x: 3, y: 0 },
 	},
 	{
@@ -44,7 +49,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[1, 1, 1],
 			[0, 0, 0],
 		],
-		className: `${className} ${className}_L`,
+		className: TetrominoType.L,
 		position: { x: 3, y: 0 },
 	},
 	{
@@ -52,7 +57,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[1, 1],
 			[1, 1],
 		],
-		className: `${className} ${className}_O`,
+		className: TetrominoType.O,
 		position: { x: 4, y: 0 },
 	},
 	{
@@ -61,7 +66,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[1, 1, 0],
 			[0, 0, 0],
 		],
-		className: `${className} ${className}_S`,
+		className: TetrominoType.S,
 		position: { x: 3, y: 0 },
 	},
 	{
@@ -70,7 +75,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[1, 1, 1],
 			[0, 0, 0],
 		],
-		className: `${className} ${className}_T`,
+		className: TetrominoType.T,
 		position: { x: 3, y: 0 },
 	},
 	{
@@ -79,7 +84,7 @@ export const TetriminosArray: Array<ITetromino> = [
 			[0, 1, 1],
 			[0, 0, 0],
 		],
-		className: `${className} ${className}_Z`,
+		className: TetrominoType.Z,
 		position: { x: 3, y: 0 },
 	},
 ];

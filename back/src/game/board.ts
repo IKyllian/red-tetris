@@ -1,10 +1,7 @@
 import { ICell, ISize, defaultCell } from 'src/type/cell.interface';
 import { IPosition, indestructibleCell } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
-interface State {
-	tetromino: Piece;
-	isOccupied: boolean;
-}
+
 export class Board {
 	public gameOver: boolean = false;
 
