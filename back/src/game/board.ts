@@ -28,6 +28,7 @@ export class Board {
 
 	public clearOldPosition(tetromino: Piece) {
 		tetromino.shape.forEach((row: number[], y: number) => {
+			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					const _x = x + tetromino.position.x;
@@ -40,6 +41,7 @@ export class Board {
 
 	public transferPieceToBoard(tetromino: Piece, fixOnBoard: boolean) {
 		tetromino.shape.forEach((row: number[], y: number) => {
+			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					// cell is 0 or 1
@@ -94,6 +96,7 @@ export class Board {
 	public checkCollision(position: IPosition, shape: number[][]) {
 		let isCollision = false;
 		shape.forEach((row: number[], y: number) => {
+			if (position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					const _x = x + position.x;

@@ -2,7 +2,7 @@ import { zip } from 'lodash';
 import {
 	IPosition,
 	ITetromino,
-	TETROMINOES,
+	TetriminosArray,
 	defaultPosition,
 } from 'src/type/tetromino.interface';
 
@@ -16,7 +16,7 @@ export class Piece {
 		const tetromino = this.getRandomPiece();
 		this.shape = tetromino.shape;
 		this.className = tetromino.className;
-		this.position = defaultPosition;
+		this.position = tetromino.position;
 	}
 	public getRotatedShape(): number[][] {
 		// Transpose the shape matrix (columns become rows)
@@ -26,9 +26,7 @@ export class Piece {
 	}
 
 	public getRandomPiece = (): ITetromino => {
-		const keys = Object.keys(TETROMINOES);
-		const randomIndex = Math.floor(Math.random() * keys.length);
-		const tetromino = TETROMINOES[keys[randomIndex]];
-		return tetromino;
+		const randomIndex = Math.floor(Math.random() * TetriminosArray.length);
+		return TetriminosArray[randomIndex];
 	};
 }

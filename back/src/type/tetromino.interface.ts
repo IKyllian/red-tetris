@@ -1,6 +1,7 @@
 export interface ITetromino {
 	shape: number[][];
 	className: string;
+	position: IPosition;
 }
 
 export interface IPosition {
@@ -17,8 +18,8 @@ const className = 'tetromino';
 
 export const indestructibleCell = `${className} ${className}_indestructible`;
 
-export const TETROMINOES = {
-	I: {
+export const TetriminosArray: Array<ITetromino> = [
+	{
 		shape: [
 			[0, 0, 0, 0],
 			[1, 1, 1, 1],
@@ -26,52 +27,59 @@ export const TETROMINOES = {
 			[0, 0, 0, 0],
 		],
 		className: `${className} ${className}_I`,
+		position: { x: 3, y: -1 },
 	},
-	J: {
+	{
 		shape: [
 			[1, 0, 0],
 			[1, 1, 1],
 			[0, 0, 0],
 		],
 		className: `${className} ${className}_J`,
+		position: { x: 3, y: 0 },
 	},
-	L: {
+	{
 		shape: [
 			[0, 0, 1],
 			[1, 1, 1],
 			[0, 0, 0],
 		],
 		className: `${className} ${className}_L`,
+		position: { x: 3, y: 0 },
 	},
-	O: {
+	{
 		shape: [
 			[1, 1],
 			[1, 1],
 		],
 		className: `${className} ${className}_O`,
+		position: { x: 4, y: 0 },
 	},
-	S: {
+	{
 		shape: [
 			[0, 1, 1],
 			[1, 1, 0],
 			[0, 0, 0],
 		],
 		className: `${className} ${className}_S`,
+		position: { x: 3, y: 0 },
 	},
-	T: {
+	{
 		shape: [
 			[0, 1, 0],
 			[1, 1, 1],
 			[0, 0, 0],
 		],
 		className: `${className} ${className}_T`,
+		position: { x: 3, y: 0 },
 	},
-	Z: {
+	{
 		shape: [
 			[1, 1, 0],
 			[0, 1, 1],
 			[0, 0, 0],
 		],
 		className: `${className} ${className}_Z`,
+		position: { x: 3, y: 0 },
 	},
-};
+];
