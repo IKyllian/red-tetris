@@ -120,7 +120,7 @@ export class Board {
 				const cell = this.cells[i][j];
 				rowString += cell.occupied ? 'X ' : 'O ';
 			}
-			console.log(rowString);
+			console.log(rowString + ' y: ', i);
 		}
 		console.log('');
 	}
