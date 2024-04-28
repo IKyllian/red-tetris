@@ -12,9 +12,11 @@ export class Lobby {
 	public games: Game[] = [];
 
 	private pieces: Piece[] = [];
-	private tickRate: number = 1000 / 32;
+	private tickRate: number = 1000 / 30;
 	private gameInterval: NodeJS.Timeout | null = null;
 	private dataToSend: IGame[] = [];
+	private server: Server;
+	private tick: number = 0;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -48,66 +50,71 @@ export class Lobby {
 		}
 	}
 
-	public startGames(server: Server) {
+	private updateState() {
 		let nbOfGamesOver = 0;
+
+		this.dataToSend = [];
+		if (this.gameStarted === false) {
+			this.stopGames();
+			return;
+		}
+		for (const game of this.games) {
+			if (!game.gameOver) {
+				game.updateState();
+				if (game.newPieceNeeded) {
+					// generate new piece when needed
+					if (this.pieces.length - game.nbOfpieceDown < 10) {
+						this.generatePieces(50);
+					}
+					game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+				} else if (game.destructibleLinesToGive > 0) {
+					for (const otherGame of this.games) {
+						if (otherGame.player.id !== game.player.id) {
+							otherGame.addDestructibleLines(
+								game.destructibleLinesToGive
+							);
+						}
+					}
+					game.destructibleLinesToGive = 0;
+				}
+			} else {
+				nbOfGamesOver++;
+			}
+			this.dataToSend.push(game.getDataToSend());
+		}
+		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
+		if (this.games.length > 1 && nbOfGamesOver === this.games.length - 1) {
+			this.stopGames();
+		} else if (this.games.length === nbOfGamesOver) {
+			this.stopGames();
+		} else {
+			this.gameInterval = setTimeout(
+				this.updateState.bind(this),
+				this.tickRate
+			);
+		}
+		this.tick++;
+	}
+
+	public startGames(server: Server) {
 		this.games = [];
 		this.pieces = [];
+		this.server = server;
 		this.gameStarted = true;
 		this.generatePieces(100);
 		for (const player of this.players) {
-			this.games.push(new Game(player, this.pieces, this.tickRate, 0));
+			this.games.push(new Game(player, this.pieces, 0));
 		}
-		if (this.gameInterval === null) {
-			this.gameInterval = setInterval(() => {
-				this.dataToSend = [];
-				for (const game of this.games) {
-					if (!game.gameOver) {
-						game.updateState();
-						if (game.newPieceNeeded) {
-							// generate new piece when needed
-							if (this.pieces.length - game.nbOfpieceDown < 10) {
-								this.generatePieces(50);
-							}
-							game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
-						} else if (game.destructibleLinesToGive > 0) {
-							for (const otherGame of this.games) {
-								if (otherGame.player.id !== game.player.id) {
-									otherGame.addDestructibleLines(
-										game.destructibleLinesToGive
-									);
-								}
-							}
-							game.destructibleLinesToGive = 0;
-						}
-					} else {
-						nbOfGamesOver++;
-					}
-					//TODO: send only game that are not over ?
-					this.dataToSend.push(game.getDataToSend());
-				}
-				server
-					.to(this.id)
-					.emit(SocketEvent.GamesUpdate, this.dataToSend);
-				if (
-					this.games.length > 1 &&
-					nbOfGamesOver === this.games.length - 1
-				) {
-					this.stopGames();
-				} else if (this.games.length === nbOfGamesOver) {
-					this.stopGames();
-				}
-			}, this.tickRate);
-		} else {
-			console.log('The game is already running.');
-		}
+		this.updateState();
+	}
+
+	public cancelGames() {
+		this.gameStarted = false;
 	}
 
 	public stopGames() {
 		if (this.gameInterval !== null) {
-			clearInterval(this.gameInterval);
-			for (const game of this.games) {
-				game.clearInterval();
-			}
+			clearTimeout(this.gameInterval);
 			this.gameInterval = null;
 			console.log('Game stopped.');
 		} else {
@@ -122,5 +129,13 @@ export class Lobby {
 
 	public getPlayerGame(playerId: string): Game | undefined {
 		return this.games.find((game) => game.player.id === playerId);
+	}
+
+	public getInfo() {
+		return {
+			id: this.id,
+			name: this.name,
+			players: this.players,
+		};
 	}
 }

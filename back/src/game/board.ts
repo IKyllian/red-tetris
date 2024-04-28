@@ -1,10 +1,7 @@
 import { ICell, ISize, defaultCell } from 'src/type/cell.interface';
 import { IPosition, indestructibleCell } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
-interface State {
-	tetromino: Piece;
-	isOccupied: boolean;
-}
+
 export class Board {
 	public gameOver: boolean = false;
 
@@ -28,6 +25,7 @@ export class Board {
 
 	public clearOldPosition(tetromino: Piece) {
 		tetromino.shape.forEach((row: number[], y: number) => {
+			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					const _x = x + tetromino.position.x;
@@ -38,8 +36,9 @@ export class Board {
 		});
 	}
 
-	public transferPieceToBoard = ({ tetromino, isOccupied }: State) => {
+	public transferPieceToBoard(tetromino: Piece, fixOnBoard: boolean) {
 		tetromino.shape.forEach((row: number[], y: number) => {
+			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					// cell is 0 or 1
@@ -51,13 +50,13 @@ export class Board {
 					}
 					this.cells[_y][_x] = {
 						className: tetromino.className,
-						occupied: isOccupied,
+						occupied: fixOnBoard,
 						isDestructible: true,
 					};
 				}
 			});
 		});
-	};
+	}
 
 	public checkForLines() {
 		let lines = 0;
@@ -91,9 +90,10 @@ export class Board {
 		}
 	}
 
-	public checkCollision(position: IPosition, tetromino: Piece) {
+	public checkCollision(position: IPosition, shape: number[][]) {
 		let isCollision = false;
-		tetromino.shape.forEach((row: number[], y: number) => {
+		shape.forEach((row: number[], y: number) => {
+			if (position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					const _x = x + position.x;
@@ -120,7 +120,7 @@ export class Board {
 				const cell = this.cells[i][j];
 				rowString += cell.occupied ? 'X ' : 'O ';
 			}
-			console.log(rowString);
+			console.log(rowString + ' y: ', i);
 		}
 		console.log('');
 	}

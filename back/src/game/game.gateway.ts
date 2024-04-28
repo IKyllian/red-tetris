@@ -29,7 +29,7 @@ export class GameGateway
 	private lobbyManager = new LobbyManager();
 
 	async handleConnection(socket: Socket) {
-		console.log('TEST = ', socket.id);
+		console.log('new connection: ', socket.id);
 		// const board = new Board(defaultBoardSize);
 		// board.printBoard();
 		// board.checkForLines();
@@ -37,6 +37,7 @@ export class GameGateway
 	}
 
 	async handleDisconnect(socket: Socket) {
+		console.log('disconnection: ', socket.id);
 		this.lobbyManager.leaveLobby(socket);
 	}
 
@@ -56,6 +57,7 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: { playerName: string; lobbyId: string }
 	) {
+		console.log('Join lobby = ', data);
 		this.lobbyManager.joinLobby(
 			socket,
 			data.playerName,
@@ -77,7 +79,11 @@ export class GameGateway
 	startGame(@ConnectedSocket() socket: Socket) {
 		//TODO check if game is already started
 		const lobby = this.lobbyManager.getLobby(socket.id);
-		if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
+		if (
+			lobby &&
+			!lobby.gameStarted &&
+			lobby.getPlayer(socket.id)?.isLeader
+		) {
 			lobby.startGames(this.server);
 		}
 	}

@@ -26,7 +26,8 @@ export class LobbyManager {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
-			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby);
+			//TODO remove unwanted data to emit
+			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
 		}
 	}
 
@@ -37,7 +38,7 @@ export class LobbyManager {
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
 				if (lobby.gameStarted) {
-					lobby.stopGames();
+					lobby.cancelGames();
 				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
@@ -45,7 +46,9 @@ export class LobbyManager {
 					this.lobbys.delete(lobby.id);
 				} else {
 					lobby.players[0].isLeader = true;
-					socket.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby);
+					socket
+						.to(lobby.id)
+						.emit(SocketEvent.UpdateLobby, lobby.getInfo());
 				}
 			}
 		}
