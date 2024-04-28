@@ -38,8 +38,16 @@ export class Game {
 		Scoring.ThreeLines,
 		Scoring.FourLines,
 	];
+	private tickRate: number;
 
-	constructor(player: Player, pieces: Piece[]) {
+	constructor(
+		player: Player,
+		pieces: Piece[],
+		tickRate: number,
+		level: number
+	) {
+		this.tickRate = tickRate;
+		this.level = level;
 		for (let i = 0; i < 4; ++i) {
 			this.pieces.push(cloneDeep(pieces[i]));
 		}
@@ -66,9 +74,10 @@ export class Game {
 			return;
 		}
 		if (this.downInterval === null && !this.gameOver) {
+			const framesPerGridCell = this.getFramesPerGridCell(this.level) / 2;
 			this.downInterval = setInterval(() => {
 				this.moveDown(true);
-			}, 1000);
+			}, this.tickRate * framesPerGridCell);
 		}
 	}
 
@@ -222,6 +231,22 @@ export class Game {
 
 	public addDestructibleLines(nbOfLines: number) {
 		this.board.addIndestructibleLines(nbOfLines);
+	}
+
+	private getFramesPerGridCell(level: number): number {
+		if (level <= 9) {
+			return 48 - level * 5;
+		} else if (level <= 12) {
+			return 5;
+		} else if (level <= 15) {
+			return 4;
+		} else if (level <= 18) {
+			return 3;
+		} else if (level <= 28) {
+			return 2;
+		} else {
+			return 1;
+		}
 	}
 
 	public getDataToSend(): IGame {
