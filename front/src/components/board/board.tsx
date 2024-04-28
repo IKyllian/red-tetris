@@ -4,20 +4,27 @@ import { IBoard, ICell } from "../../types/board.types";
 import { transferPieceToBoard } from "../../utils/tetromino.utils";
 import { buildBoard } from "../../utils/board.utils";
 import { isCommandType } from "../../types/command.types";
-import { useAppDispatch } from "../../store/hook";
+import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { commandPressed } from "../../store/lobby.slice";
+import { IPlayer } from "../../types/player.type";
 
 export interface BoardProps {
-    board: IBoard
+    board: IBoard,
+    playerBoard: IPlayer
 }
 
-const Cell = ({cell}) => (
-    <div className='cell'>
-        <div className={cell.className}></div>
-    </div>
-)
+const Cell = ({cell, isBoardOfConnectedPlayer}) => {
+    // const classSpec = cell.className.length && isBoardOfConnectedPlayer ? 'tetromino tetromino_spec' : undefined;
+    return  (
+        <div className='cell'>
+            <div className={cell.className}></div>
+        </div>
+    )
+}
 
-export const Board = ({board}: BoardProps) => {
+export const Board = ({board, playerBoard}: BoardProps) => {
+    const playerName = useAppSelector((state) => state.player.name);
+    const isBoardOfConnectedPlayer = playerBoard.name === playerName;
     const dispatch = useAppDispatch();
     const boardStyles = {
         gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
@@ -35,7 +42,7 @@ export const Board = ({board}: BoardProps) => {
             {
                 board.cells.map((row) => (
                     row.map((cell, cellIndex) => (
-                        <Cell key={cellIndex} cell={cell} />
+                        <Cell key={cellIndex} cell={cell} isBoardOfConnectedPlayer={isBoardOfConnectedPlayer} />
                     ))
                 ))
             }
@@ -58,7 +65,10 @@ export function BoardPreview({tetromino} : {tetromino: ITetromino}) {
             {
                 rows.map((row) => (
                     row.map((cell: ICell, cellIndex: number) => (
-                        <Cell key={cellIndex} cell={cell} />
+                        <div key={cellIndex} className='cell'>
+                            <div className={cell.className}></div>
+                        </div>
+                        // <Cell key={cellIndex} cell={cell} />
                     ))
                 ))
             }

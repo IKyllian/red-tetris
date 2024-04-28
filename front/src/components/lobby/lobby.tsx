@@ -17,6 +17,7 @@ export function Lobby() {
         return (
             <div>
                 <h2> {lobby.name} </h2>
+                <h3> {lobby.id} </h3>
                 <div>
                     <p> Player List : </p>
                     <ul>

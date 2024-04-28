@@ -23,6 +23,16 @@
     border-radius: 5px;
 }
 
+.tetromino-spec {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border-radius: 5px;
+}
+
 .tetromino_I {
     background-color: aqua;
 }
@@ -53,4 +63,8 @@
 
 .tetromino_indestructible {
     background-color: darkgray;
+}
+
+.tetromino_spec {
+    background-color: grey;
 }
