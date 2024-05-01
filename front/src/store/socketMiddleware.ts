@@ -23,6 +23,7 @@ export enum SocketEvent {
 	Error = 'error',
 }
 
+let AZE = 0
 const socketMiddleware: Middleware = (store) => {
     let socket: SocketInterface;
 
@@ -54,7 +55,10 @@ const socketMiddleware: Middleware = (store) => {
                 })
 
                 socket.socket.on(SocketEvent.GamesUpdate, (games: IGame[]) => {
-                    store.dispatch(updateGamesBoard(games));
+                    // if (AZE < 3) {
+                        store.dispatch(updateGamesBoard(games));
+                        AZE++
+                    // }
                 })
             }
         }

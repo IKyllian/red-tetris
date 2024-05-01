@@ -1,8 +1,9 @@
-const className = "tetromino";
 
 export interface ITetromino {
   shape: number[][];
   className: string;
+	position: IPosition;
+	rotationState: number;
 }
 
 export interface IPosition {
@@ -14,6 +15,18 @@ export const defaultPosition: IPosition = {
   x: 3,
   y: 0,
 };
+
+const className = "tetromino";
+
+export enum TetrominoType {
+	I = `${className} tetromino_I`,
+	J = `${className} tetromino_J`,
+	L = `${className} tetromino_L`,
+	O = `${className} tetromino_O`,
+	S = `${className} tetromino_S`,
+	T = `${className} tetromino_T`,
+	Z = `${className} tetromino_Z`,
+}
 
 export const indestructibleCell = `${className} ${className}_indestructible`;
 
@@ -75,3 +88,73 @@ export const TETROMINOES = {
     className: `${className} ${className}_Z`,
   },
 };
+
+export const JLTSZ_SRS = [
+	// State 0
+	[
+		{ x: 0, y: 0 },
+		{ x: -1, y: 0 },
+		{ x: -1, y: -1 },
+		{ x: 0, y: 2 },
+		{ x: -1, y: 2 },
+	],
+	// State 1
+	[
+		{ x: 0, y: 0 },
+		{ x: 1, y: 0 },
+		{ x: 1, y: 1 },
+		{ x: 0, y: -2 },
+		{ x: 1, y: -2 },
+	],
+	// State 2
+	[
+		{ x: 0, y: 0 },
+		{ x: 1, y: 0 },
+		{ x: 1, y: -1 },
+		{ x: 0, y: 2 },
+		{ x: 1, y: 2 },
+	],
+	// State 3
+	[
+		{ x: 0, y: 0 },
+		{ x: -1, y: 0 },
+		{ x: -1, y: 1 },
+		{ x: 0, y: -2 },
+		{ x: -1, y: -2 },
+	],
+];
+
+export const I_SRS = [
+	// State 0
+	[
+		{ x: 0, y: 0 },
+		{ x: -1, y: 0 },
+		{ x: 2, y: 0 },
+		{ x: -1, y: -2 },
+		{ x: 2, y: 1 },
+	],
+	// State 1
+	[
+		{ x: 0, y: 0 },
+		{ x: 2, y: 0 },
+		{ x: -1, y: 0 },
+		{ x: 2, y: -1 },
+		{ x: -1, y: 2 },
+	],
+	// State 2
+	[
+		{ x: 0, y: 0 },
+		{ x: 1, y: 0 },
+		{ x: -2, y: 0 },
+		{ x: 1, y: 2 },
+		{ x: -2, y: -1 },
+	],
+	// State 3
+	[
+		{ x: 0, y: 0 },
+		{ x: -2, y: 0 },
+		{ x: 1, y: 0 },
+		{ x: -2, y: 1 },
+		{ x: 1, y: -2 },
+	],
+];

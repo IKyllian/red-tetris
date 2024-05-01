@@ -10,7 +10,8 @@ import { IPlayer } from "../../types/player.type";
 
 export interface BoardProps {
     board: IBoard,
-    playerBoard: IPlayer
+    playerBoard: IPlayer,
+    gameIdx: number,
 }
 
 const Cell = ({cell, isBoardOfConnectedPlayer}) => {
@@ -22,7 +23,7 @@ const Cell = ({cell, isBoardOfConnectedPlayer}) => {
     )
 }
 
-export const Board = ({board, playerBoard}: BoardProps) => {
+export const Board = ({board, playerBoard, gameIdx}: BoardProps) => {
     const playerName = useAppSelector((state) => state.player.name);
     const isBoardOfConnectedPlayer = playerBoard.name === playerName;
     const dispatch = useAppDispatch();
@@ -34,7 +35,7 @@ export const Board = ({board, playerBoard}: BoardProps) => {
         const code = event.code;
         console.log('code = ', code);
         if (isCommandType(code)) {
-            dispatch(commandPressed({command: code}));
+            dispatch(commandPressed({command: code, gameIdx}));
         }
     }
     return (

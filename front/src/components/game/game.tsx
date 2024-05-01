@@ -12,7 +12,7 @@ export function Game({ games }: GameProps) {
             {
                 games.map((game, index) => (
                     <>
-                        <Board key={index} board={game.board} playerBoard={game.player} />
+                        <Board key={index} board={game.board} playerBoard={game.player} gameIdx={index}/>
                         {
                             game.player.name === playerName &&
                             game.pieces.slice(1).map((piece, pieceIndex) => (
