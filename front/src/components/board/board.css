@@ -2,15 +2,24 @@
     display: grid;
     gap: 2px;
     border: 1px solid red;
-    width: 500px;
+    width: 450px;
     height: 800px;
 }
 
+.board-preview {
+    gap: 0;
+}
+
 .cell {
-    border: 1px solid purple;
+    /* border: 1px solid purple; */
     position: relative;
     border-radius: 5px;
     padding: 2px;
+}
+
+.cell-preview {
+    background-color: grey !important;
+    border-radius: 0 !important;
 }
 
 .tetromino {

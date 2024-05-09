@@ -4,28 +4,23 @@ import { IBoard, ICell } from "../../types/board.types";
 import { transferPieceToBoard } from "../../utils/tetromino.utils";
 import { buildBoard } from "../../utils/board.utils";
 import { isCommandType } from "../../types/command.types";
-import { useAppDispatch, useAppSelector } from "../../store/hook";
+import { useAppDispatch } from "../../store/hook";
 import { commandPressed } from "../../store/lobby.slice";
-import { IPlayer } from "../../types/player.type";
 
 export interface BoardProps {
     board: IBoard,
-    playerBoard: IPlayer,
     gameIdx: number,
 }
 
-const Cell = ({cell, isBoardOfConnectedPlayer}) => {
-    // const classSpec = cell.className.length && isBoardOfConnectedPlayer ? 'tetromino tetromino_spec' : undefined;
+const Cell = ({cellClassname}) => {
     return  (
         <div className='cell'>
-            <div className={cell.className}></div>
+            <div className={cellClassname}></div>
         </div>
     )
 }
 
-export const Board = ({board, playerBoard, gameIdx}: BoardProps) => {
-    const playerName = useAppSelector((state) => state.player.name);
-    const isBoardOfConnectedPlayer = playerBoard.name === playerName;
+export const Board = ({board, gameIdx}: BoardProps) => {
     const dispatch = useAppDispatch();
     const boardStyles = {
         gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
@@ -43,7 +38,7 @@ export const Board = ({board, playerBoard, gameIdx}: BoardProps) => {
             {
                 board.cells.map((row) => (
                     row.map((cell, cellIndex) => (
-                        <Cell key={cellIndex} cell={cell} isBoardOfConnectedPlayer={isBoardOfConnectedPlayer} />
+                        <Cell key={cellIndex} cellClassname={cell.className} />
                     ))
                 ))
             }
@@ -51,7 +46,28 @@ export const Board = ({board, playerBoard, gameIdx}: BoardProps) => {
     )
 }
 
-export function BoardPreview({tetromino} : {tetromino: ITetromino}) {
+export function BoardPreview({ board }: { board: IBoard }) {
+    const boardStyles = {
+        gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
+        gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
+        height: '300px',
+        width: '200px'
+    };
+
+    return (
+        <div className="board board-preview" style={boardStyles} tabIndex={0}>
+            {
+                board.cells.map((row) => (
+                    row.map((cell, cellIndex) => (
+                        <Cell key={cellIndex} cellClassname={`${cell.className} + cell-preview`} />
+                    ))
+                ))
+            }
+         </div>
+    )
+}
+
+export function PiecePreview({tetromino} : {tetromino: ITetromino}) {
     const board = buildBoard({ rows: 4, columns: 4 });
     const boardStyles = {
         gridTemplateRows: `repeat(4, 1fr)`,
@@ -66,10 +82,7 @@ export function BoardPreview({tetromino} : {tetromino: ITetromino}) {
             {
                 rows.map((row) => (
                     row.map((cell: ICell, cellIndex: number) => (
-                        <div key={cellIndex} className='cell'>
-                            <div className={cell.className}></div>
-                        </div>
-                        // <Cell key={cellIndex} cell={cell} />
+                        <Cell key={cellIndex} cellClassname={cell.className} />
                     ))
                 ))
             }
