@@ -55,13 +55,13 @@ export class Game {
 		this.newPieceNeeded = false;
 	}
 
-	public updateState() {
+	public updateState(tick: number) {
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
 		if (this.board.gameOver) {
 			this.gameOver = true;
 			return;
 		}
-		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level) / 2) {
+		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
 		} else {
 			this.tickToMoveDown++;
@@ -171,19 +171,22 @@ export class Game {
 	}
 
 	private getFramesPerGridCell(level: number): number {
+		let framesPerGridCell = 0;
 		if (level <= 9) {
-			return 48 - level * 5;
+			framesPerGridCell = 48 - level * 5;
 		} else if (level <= 12) {
-			return 5;
+			framesPerGridCell = 5;
 		} else if (level <= 15) {
-			return 4;
+			framesPerGridCell = 4;
 		} else if (level <= 18) {
-			return 3;
+			framesPerGridCell = 3;
 		} else if (level <= 28) {
-			return 2;
+			framesPerGridCell = 2;
 		} else {
-			return 1;
+			framesPerGridCell = 1;
 		}
+		// framesPerGridCell / 2 because of tick rate
+		return framesPerGridCell / 2;
 	}
 
 	public getDataToSend(): IGame {

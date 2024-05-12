@@ -38,7 +38,7 @@ export class LobbyManager {
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
 				if (lobby.gameStarted) {
-					lobby.cancelGames();
+					lobby.getPlayerGame(socket.id).gameOver = true;
 				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
