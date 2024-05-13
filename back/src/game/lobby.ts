@@ -140,9 +140,9 @@ export class Lobby {
 				}
 			}
 			deltaTime -= this.tickRate;
-			this.lastUpdate = performance.now();
 			this.tick++;
 		}
+		this.lastUpdate = performance.now();
 		for (const game of this.games) {
 			this.dataToSend.push(game.getDataToSend());
 		}
@@ -157,9 +157,14 @@ export class Lobby {
 		this.server = server;
 		this.gameStarted = true;
 		this.generatePieces(100);
+		this.dataToSend = [];
 		for (const player of this.players) {
 			this.games.push(new Game(player, this.pieces, 0));
 		}
+		for (const game of this.games) {
+			this.dataToSend.push(game.getDataToSend());
+		}
+		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
 		this.lastUpdate = performance.now();
 		this.updateState();
 	}
