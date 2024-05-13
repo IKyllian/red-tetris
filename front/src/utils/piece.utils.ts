@@ -53,7 +53,7 @@ export function moveToBottom(position: IPosition): IPosition {
 // }
 
 export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean): ICell[][] {
-    let newCells = board.cells;
+    let newCells = [...board.cells];
     tetromino.shape.forEach((row: number[], y: number) => {
         if (tetromino.position.y + y < 0) return;
         row.forEach((cell: number, x: number) => {
@@ -73,11 +73,11 @@ export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOn
             }
         });
     });
-    console.log("newCells = ", newCells);
+    // console.log("newCells = ", newCells);
     return newCells
 }
 
-export function checkCollision(board: IBoard, position: IPosition, shape: number[][]) {
+export function checkCollision(board: IBoard, position: IPosition, shape: number[][]): boolean {
     let isCollision = false;
     shape.forEach((row: number[], y: number) => {
         if (position.y + y < 0) return;
@@ -97,7 +97,7 @@ export function checkCollision(board: IBoard, position: IPosition, shape: number
             }
         });
     });
-    console.log("isCollision : ", isCollision)
+    // console.log("isCollision : ", isCollision)
     return isCollision;
 }
 
@@ -176,4 +176,21 @@ export function rotate(board: IBoard, piece: ITetromino): ITetromino {
         }
     }
     return newPiece;
+}
+
+export function getDownPosition(board: IBoard, piece: ITetromino): IPosition {
+    if (!piece) return { x: 0, y: 0 };
+    let newPos = {...piece.position};
+    let nextPosition = moveToBottom(newPos);
+
+    while (!checkCollision(board, nextPosition, piece.shape)) {
+        newPos = nextPosition;
+        nextPosition = moveToBottom(newPos);
+    }
+    // do {
+    //     newPos = nextPosition;
+    //     nextPosition = moveToBottom(newPos);
+    // } while (!checkCollision(board, nextPosition, piece.shape))
+
+    return newPos;
 }

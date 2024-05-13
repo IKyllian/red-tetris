@@ -2,6 +2,7 @@ import { TETROMINOES } from "../types/tetrominoes.type";
 import _ from 'lodash';
 
 export const transferPieceToBoard = ({rows, tetromino, position, isOccupied}) => {
+    console.info("rows = ", rows)
     let newRows = _.cloneDeep(rows);
     tetromino.shape.forEach((row: number[], y: number) => {
         row.forEach((cell: number, x: number) => {
@@ -11,6 +12,7 @@ export const transferPieceToBoard = ({rows, tetromino, position, isOccupied}) =>
                 const occupied = isOccupied;
                 const _x = x + position.x;
                 const _y = y + position.y;
+                console.info("X = ", _x, " - Position Y = ", _y)
                 newRows[_y][_x] = {className: tetromino.className, occupied }
             }
         })

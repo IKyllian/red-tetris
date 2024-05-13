@@ -6,12 +6,33 @@
     height: 800px;
 }
 
+
+.gameOver {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    color: red;
+    font-size: 26px;
+    z-index: 1;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.board-preview-container > span {
+    font-size: 24px;
+}
+
 .board-preview {
     gap: 0;
+    position: relative;
 }
 
 .cell {
-    /* border: 1px solid purple; */
     position: relative;
     border-radius: 5px;
     padding: 2px;
