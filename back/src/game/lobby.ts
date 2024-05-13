@@ -17,6 +17,7 @@ export class Lobby {
 	private dataToSend: IGame[] = [];
 	private server: Server;
 	private tick: number = 0;
+	private lastUpdate: number;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -50,17 +51,77 @@ export class Lobby {
 		}
 	}
 
-	private updateState() {
-		let nbOfGamesOver = 0;
+	// private updateState() {
+	// 	let nbOfGamesOver = 0;
 
+	// 	this.dataToSend = [];
+	// 	if (this.gameStarted === false) {
+	// 		this.stopGames();
+	// 		return;
+	// 	}
+	// 	for (const game of this.games) {
+	// 		if (!game.gameOver) {
+	// 			game.updateState();
+	// 			if (game.newPieceNeeded) {
+	// 				// generate new piece when needed
+	// 				if (this.pieces.length - game.nbOfpieceDown < 10) {
+	// 					this.generatePieces(50);
+	// 				}
+	// 				game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
+	// 			} else if (game.destructibleLinesToGive > 0) {
+	// 				for (const otherGame of this.games) {
+	// 					if (otherGame.player.id !== game.player.id) {
+	// 						otherGame.addDestructibleLines(
+	// 							game.destructibleLinesToGive
+	// 						);
+	// 					}
+	// 				}
+	// 				game.destructibleLinesToGive = 0;
+	// 			}
+	// 		} else {
+	// 			nbOfGamesOver++;
+	// 		}
+	// 		this.dataToSend.push(game.getDataToSend());
+	// 	}
+	// 	this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
+	// 	if (this.games.length > 1 && nbOfGamesOver === this.games.length - 1) {
+	// 		this.stopGames();
+	// 	} else if (this.games.length === nbOfGamesOver) {
+	// 		this.stopGames();
+	// 	} else {
+	// 		this.gameInterval = setTimeout(
+	// 			this.updateState.bind(this),
+	// 			this.tickRate
+	// 		);
+	// 	}
+	// 	this.tick++;
+	// }
+
+	private updateState() {
 		this.dataToSend = [];
 		if (this.gameStarted === false) {
 			this.stopGames();
 			return;
 		}
-		for (const game of this.games) {
-			if (!game.gameOver) {
-				game.updateState();
+		let deltaTime = performance.now() - this.lastUpdate;
+		while (deltaTime >= this.tickRate) {
+			let nbOfGamesOver = 0;
+			for (const game of this.games) {
+				if (
+					this.games.length > 1 &&
+					nbOfGamesOver === this.games.length - 1
+				) {
+					this.stopGames();
+					return;
+				} else if (this.games.length === nbOfGamesOver) {
+					this.stopGames();
+					return;
+				}
+				if (game.gameOver) {
+					nbOfGamesOver++;
+					continue;
+				}
+				game.updateState(this.tick);
 				if (game.newPieceNeeded) {
 					// generate new piece when needed
 					if (this.pieces.length - game.nbOfpieceDown < 10) {
@@ -77,23 +138,17 @@ export class Lobby {
 					}
 					game.destructibleLinesToGive = 0;
 				}
-			} else {
-				nbOfGamesOver++;
 			}
+			deltaTime -= this.tickRate;
+			this.lastUpdate = performance.now();
+			this.tick++;
+		}
+		for (const game of this.games) {
 			this.dataToSend.push(game.getDataToSend());
 		}
 		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
-		if (this.games.length > 1 && nbOfGamesOver === this.games.length - 1) {
-			this.stopGames();
-		} else if (this.games.length === nbOfGamesOver) {
-			this.stopGames();
-		} else {
-			this.gameInterval = setTimeout(
-				this.updateState.bind(this),
-				this.tickRate
-			);
-		}
-		this.tick++;
+
+		this.gameInterval = setTimeout(this.updateState.bind(this), 1000);
 	}
 
 	public startGames(server: Server) {
@@ -105,6 +160,7 @@ export class Lobby {
 		for (const player of this.players) {
 			this.games.push(new Game(player, this.pieces, 0));
 		}
+		this.lastUpdate = performance.now();
 		this.updateState();
 	}
 

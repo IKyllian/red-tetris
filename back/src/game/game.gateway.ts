@@ -28,6 +28,8 @@ export class GameGateway
 
 	private lobbyManager = new LobbyManager();
 
+	afterInit(_server: Server) {}
+
 	async handleConnection(socket: Socket) {
 		console.log('new connection: ', socket.id);
 		// const board = new Board(defaultBoardSize);
@@ -40,8 +42,6 @@ export class GameGateway
 		console.log('disconnection: ', socket.id);
 		this.lobbyManager.leaveLobby(socket);
 	}
-
-	afterInit(_server: Server) {}
 
 	@SubscribeMessage(SocketEvent.CreateLobby)
 	createLobby(
