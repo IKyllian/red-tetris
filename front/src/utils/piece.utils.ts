@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { IPosition, ITetromino, I_SRS, JLTSZ_SRS, TetrominoType } from '../types/tetrominoes.type';
 import { IBoard } from '../../../back/dist/type/board.interface';
-import { ICell, defaultCell } from '../types/board.types';
+import { ICell, IGame, NbOfLinesForNextLevel, defaultCell } from '../types/board.types';
 import { ILobby } from '../types/lobby.type';
 
 // function getRotatedShape(): number[][] {
@@ -46,6 +46,67 @@ export function moveToLeft(position: IPosition): IPosition {
 export function moveToBottom(position: IPosition): IPosition {
     console.log('Pos = ', position);
     return {...position, y: position.y + 1}
+}
+
+export function moveDown(game: IGame): IGame {
+    // this.tickToMoveDown = 0;
+    const newGame = {...game};
+    const currentPiece = newGame.pieces[0];
+    const newPosition = {
+        ...currentPiece.position,
+        y: currentPiece.position.y + 1,
+    };
+    if (checkCollision(newGame.board, newPosition, currentPiece.shape)) {
+        // newGame.board.transferPieceToBoard(this.currentPiece, true);
+        newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, true);
+        // this.newPieceNeeded = true;
+        // this.currentPiece = this.pieces[1];
+        // this.nbOfpieceDown++;
+        const linesCleared = checkForLines(newGame.board);
+        if (linesCleared > 0) {
+            // this.destructibleLinesToGive = linesCleared - 1;
+            newGame.linesCleared += linesCleared;
+            if (newGame.linesCleared >= NbOfLinesForNextLevel) {
+                newGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
+                newGame.level++;
+                newGame.linesCleared = 0;
+            }
+            // let lineScore = 0;
+            // if (linesCleared <= this.lineScores.length) {
+            //     lineScore =
+            //         this.lineScores[linesCleared - 1] * (newGame.level + 1);
+            // }
+            // this.score += lineScore;
+            newGame.totalLinesCleared += linesCleared;
+        }
+        // add new piece to the board
+        // newGame.board.transferPieceToBoard(this.currentPiece, false);
+        newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
+    } else {
+        newGame.board.cells = clearOldPosition(currentPiece, newGame.board);
+        currentPiece.position = newPosition;
+        newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
+    }
+    return newGame;
+}
+
+
+export function checkForLines(board: IBoard) {
+    let lines = 0;
+    for (let i = board.size.rows - 1; i >= 0; i--) {
+        const row = board.cells[i];
+        if (row.every((cell) => cell.occupied && cell.isDestructible)) {
+            lines++;
+            board.cells.splice(i, 1);
+            board.cells.unshift(
+                Array.from({ length: board.size.columns }, () => ({
+                    ...defaultCell,
+                }))
+            );
+            ++i;
+        }
+    }
+    return lines;
 }
 
 // export function hardDrop(position: IPosition): IPosition {

@@ -55,10 +55,10 @@ const socketMiddleware: Middleware = (store) => {
                 })
 
                 socket.socket.on(SocketEvent.GamesUpdate, (games: IGame[]) => {
-                    // if (AZE < 3) {
+                    if (AZE < 1) {
                         store.dispatch(updateGamesBoard(games));
                         AZE++
-                    // }
+                    }
                 })
             }
         }
@@ -89,8 +89,8 @@ const socketMiddleware: Middleware = (store) => {
 
         // Handle the commands action
         if (commandPressed.match(action) && socket) {
-            let command = {data: {...action.payload}};
-            socket.socket.emit(SocketEvent.CommandPressed, command);
+            // let command = {data: {...action.payload}};
+            // socket.socket.emit(SocketEvent.CommandPressed, command);
         }
         next(action);
     };

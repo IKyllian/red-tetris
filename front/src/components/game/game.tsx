@@ -19,7 +19,7 @@ export function Game({ games }: GameProps) {
                         board={playerGame.board}
                         gameIdx={games.findIndex((game) => game.player.name === playerName)}
                         isGameOver={playerGame.gameOver}
-                        currentPiece={playerGame?.pieces[0]}
+                        game={playerGame}
                     />
                     {
                         playerGame.pieces.slice(1).map((piece, pieceIndex) => (

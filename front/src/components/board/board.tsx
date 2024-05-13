@@ -1,17 +1,19 @@
 import "./board.css"
 import { ITetromino } from "../../types/tetrominoes.type"
-import { IBoard, ICell } from "../../types/board.types";
+import { IBoard, ICell, IGame } from "../../types/board.types";
 import { transferPieceToBoard as transferPieceToBoard2} from "../../utils/tetromino.utils";
 import { buildBoard } from "../../utils/board.utils";
 import { isCommandType } from "../../types/command.types";
 import { useAppDispatch } from "../../store/hook";
 import { commandPressed } from "../../store/lobby.slice";
 import { getDownPosition, transferPieceToBoard } from "../../utils/piece.utils"
+import { useTick } from "../../hooks/useTick";
+import { useEffect } from "react";
 interface BoardProps {
     board: IBoard,
     gameIdx: number,
     isGameOver: boolean,
-    currentPiece: ITetromino
+    game: IGame
 }
 
 interface BoardPreviewProps {
@@ -28,8 +30,9 @@ const Cell = ({ cellClassname }) => {
     )
 }
 
-export const Board = ({ board, gameIdx, isGameOver, currentPiece}: BoardProps) => {
+export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
     const dispatch = useAppDispatch();
+    const [updateState] = useTick(game, gameIdx);
     const boardStyles = {
         gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
         gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`
@@ -41,8 +44,13 @@ export const Board = ({ board, gameIdx, isGameOver, currentPiece}: BoardProps) =
             dispatch(commandPressed({ command: code, gameIdx }));
         }
     }
-    const findDownPos = getDownPosition(board, currentPiece)
-    console.info("findDownPos = ", findDownPos)
+
+    useEffect(() => {
+        updateState()
+    }, [])
+
+    // const findDownPos = getDownPosition(board, currentPiece)
+    // console.info("findDownPos = ", findDownPos)
     // const newBoard = {...board, cells: transferPieceToBoard2({rows: board.cells, tetromino: currentPiece, position: findDownPos, isOccupied: false})};
     // const newBoard = {...board, cells: transferPieceToBoard(board, {...currentPiece, position: findDownPos }, false)};
     // const rows = transferPieceToBoard({ rows: board.cells, tetromino, position: { x: 0, y: 0 }, isOccupied: false });

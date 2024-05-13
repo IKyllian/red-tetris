@@ -35,4 +35,8 @@ export interface IGame {
 	pieces: ITetromino[];
 	gameOver: boolean;
 	level: number;
+    linesCleared: number;
+    totalLinesCleared: number;
 }
+
+export const NbOfLinesForNextLevel = 10;
