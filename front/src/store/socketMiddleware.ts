@@ -2,9 +2,10 @@ import { Middleware } from "@reduxjs/toolkit";
 import SocketFactory, { SocketInterface } from "./socketFactory";
 import { connectionEstablished, connectionLost, initSocket } from "./socket.slice";
 import { setBoard, setBoardListener } from "./board.slice";
-import { ICell, IGame } from "../types/board.types";
-import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard } from "./lobby.slice";
+import { ICell, IGame } from '../types/board.types';
+import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard, updatePieces } from "./lobby.slice";
 import { ILobby } from "../types/lobby.type";
+import { ITetromino } from "../types/tetrominoes.type";
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -19,6 +20,8 @@ export enum SocketEvent {
 	StartGame = 'start-game',
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
+    PiecesUpdate = 'pieces-update',
+    StartingGame = 'starting-game',
 	// On events
 	Error = 'error',
 }
@@ -59,6 +62,14 @@ const socketMiddleware: Middleware = (store) => {
                         store.dispatch(updateGamesBoard(games));
                         AZE++
                     }
+                })
+
+                socket.socket.on(SocketEvent.PiecesUpdate, (pieces: ITetromino[]) => {
+                    store.dispatch(updatePieces(pieces));
+                })
+
+                socket.socket.on(SocketEvent.StartingGame, (data: {games: IGame[], pieces: ITetromino}) => {
+                    store.dispatch(startGame(data));
                 })
             }
         }

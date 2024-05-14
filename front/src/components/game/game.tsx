@@ -1,12 +1,14 @@
 import { useAppSelector } from "../../store/hook";
 import { IGame } from "../../types/board.types";
+import { ILobby } from "../../types/lobby.type";
 import { Board, PiecePreview, BoardPreview } from "../board/board";
 
 interface GameProps {
     games: IGame[];
+    lobby: ILobby;
 }
 
-export function Game({ games }: GameProps) {
+export function Game({ games, lobby }: GameProps) {
     const playerName = useAppSelector((state) => state.player.name);
     const playerGame = games.find((game) => game.player.name === playerName);
     const opponentsGame = games.filter((game) => game.player.name !== playerName);
@@ -22,9 +24,10 @@ export function Game({ games }: GameProps) {
                         game={playerGame}
                     />
                     {
-                        playerGame.pieces.slice(1).map((piece, pieceIndex) => (
+                        lobby.pieces.slice(1, 4).map((piece, pieceIndex) => (
                             <PiecePreview key={pieceIndex} tetromino={piece}   />
-                        ))}
+                        ))
+                    }
                 </>
             }
             {

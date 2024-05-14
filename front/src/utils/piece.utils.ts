@@ -33,6 +33,8 @@ import { ILobby } from '../types/lobby.type';
 //     }
 // }
 
+let newPieceNeeded = false;
+
 export function moveToRight(position: IPosition): IPosition {
     console.log('Pos = ', position);
     return {...position, x: position.x + 1}
@@ -48,19 +50,22 @@ export function moveToBottom(position: IPosition): IPosition {
     return {...position, y: position.y + 1}
 }
 
-export function moveDown(game: IGame): IGame {
+export function moveDown(game: IGame, lobby: ILobby): IGame {
     // this.tickToMoveDown = 0;
     const newGame = {...game};
-    const currentPiece = newGame.pieces[0];
+    let currentPiece = lobby.pieces[0];
     const newPosition = {
         ...currentPiece.position,
         y: currentPiece.position.y + 1,
     };
+    newPieceNeeded = false;
     if (checkCollision(newGame.board, newPosition, currentPiece.shape)) {
         // newGame.board.transferPieceToBoard(this.currentPiece, true);
         newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, true);
         // this.newPieceNeeded = true;
-        // this.currentPiece = this.pieces[1];
+        newPieceNeeded = true;
+        lobby.pieces.shift();
+        currentPiece = lobby.pieces[0];
         // this.nbOfpieceDown++;
         const linesCleared = checkForLines(newGame.board);
         if (linesCleared > 0) {
@@ -90,6 +95,15 @@ export function moveDown(game: IGame): IGame {
     return newGame;
 }
 
+// export function drawDropPosition(game: IGame) {
+//     return {
+//         ...game,
+//         board: {
+//             ...game.board, 
+//             cells : 
+//         }
+//     }
+// }
 
 export function checkForLines(board: IBoard) {
     let lines = 0;
@@ -109,9 +123,25 @@ export function checkForLines(board: IBoard) {
     return lines;
 }
 
-// export function hardDrop(position: IPosition): IPosition {
-//     do const newPos = moveToBottom(game.pieces[0].position);
-// }
+export function hardDrop(game: IGame, lobby: ILobby) {
+    let newGame = game;
+    while (!newPieceNeeded) {
+        newGame = moveDown(game, lobby);
+    }
+
+    return newGame;
+}
+
+export function getHardDropPos(piece: ITetromino, board: IBoard): IPosition {
+    let newPos = piece.position;
+    let nextPos = moveToBottom(newPos);
+    while (!checkCollision(board, nextPos, piece.shape)) {
+        newPos = nextPos;
+        nextPos = moveToBottom(newPos);
+    }
+
+    return newPos;
+}
 
 export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean): ICell[][] {
     let newCells = [...board.cells];
@@ -163,32 +193,32 @@ export function checkCollision(board: IBoard, position: IPosition, shape: number
 }
 
 export function changeStatePiecePosition(state: ILobby, gameIdx: number, cb: (position: IPosition) => IPosition): ILobby {
+    const newPos = cb(state.pieces[0].position);
     return Object.assign(state, {
         ...state,
         games: [...state.games.map((game, idx) => {
             if (idx === gameIdx) {
-                const newPos = cb(game.pieces[0].position);
-                const haveCollided = checkCollision(game.board, newPos, game.pieces[0].shape)
+                const haveCollided = checkCollision(game.board, newPos, state.pieces[0].shape)
                 if (haveCollided) {
                     return game;
                 }
-                game.board.cells = clearOldPosition(game.pieces[0], game.board);
+                game.board.cells = clearOldPosition(state.pieces[0], game.board);
                 return {
                     ...game,
-                    pieces: [...game.pieces.map((piece, idx) => {
-                        if (idx === 0) {
-                            return { ...piece, position: newPos }
-                        } else {
-                            return piece;
-                        }
-                    })],
                     board: Object.assign(game.board, {
                         ...game.board,
-                        cells: transferPieceToBoard(game.board, { ...game.pieces[0], position: newPos }, false)
+                        cells: transferPieceToBoard(game.board, { ...state.pieces[0], position: newPos }, false)
                     })
                 }
             }
             return game;
+        })],
+        pieces: [...state.pieces.map((piece, idx) => {
+            if (idx === 0) {
+                return { ...piece, position: newPos }
+            } else {
+                return piece;
+            }
         })],
     })
 }

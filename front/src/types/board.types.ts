@@ -37,6 +37,7 @@ export interface IGame {
 	level: number;
     linesCleared: number;
     totalLinesCleared: number;
+    currentPieceIndex: number;
 }
 
 export const NbOfLinesForNextLevel = 10;

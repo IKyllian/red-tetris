@@ -1,43 +1,50 @@
 import { useState } from "react";
-import { useAppDispatch } from "../store/hook";
+import { useAppDispatch, useAppSelector } from "../store/hook";
 import { IGame } from "../types/board.types";
 import { moveDown, moveToBottom } from "../utils/piece.utils";
 import { moveStateDown } from "../store/lobby.slice";
+import { setGameInterval, setLastUpdate, setTick, setTickToMoveDown } from "../store/tick.slice";
 
 const TICKRATE = 1000 / 30;
 export const useTick = (game: IGame, gameIdx: number) => {
-    const [tick, setTick] = useState<number>(0)
-    const [lastUpdate, setLastUpdate] = useState<number>(performance.now())
-    const [gameInterval, setGameInterval] = useState(undefined)
-    const [tickToMoveDown, setTickToMoveDown] = useState<number>(0)
+    // const [tick, setTick] = useState<number>(0)
+	const [gameInterval, setGameInterval] = useState(undefined)
+    // const [lastUpdate, setLastUpdate] = useState<number>(performance.now())
+    // const [gameInterval, setGameInterval] = useState(undefined)
+    // const [tickToMoveDown, setTickToMoveDown] = useState<number>(0)
+	const { tick, tickToMoveDown, lastUpdate } = useAppSelector(state => state.tick)
 	const currentPiece = game.pieces[0]
 	console.log("currentPiece = ", currentPiece)
     const dispatch = useAppDispatch()
     const updateState = () => {
-		let deltaTime = performance.now() - lastUpdate;
+		console.log("lastUpdate = ", lastUpdate)
+		const lastUpdateValue = lastUpdate === undefined ? performance.now() : lastUpdate
+		let deltaTime = performance.now() - lastUpdateValue;
         console.log("updateState CALLED = ", deltaTime)
 		while (deltaTime >= TICKRATE) {
 			console.log("TICK = ", tick)
 			console.log("TESTTTTTTTT = ", tickToMoveDown, " - ", getFramesPerGridCell(game.level))
             if (tickToMoveDown >= getFramesPerGridCell(game.level) && currentPiece) {
 				console.log("IN CONDITION")
-				dispatch(moveStateDown(gameIdx))
+				dispatch(moveStateDown({gameIdx}))
                 // moveDown(game);
             } else {
-                setTickToMoveDown(state => state + 1)
+                dispatch(setTickToMoveDown())
             }
 
 			deltaTime -= TICKRATE;
             
-            setTick(state => state + 1)
+            dispatch(setTick())
 		}
-		setLastUpdate(performance.now())
+		dispatch(setLastUpdate(performance.now()))
         //Emit event
         // dispatch(sendInput())
 
 		// this.gameInterval = setTimeout(this.updateState.bind(this), 1000);
         // window.requestAnimationFrame(updateState);
-        setGameInterval(setTimeout(updateState, 1000));
+		setGameInterval(setTimeout(updateState, 1000))
+		
+        // dispatch(setGameInterval(setTimeout(updateState, 1000)));
 	}
 
     const getFramesPerGridCell = (level: number): number => {
@@ -60,6 +67,7 @@ export const useTick = (game: IGame, gameIdx: number) => {
 	}
 
     return [
-        updateState 
+        updateState,
+		gameInterval
     ]
 }

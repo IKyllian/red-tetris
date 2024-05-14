@@ -5,10 +5,12 @@ import { transferPieceToBoard as transferPieceToBoard2} from "../../utils/tetrom
 import { buildBoard } from "../../utils/board.utils";
 import { isCommandType } from "../../types/command.types";
 import { useAppDispatch } from "../../store/hook";
-import { commandPressed } from "../../store/lobby.slice";
+import { commandPressed, moveStateDown } from "../../store/lobby.slice";
 import { getDownPosition, transferPieceToBoard } from "../../utils/piece.utils"
 import { useTick } from "../../hooks/useTick";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { initLastUpdate } from "../../store/tick.slice";
+import { useInterval } from "../../hooks/useInterval";
 interface BoardProps {
     board: IBoard,
     gameIdx: number,
@@ -30,9 +32,38 @@ const Cell = ({ cellClassname }) => {
     )
 }
 
+
+const TICKRATE = 1000 / 30;
+
+const getFramesPerGridCell = (level: number): number => {
+    let framesPerGridCell = 0;
+    if (level <= 9) {
+        framesPerGridCell = 48 - level * 5;
+    } else if (level <= 12) {
+        framesPerGridCell = 5;
+    } else if (level <= 15) {
+        framesPerGridCell = 4;
+    } else if (level <= 18) {
+        framesPerGridCell = 3;
+    } else if (level <= 28) {
+        framesPerGridCell = 2;
+    } else {
+        framesPerGridCell = 1;
+    }
+    // framesPerGridCell / 2 because of tick rate
+    return framesPerGridCell / 2;
+}
+let lastUpdate = undefined
+let tick = 0
+let tickToMoveDown = 0
 export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
     const dispatch = useAppDispatch();
-    const [updateState] = useTick(game, gameIdx);
+    // console.log("gameIdx  cOMPONENT = ",gameIdx)
+    // const [updateState, gameInterval] = useTick(game, gameIdx);
+    // const [tick, setTick] = useState<number>(0)
+    // const [lastUpdate, setLastUpdate] = useState<number>(performance.now())
+    // const [tickToMoveDown, setTickToMoveDown] = useState<number>(0)
+    const requestRef = useRef<number>();
     const boardStyles = {
         gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
         gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`
@@ -44,10 +75,44 @@ export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
             dispatch(commandPressed({ command: code, gameIdx }));
         }
     }
+    const currentPiece = game.pieces[0];
+    
+    const update = () => {
+        if (lastUpdate === undefined) {
+            lastUpdate = performance.now()
+        }
+        let deltaTime = performance.now() - lastUpdate;
+        let tickRate = 0;
+        while (deltaTime >= TICKRATE) {
+            if (tickToMoveDown >= getFramesPerGridCell(game.level) && currentPiece) {
+				dispatch(moveStateDown({gameIdx}))
+                tickToMoveDown = 0
+            } else {
+                tickToMoveDown++
+            }
+            tickRate++;
+			deltaTime -= TICKRATE;
+            tick++
+            lastUpdate = performance.now()
+		}
+        // lastUpdate = performance.now()
+        console.log("tick rate: " + tickRate)
+        requestRef.current = setTimeout(update, 1000);
+    }
 
     useEffect(() => {
-        updateState()
+        // console.log("useEffect")
+        requestRef.current = setTimeout(update, 1000);
+        return () => clearTimeout(requestRef.current);
     }, [])
+
+    // useInterval(() => dispatch(moveStateDown({gameIdx})), 1000);
+    // useEffect(() => {
+    //     // useCallback(() => {updateState()}, [])
+    //     updateState()
+
+    //     // return () => clearTimeout(gameInterval);
+    // }, [])
 
     // const findDownPos = getDownPosition(board, currentPiece)
     // console.info("findDownPos = ", findDownPos)
@@ -55,15 +120,18 @@ export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
     // const newBoard = {...board, cells: transferPieceToBoard(board, {...currentPiece, position: findDownPos }, false)};
     // const rows = transferPieceToBoard({ rows: board.cells, tetromino, position: { x: 0, y: 0 }, isOccupied: false });
     return (
-        <div className="board" style={boardStyles} onKeyDown={resolveKeyPress} tabIndex={0}>
-            {
-                board.cells.map((row) => (
-                    row.map((cell, cellIndex) => (
-                        <Cell key={cellIndex} cellClassname={cell.className} />
+        <>
+            <span  style={{fontSize: "25px", color: "red"}}>{tick}  </span>
+            <div className="board" style={boardStyles} onKeyDown={resolveKeyPress} tabIndex={0}>
+                {
+                    board.cells.map((row) => (
+                        row.map((cell, cellIndex) => (
+                            <Cell key={cellIndex} cellClassname={cell.className} />
+                        ))
                     ))
-                ))
-            }
-        </div>
+                }
+            </div>
+        </>
     )
 }
 
