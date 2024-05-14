@@ -9,8 +9,11 @@ export enum SocketEvent {
 	BoardUpdate = 'board-update',
 	CommandPressed = 'command-pressed',
 	StartGame = 'start-game',
+	GameReady = 'game-ready',
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
+	StartingGame = 'starting-game',
+	PiecesUpdate = 'pieces-update',
 	// On events
 	Error = 'error',
 }

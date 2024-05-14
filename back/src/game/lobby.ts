@@ -45,10 +45,13 @@ export class Lobby {
 		);
 	}
 
-	private generatePieces(nb: number) {
+	private generatePieces(nb: number): Piece[] {
+		let newPieces: Piece[] = [];
 		for (let i = 0; i < nb; ++i) {
-			this.pieces.push(new Piece());
+			newPieces.push(new Piece());
 		}
+		this.pieces = [...this.pieces, ...newPieces];
+		return newPieces;
 	}
 
 	// private updateState() {
@@ -125,7 +128,10 @@ export class Lobby {
 				if (game.newPieceNeeded) {
 					// generate new piece when needed
 					if (this.pieces.length - game.nbOfpieceDown < 10) {
-						this.generatePieces(50);
+						const newPieces = this.generatePieces(50);
+						this.server
+							.to(this.id)
+							.emit(SocketEvent.PiecesUpdate, newPieces);
 					}
 					game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
 				} else if (game.destructibleLinesToGive > 0) {
@@ -164,7 +170,10 @@ export class Lobby {
 		for (const game of this.games) {
 			this.dataToSend.push(game.getDataToSend());
 		}
-		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
+		this.server.to(this.id).emit(SocketEvent.StartingGame, {
+			games: this.dataToSend,
+			pieces: this.pieces,
+		});
 		this.lastUpdate = performance.now();
 		this.updateState();
 	}
