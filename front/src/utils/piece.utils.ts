@@ -7,28 +7,34 @@ import { ILobby } from '../types/lobby.type';
 let newPieceNeeded = false;
 
 export function moveToRight(position: IPosition): IPosition {
-    console.log('Pos = ', position);
+    // console.log('Pos = ', position);
     return {...position, x: position.x + 1}
 }
 
 export function moveToLeft(position: IPosition): IPosition {
-    console.log('Pos = ', position);
+    // console.log('Pos = ', position);
     return {...position, x: position.x - 1}
 }
 
 export function moveToBottom(position: IPosition): IPosition {
-    console.log('Pos = ', position);
+    // console.log('Pos = ', position);
     return {...position, y: position.y + 1}
 }
 
 export function moveDown(game: IGame, lobby: ILobby): IGame {
-    const newGame = {...game};
+    let newGame = {...game};
+    console.log("Lobby pieces = ", lobby.pieces)
     let currentPiece = lobby.pieces[0];
+    console.log("currentPiece = ", currentPiece)
     if (currentPiece) {
         const newPosition = {
             ...currentPiece.position,
             y: currentPiece.position.y + 1,
         };
+        const oldDropPosition = getDropPosition(game.board, currentPiece);
+        if (oldDropPosition) {
+            newGame.board.cells = clearOldPosition({...currentPiece, position: oldDropPosition}, newGame.board);
+        }
         newPieceNeeded = false;
         if (checkCollision(newGame.board, newPosition, currentPiece.shape)) {
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, true);
@@ -48,14 +54,17 @@ export function moveDown(game: IGame, lobby: ILobby): IGame {
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
         } else {
             newGame.board.cells = clearOldPosition(currentPiece, newGame.board);
+            const dropPosition = getDropPosition(game.board, {...currentPiece, position: newPosition});
+            console.log("dropPosition = ", dropPosition)
             currentPiece.position = newPosition;
+            newGame.board.cells = transferPieceToBoard(newGame.board, {...currentPiece, position: dropPosition}, false, 'drop-preview');
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
         }
     }
     return newGame;
 }
 
-export function checkForLines(board: IBoard) {
+export function checkForLines(board: IBoard): number {
     let lines = 0;
     for (let i = board.size.rows - 1; i >= 0; i--) {
         const row = board.cells[i];
@@ -73,7 +82,18 @@ export function checkForLines(board: IBoard) {
     return lines;
 }
 
-export function hardDrop(game: IGame, lobby: ILobby) {
+export function getDropPosition(board: IBoard, piece: ITetromino): IPosition | null {
+    if (checkCollision(board, piece.position, piece.shape)) return null
+    let newPos = piece.position;
+    let nextPos = moveToBottom(newPos);
+    while (!checkCollision(board, nextPos, piece.shape)) {
+        newPos = nextPos;
+        nextPos = moveToBottom(newPos);
+    }
+    return newPos;
+}
+
+export function hardDrop(game: IGame, lobby: ILobby): IGame {
     let newGame = game;
     while (!newPieceNeeded) {
         newGame = moveDown(game, lobby);
@@ -93,7 +113,7 @@ export function getHardDropPos(piece: ITetromino, board: IBoard): IPosition {
     return newPos;
 }
 
-export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean): ICell[][] {
+export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean, additionalClassName: string = undefined): ICell[][] {
     let newCells = [...board.cells];
     tetromino.shape.forEach((row: number[], y: number) => {
         if (tetromino.position.y + y < 0) return;
@@ -107,7 +127,7 @@ export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOn
                 //     this.gameOver = true;
                 // }
                 newCells[_y][_x] = {
-                    className: tetromino.className,
+                    className: tetromino.className + ' ' + additionalClassName,
                     occupied: fixOnBoard,
                     isDestructible: true,
                 };
@@ -143,22 +163,31 @@ export function checkCollision(board: IBoard, position: IPosition, shape: number
 }
 
 export function changeStatePiecePosition(lobby: ILobby, cb: (position: IPosition) => IPosition): ILobby {
-    console.log("LOBBBBYYYYY = ", lobby.pieces)
+    // console.log("LOBBBBYYYYY = ", lobby.pieces)
     const { pieces, playerGame } = lobby;
     const currentPiece = pieces[0]
     if (currentPiece) {
         const newPos = cb(currentPiece.position);
         let newPlayerGame = playerGame
+        const oldDropPosition = getDropPosition(newPlayerGame.board, currentPiece);
+        
+        if (oldDropPosition) {
+            newPlayerGame.board.cells = clearOldPosition({...currentPiece, position: oldDropPosition}, newPlayerGame.board);
+        }
         const haveCollided = checkCollision(playerGame.board, newPos, currentPiece.shape)
         if (!haveCollided) {
+            const dropPosition = getDropPosition(newPlayerGame.board, {...currentPiece, position: newPos});
             playerGame.board.cells = clearOldPosition(currentPiece, playerGame.board);
-            newPlayerGame =  {
-                ...playerGame,
-                board: Object.assign(playerGame.board, {
-                    ...playerGame.board,
-                    cells: transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
-                })
-            }
+            newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: dropPosition }, false, 'drop-preview')
+            newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
+            
+            // newPlayerGame =  {
+            //     ...playerGame,
+            //     board: Object.assign(playerGame.board, {
+            //         ...playerGame.board,
+            //         cells: transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
+            //     })
+            // }
         }
         
         return Object.assign(lobby, {
@@ -199,18 +228,29 @@ function clearOldPosition(tetromino: ITetromino, board: IBoard): ICell[][] {
 }
 
 export function rotate(board: IBoard, piece: ITetromino): ITetromino {
-    if (piece.className === TetrominoType.O) {
+    if (!piece || piece.className === TetrominoType.O) {
         return;
     }
     const newPiece = {...piece}
     const newShape = getRotatedShape(newPiece.shape);
     const srs = newPiece.className === TetrominoType.I ? I_SRS : JLTSZ_SRS;
+    // let newPlayerGame = playerGame
+    const oldDropPosition = getDropPosition(board, piece);
+    console.log("oldDropPosition = ", oldDropPosition)
+    console.log("board.cells = ", board.cells)
+    if (oldDropPosition) {
+        board.cells = clearOldPosition({...piece, position: oldDropPosition}, board);
+    }
+    console.log("board.cells = ", board.cells)
     for (let position of srs[newPiece.rotationState]) {
         const newPosition = {
             x: newPiece.position.x + position.x,
             y: newPiece.position.y + position.y,
         };
         if (!checkCollision(board, newPosition, newShape)) {
+            if (oldDropPosition) {
+                board.cells = clearOldPosition(piece, board);
+            }
             board.cells = clearOldPosition(newPiece, board);
             newPiece.position = newPosition;
             newPiece.shape = newShape;
@@ -219,6 +259,8 @@ export function rotate(board: IBoard, piece: ITetromino): ITetromino {
             break;
         }
     }
+    const dropPosition = getDropPosition(board, newPiece);
+    board.cells = transferPieceToBoard(board, {...newPiece, position: dropPosition}, false, 'drop-preview');
     return newPiece;
 }
 

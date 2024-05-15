@@ -69,7 +69,7 @@ export const Board = ({ board, isGameOver, game}: BoardProps) => {
     };
     const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         const code = event.code;
-        console.log('code = ', code);
+        // console.log('code = ', code);
         if (isCommandType(code) && !isGameOver) {
             dispatch(commandPressed({ command: code }));
         }
@@ -95,7 +95,7 @@ export const Board = ({ board, isGameOver, game}: BoardProps) => {
             lastUpdate = performance.now()
 		}
         // lastUpdate = performance.now()
-        console.log("tick rate: " + tickRate)
+        // console.log("tick rate: " + tickRate)
         requestRef.current = setTimeout(update, 1000);
     }
 
@@ -161,7 +161,7 @@ export function BoardPreview({ board, playerName, isGameOver }: BoardPreviewProp
 }
 
 export function PiecePreview({ tetromino }: { tetromino: ITetromino }) {
-    console.info("tetromino = ",      tetromino)
+    // console.info("tetromino = ",      tetromino)
     const board = buildBoard({ rows: 4, columns: 4 });
     const boardStyles = {
         gridTemplateRows: `repeat(4, 1fr)`,
