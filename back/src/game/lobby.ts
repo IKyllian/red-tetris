@@ -150,9 +150,20 @@ export class Lobby {
 		}
 		this.lastUpdate = performance.now();
 		for (const game of this.games) {
-			this.dataToSend.push(game.getDataToSend());
+			const filteredData = this.games.filter((elem) => {
+				elem.player.id != game.player.id;
+			});
+			const dataToSend = filteredData.map((data) => {
+				data.getDataToSend();
+			});
+			this.server
+				.to(game.player.id)
+				.emit(SocketEvent.GamesUpdate, dataToSend);
 		}
-		this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
+		// for (const game of this.games) {
+		// 	this.dataToSend.push(game.getDataToSend());
+		// }
+		// this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
 
 		this.gameInterval = setTimeout(this.updateState.bind(this), 1000);
 	}
@@ -164,16 +175,23 @@ export class Lobby {
 		this.gameStarted = true;
 		this.generatePieces(100);
 		this.dataToSend = [];
+		let playerGame: IGame;
 		for (const player of this.players) {
 			this.games.push(new Game(player, this.pieces, 0));
 		}
 		for (const game of this.games) {
-			this.dataToSend.push(game.getDataToSend());
+			const filteredData = this.games.filter((elem) => {
+				elem.player.id != game.player.id;
+			});
+			const dataToSend = filteredData.map((data) => {
+				data.getDataToSend();
+			});
+			this.server.to(game.player.id).emit(SocketEvent.StartingGame, {
+				playerGame: playerGame,
+				opponentsGames: dataToSend,
+				pieces: this.pieces,
+			});
 		}
-		this.server.to(this.id).emit(SocketEvent.StartingGame, {
-			games: this.dataToSend,
-			pieces: this.pieces,
-		});
 		this.lastUpdate = performance.now();
 		this.updateState();
 	}
