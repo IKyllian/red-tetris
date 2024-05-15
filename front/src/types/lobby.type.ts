@@ -8,7 +8,9 @@ export interface ILobby {
     players: IPlayer[],
     games: IGame[],
     pieces: ITetromino[],
-    gameStarted: boolean
+    gameStarted: boolean,
+    // playerGame: IGame,
+    // opponentsGames: IGame[],
 }
 
 export const defaultLobby: ILobby = {
