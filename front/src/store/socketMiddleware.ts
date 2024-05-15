@@ -3,7 +3,7 @@ import SocketFactory, { SocketInterface } from "./socketFactory";
 import { connectionEstablished, connectionLost, initSocket } from "./socket.slice";
 import { setBoard, setBoardListener } from "./board.slice";
 import { ICell, IGame } from '../types/board.types';
-import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard, updatePieces } from "./lobby.slice";
+import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard, updatePieces, startGameData } from "./lobby.slice";
 import { ILobby } from "../types/lobby.type";
 import { ITetromino } from "../types/tetrominoes.type";
 
@@ -69,7 +69,8 @@ const socketMiddleware: Middleware = (store) => {
                 })
 
                 socket.socket.on(SocketEvent.StartingGame, (data: {games: IGame[], pieces: ITetromino}) => {
-                    store.dispatch(startGame(data));
+                    console.log("StartingGame = ", data)
+                    store.dispatch(startGameData(data));
                 })
             }
         }

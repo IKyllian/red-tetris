@@ -150,12 +150,8 @@ export class Lobby {
 		}
 		this.lastUpdate = performance.now();
 		for (const game of this.games) {
-			const filteredData = this.games.filter((elem) => {
-				elem.player.id != game.player.id;
-			});
-			const dataToSend = filteredData.map((data) => {
-				data.getDataToSend();
-			});
+			const filteredData = this.games.filter((elem) => elem.player.id != game.player.id);
+			const dataToSend = filteredData.map((data) => data.getDataToSend());
 			this.server
 				.to(game.player.id)
 				.emit(SocketEvent.GamesUpdate, dataToSend);
@@ -180,12 +176,10 @@ export class Lobby {
 			this.games.push(new Game(player, this.pieces, 0));
 		}
 		for (const game of this.games) {
-			const filteredData = this.games.filter((elem) => {
-				elem.player.id != game.player.id;
-			});
-			const dataToSend = filteredData.map((data) => {
-				data.getDataToSend();
-			});
+			const filteredData = this.games.filter((elem) => elem.player.id != game.player.id);
+			const dataToSend = filteredData.map((data) => data.getDataToSend());
+			const playerGameFound = this.games.find((elem) => elem.player.id === game.player.id);
+			playerGame = playerGameFound.getDataToSend();
 			this.server.to(game.player.id).emit(SocketEvent.StartingGame, {
 				playerGame: playerGame,
 				opponentsGames: dataToSend,

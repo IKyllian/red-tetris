@@ -9,8 +9,8 @@ export interface ILobby {
     games: IGame[],
     pieces: ITetromino[],
     gameStarted: boolean,
-    // playerGame: IGame,
-    // opponentsGames: IGame[],
+    playerGame?: IGame,
+    opponentsGames: IGame[],
 }
 
 export const defaultLobby: ILobby = {
@@ -20,4 +20,6 @@ export const defaultLobby: ILobby = {
     games: [],
     pieces: [],
     gameStarted: false,
+    opponentsGames: [],
+    playerGame: null,
 }

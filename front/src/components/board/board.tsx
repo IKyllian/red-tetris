@@ -13,7 +13,6 @@ import { initLastUpdate } from "../../store/tick.slice";
 import { useInterval } from "../../hooks/useInterval";
 interface BoardProps {
     board: IBoard,
-    gameIdx: number,
     isGameOver: boolean,
     game: IGame
 }
@@ -56,7 +55,7 @@ const getFramesPerGridCell = (level: number): number => {
 let lastUpdate = undefined
 let tick = 0
 let tickToMoveDown = 0
-export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
+export const Board = ({ board, isGameOver, game}: BoardProps) => {
     const dispatch = useAppDispatch();
     // console.log("gameIdx  cOMPONENT = ",gameIdx)
     // const [updateState, gameInterval] = useTick(game, gameIdx);
@@ -72,7 +71,7 @@ export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
         const code = event.code;
         console.log('code = ', code);
         if (isCommandType(code) && !isGameOver) {
-            dispatch(commandPressed({ command: code, gameIdx }));
+            dispatch(commandPressed({ command: code }));
         }
     }
     const currentPiece = game.pieces[0];
@@ -85,7 +84,7 @@ export const Board = ({ board, gameIdx, isGameOver, game}: BoardProps) => {
         let tickRate = 0;
         while (deltaTime >= TICKRATE) {
             if (tickToMoveDown >= getFramesPerGridCell(game.level) && currentPiece) {
-				dispatch(moveStateDown({gameIdx}))
+				dispatch(moveStateDown())
                 tickToMoveDown = 0
             } else {
                 tickToMoveDown++

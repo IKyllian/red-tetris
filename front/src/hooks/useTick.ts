@@ -26,7 +26,7 @@ export const useTick = (game: IGame, gameIdx: number) => {
 			console.log("TESTTTTTTTT = ", tickToMoveDown, " - ", getFramesPerGridCell(game.level))
             if (tickToMoveDown >= getFramesPerGridCell(game.level) && currentPiece) {
 				console.log("IN CONDITION")
-				dispatch(moveStateDown({gameIdx}))
+				dispatch(moveStateDown())
                 // moveDown(game);
             } else {
                 dispatch(setTickToMoveDown())

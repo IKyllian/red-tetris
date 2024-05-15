@@ -11,7 +11,7 @@ export function Lobby() {
         dispatch(startGame());
     }
 
-    // console.log('LOBBY RE RENDER = ', lobby);
+    console.log('LOBBY RE RENDER = ', lobby);
 
     if (!lobby.gameStarted) {
         return (
@@ -35,7 +35,7 @@ export function Lobby() {
         )
     } else {
         return (
-            <Game games={lobby.games} />
+            <Game opponentsGames={lobby.opponentsGames} playerGame={lobby.playerGame} lobby={lobby} />
         )
     }
 }

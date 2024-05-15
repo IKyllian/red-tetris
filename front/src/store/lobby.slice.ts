@@ -13,25 +13,30 @@ export const lobbySlice = createSlice({
 		createLobby: (_, __) => { },
 		leaveLobby: (_, __) => { },
 		joinLobby: (_, __) => { },
-		startGame: (state, action) => {
+		startGame: (_) => {},
+		startGameData: (state, action) => {
+			console.log("action = ", action)
 			state.gameStarted = true;
-			state.games = action.payload.games;
+			state.opponentsGames = action.payload.opponentsGames;
+			state.playerGame = action.payload.playerGame;
 			state.pieces = action.payload.pieces;
+			console.log("opponentsGames = ", state.opponentsGames)
 		},
-		moveStateDown: (state, action) => {
-			const { gameIdx } = action.payload;
-			console.log("STATE BEFORE = ", state.games, " - gameIdx = ", gameIdx)
-			state = Object.assign(state, {
-				...state,
-				games: [...state.games.map((game, idx) => {
-					console.log("IDX = ", idx)
-					if (idx === gameIdx) {
-						return Object.assign(game, moveDown(game, state))
-						// return moveDown(game)
-					}
-					return game;
-				})]
-			})
+		moveStateDown: (state) => {
+			// const { gameIdx } = action.payload;
+			// console.log("STATE BEFORE = ", state.games, " - gameIdx = ", gameIdx)
+			state.playerGame = moveDown(state.playerGame, state)
+			// state = Object.assign(state, {
+			// 	...state,
+			// 	games: [...state.games.map((game, idx) => {
+			// 		console.log("IDX = ", idx)
+			// 		if (idx === gameIdx) {
+			// 			return Object.assign(game, moveDown(game, state))
+			// 			// return moveDown(game)
+			// 		}
+			// 		return game;
+			// 	})]
+			// })
 			console.log("STATE AFTER = ", state.games)
 		},
 		// drawDropPosition: (state, action) => {
@@ -49,66 +54,75 @@ export const lobbySlice = createSlice({
 		// 	})
 			
 		// },
-		commandPressed: (state, action: { payload: { command: COMMANDS, gameIdx: number } }) => {
-			const { gameIdx, command } = action.payload;
+		commandPressed: (state, action: { payload: { command: COMMANDS} }) => {
+			const { command } = action.payload;
 			// console.log("BEFORE POS", {...state, state. });
+			const playerGame = state.playerGame
 			switch (command) {
 				case COMMANDS.KEY_UP:
-				    state = Object.assign(state, {
-						...state,
-						games: [...state.games.map((game, idx) => {
-							if (idx === gameIdx) {
-								return {
-									...game,
-									pieces: [...game.pieces.map((piece, idx) => {
-										if (idx === 0) {
-											return rotate(game.board, piece)
-										}
-										return piece;
-									})]
-								}
-							}
-							return game;
-						})]
-					})
+					state.pieces = [...state.pieces.map((piece, idx) => {
+						if (idx === 0) {
+							return rotate(playerGame.board, piece)
+						}
+						return piece;
+					})]
+				    // state = Object.assign(state, {
+					// 	...state,
+					// 	games: [...state.games.map((game, idx) => {
+					// 		if (idx === gameIdx) {
+					// 			return {
+					// 				...game,
+					// 				pieces: [...game.pieces.map((piece, idx) => {
+					// 					if (idx === 0) {
+					// 						return rotate(game.board, piece)
+					// 					}
+					// 					return piece;
+					// 				})]
+					// 			}
+					// 		}
+					// 		return game;
+					// 	})]
+					// })
 				    break;
 				case COMMANDS.KEY_DOWN:
-				    state = Object.assign(state, {
-						...state,
-						games: [...state.games.map((game, idx) => {
-							console.log("IDX = ", idx)
-							if (idx === gameIdx) {
-								return Object.assign(game, moveDown(game, state))
-								// return moveDown(game)
-							}
-							return game;
-						})]
-					})
+					state.playerGame = moveDown(playerGame, state)
+				    // state = Object.assign(state, {
+					// 	...state,
+					// 	games: [...state.games.map((game, idx) => {
+					// 		console.log("IDX = ", idx)
+					// 		if (idx === gameIdx) {
+					// 			return Object.assign(game, moveDown(game, state))
+					// 			// return moveDown(game)
+					// 		}
+					// 		return game;
+					// 	})]
+					// })
 				    break;
 				case COMMANDS.KEY_LEFT:
-				    state = changeStatePiecePosition(state, gameIdx, moveToLeft);
+				    state = changeStatePiecePosition(state, moveToLeft);
 					break;
 				case COMMANDS.KEY_RIGHT:
-				    state = changeStatePiecePosition(state, gameIdx, moveToRight);
+				    state = changeStatePiecePosition(state, moveToRight);
 					break;
 				default:
-					state = Object.assign(state, {
-						...state,
-						games: [...state.games.map((game, idx) => {
-							console.log("IDX = ", idx)
-							if (idx === gameIdx) {
-								return Object.assign(game, hardDrop(game, state))
-								// return moveDown(game)
-							}
-							return game;
-						})]
-					})
+					state.playerGame = hardDrop(playerGame, state)
+					// state = Object.assign(state, {
+					// 	...state,
+					// 	games: [...state.games.map((game, idx) => {
+					// 		console.log("IDX = ", idx)
+					// 		if (idx === gameIdx) {
+					// 			return Object.assign(game, hardDrop(game, state))
+					// 			// return moveDown(game)
+					// 		}
+					// 		return game;
+					// 	})]
+					// })
 					break;
 			}
 			console.log("STATE = ", state);
 		},
 		updateGamesBoard: (state, action) => {
-			state.games = [...action.payload];
+			state.opponentsGames = [...action.payload];
 		},
 		updatePieces: (state, action) => {
 			const piecesToAdd = action.payload;
@@ -123,6 +137,7 @@ export const {
 	leaveLobby,
 	joinLobby,
 	startGame,
+	startGameData,
 	updateGamesBoard,
 	commandPressed,
 	moveStateDown,
