@@ -4,6 +4,8 @@ import { Player } from './player';
 import { Server } from 'socket.io';
 import { SocketEvent } from 'src/type/event.enum';
 
+const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
+
 export class Lobby {
 	public name: string;
 	public id: string;
@@ -12,12 +14,12 @@ export class Lobby {
 	public games: Game[] = [];
 
 	private pieces: Piece[] = [];
-	private tickRate: number = 1000 / 30;
 	private gameInterval: NodeJS.Timeout | null = null;
 	private dataToSend: IGame[] = [];
 	private server: Server;
 	private tick: number = 0;
 	private lastUpdate: number;
+	private timer: number = 0;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -54,60 +56,15 @@ export class Lobby {
 		return newPieces;
 	}
 
-	// private updateState() {
-	// 	let nbOfGamesOver = 0;
-
-	// 	this.dataToSend = [];
-	// 	if (this.gameStarted === false) {
-	// 		this.stopGames();
-	// 		return;
-	// 	}
-	// 	for (const game of this.games) {
-	// 		if (!game.gameOver) {
-	// 			game.updateState();
-	// 			if (game.newPieceNeeded) {
-	// 				// generate new piece when needed
-	// 				if (this.pieces.length - game.nbOfpieceDown < 10) {
-	// 					this.generatePieces(50);
-	// 				}
-	// 				game.addPiece(this.pieces[game.nbOfpieceDown + 3]);
-	// 			} else if (game.destructibleLinesToGive > 0) {
-	// 				for (const otherGame of this.games) {
-	// 					if (otherGame.player.id !== game.player.id) {
-	// 						otherGame.addDestructibleLines(
-	// 							game.destructibleLinesToGive
-	// 						);
-	// 					}
-	// 				}
-	// 				game.destructibleLinesToGive = 0;
-	// 			}
-	// 		} else {
-	// 			nbOfGamesOver++;
-	// 		}
-	// 		this.dataToSend.push(game.getDataToSend());
-	// 	}
-	// 	this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
-	// 	if (this.games.length > 1 && nbOfGamesOver === this.games.length - 1) {
-	// 		this.stopGames();
-	// 	} else if (this.games.length === nbOfGamesOver) {
-	// 		this.stopGames();
-	// 	} else {
-	// 		this.gameInterval = setTimeout(
-	// 			this.updateState.bind(this),
-	// 			this.tickRate
-	// 		);
-	// 	}
-	// 	this.tick++;
-	// }
-
 	private updateState() {
 		this.dataToSend = [];
 		if (this.gameStarted === false) {
 			this.stopGames();
 			return;
 		}
-		let deltaTime = performance.now() - this.lastUpdate;
-		while (deltaTime >= this.tickRate) {
+		const deltaTime = performance.now() - this.lastUpdate;
+		this.timer += deltaTime;
+		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
 			let nbOfGamesOver = 0;
 			for (const game of this.games) {
 				if (
@@ -145,12 +102,14 @@ export class Lobby {
 					game.destructibleLinesToGive = 0;
 				}
 			}
-			deltaTime -= this.tickRate;
+			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
+			this.lastUpdate = performance.now();
 		}
-		this.lastUpdate = performance.now();
 		for (const game of this.games) {
-			const filteredData = this.games.filter((elem) => elem.player.id != game.player.id);
+			const filteredData = this.games.filter(
+				(elem) => elem.player.id != game.player.id
+			);
 			const dataToSend = filteredData.map((data) => data.getDataToSend());
 			this.server
 				.to(game.player.id)
@@ -161,7 +120,10 @@ export class Lobby {
 		// }
 		// this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
 
-		this.gameInterval = setTimeout(this.updateState.bind(this), 1000);
+		this.gameInterval = setTimeout(
+			this.updateState.bind(this),
+			MIN_TIME_BETWEEN_TICKS
+		);
 	}
 
 	public startGames(server: Server) {
@@ -176,9 +138,13 @@ export class Lobby {
 			this.games.push(new Game(player, this.pieces, 0));
 		}
 		for (const game of this.games) {
-			const filteredData = this.games.filter((elem) => elem.player.id != game.player.id);
+			const filteredData = this.games.filter(
+				(elem) => elem.player.id != game.player.id
+			);
 			const dataToSend = filteredData.map((data) => data.getDataToSend());
-			const playerGameFound = this.games.find((elem) => elem.player.id === game.player.id);
+			const playerGameFound = this.games.find(
+				(elem) => elem.player.id === game.player.id
+			);
 			playerGame = playerGameFound.getDataToSend();
 			this.server.to(game.player.id).emit(SocketEvent.StartingGame, {
 				playerGame: playerGame,
