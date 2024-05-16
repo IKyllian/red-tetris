@@ -62,7 +62,9 @@ export class Lobby {
 			this.stopGames();
 			return;
 		}
-		const deltaTime = performance.now() - this.lastUpdate;
+		const now = performance.now();
+		const deltaTime = now - this.lastUpdate;
+		this.lastUpdate = now;
 		this.timer += deltaTime;
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
 			let nbOfGamesOver = 0;
@@ -113,7 +115,6 @@ export class Lobby {
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
-			this.lastUpdate = performance.now();
 		}
 		// for (const game of this.games) {
 		// 	const filteredData = this.games.filter(
