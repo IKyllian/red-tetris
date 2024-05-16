@@ -105,15 +105,17 @@ export class Lobby {
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
 			this.lastUpdate = performance.now();
-		}
-		for (const game of this.games) {
-			const filteredData = this.games.filter(
-				(elem) => elem.player.id != game.player.id
-			);
-			const dataToSend = filteredData.map((data) => data.getDataToSend());
-			this.server
-				.to(game.player.id)
-				.emit(SocketEvent.GamesUpdate, dataToSend);
+			for (const game of this.games) {
+				const filteredData = this.games.filter(
+					(elem) => elem.player.id != game.player.id
+				);
+				const dataToSend = filteredData.map((data) =>
+					data.getDataToSend()
+				);
+				this.server
+					.to(game.player.id)
+					.emit(SocketEvent.GamesUpdate, dataToSend);
+			}
 		}
 		// for (const game of this.games) {
 		// 	this.dataToSend.push(game.getDataToSend());
