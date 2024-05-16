@@ -19,7 +19,8 @@ export const defaultBoardSize: ISize = {
 
 export interface IBoard {
     cells: ICell[][],
-    size: ISize
+    size: ISize,
+    gameOver: boolean;
 }
 
 export const defaultCell: ICell = {

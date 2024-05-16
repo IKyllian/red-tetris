@@ -1,34 +1,34 @@
 import _ from 'lodash';
 import { IPosition, ITetromino, I_SRS, JLTSZ_SRS, TetrominoType } from '../types/tetrominoes.type';
-import { IBoard } from '../../../back/dist/type/board.interface';
-import { ICell, IGame, NbOfLinesForNextLevel, defaultCell } from '../types/board.types';
+import { IBoard, ICell, IGame, NbOfLinesForNextLevel, defaultCell } from '../types/board.types';
 import { ILobby } from '../types/lobby.type';
 
 let newPieceNeeded = false;
 
 export function moveToRight(position: IPosition): IPosition {
-    console.log('Pos = ', position);
     return {...position, x: position.x + 1}
 }
 
 export function moveToLeft(position: IPosition): IPosition {
-    console.log('Pos = ', position);
     return {...position, x: position.x - 1}
 }
 
 export function moveToBottom(position: IPosition): IPosition {
-    console.log('Pos = ', position);
     return {...position, y: position.y + 1}
 }
 
 export function moveDown(game: IGame, lobby: ILobby): IGame {
-    const newGame = {...game};
+    let newGame = {...game};
     let currentPiece = lobby.pieces[0];
     if (currentPiece) {
         const newPosition = {
             ...currentPiece.position,
             y: currentPiece.position.y + 1,
         };
+        const oldDropPosition = getDropPosition(game.board, currentPiece);
+        if (oldDropPosition) {
+            newGame.board.cells = clearOldPosition({...currentPiece, position: oldDropPosition}, newGame.board);
+        }
         newPieceNeeded = false;
         if (checkCollision(newGame.board, newPosition, currentPiece.shape)) {
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, true);
@@ -48,14 +48,16 @@ export function moveDown(game: IGame, lobby: ILobby): IGame {
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
         } else {
             newGame.board.cells = clearOldPosition(currentPiece, newGame.board);
+            const dropPosition = getDropPosition(game.board, {...currentPiece, position: newPosition});
             currentPiece.position = newPosition;
+            newGame.board.cells = transferPieceToBoard(newGame.board, {...currentPiece, position: dropPosition}, false, 'drop-preview');
             newGame.board.cells = transferPieceToBoard(newGame.board, currentPiece, false);
         }
     }
     return newGame;
 }
 
-export function checkForLines(board: IBoard) {
+export function checkForLines(board: IBoard): number {
     let lines = 0;
     for (let i = board.size.rows - 1; i >= 0; i--) {
         const row = board.cells[i];
@@ -73,7 +75,18 @@ export function checkForLines(board: IBoard) {
     return lines;
 }
 
-export function hardDrop(game: IGame, lobby: ILobby) {
+export function getDropPosition(board: IBoard, piece: ITetromino): IPosition | null {
+    if (checkCollision(board, piece.position, piece.shape)) return null
+    let newPos = piece.position;
+    let nextPos = moveToBottom(newPos);
+    while (!checkCollision(board, nextPos, piece.shape)) {
+        newPos = nextPos;
+        nextPos = moveToBottom(newPos);
+    }
+    return newPos;
+}
+
+export function hardDrop(game: IGame, lobby: ILobby): IGame {
     let newGame = game;
     while (!newPieceNeeded) {
         newGame = moveDown(game, lobby);
@@ -93,28 +106,25 @@ export function getHardDropPos(piece: ITetromino, board: IBoard): IPosition {
     return newPos;
 }
 
-export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean): ICell[][] {
+export function transferPieceToBoard(board: IBoard, tetromino: ITetromino, fixOnBoard: boolean, additionalClassName: string = undefined): ICell[][] {
     let newCells = [...board.cells];
     tetromino.shape.forEach((row: number[], y: number) => {
         if (tetromino.position.y + y < 0) return;
         row.forEach((cell: number, x: number) => {
             if (cell) {
-                // cell is 0 or 1
-                // console.log("X = ", x, " - Position X = ", position.x," - Y = ", y, " Position Y = ", position.y);
                 const _x = x + tetromino.position.x;
                 const _y = y + tetromino.position.y;
-                // if (newCells[_y][_x].occupied) {
-                //     this.gameOver = true;
-                // }
+                if (newCells[_y][_x].occupied) {
+                    board.gameOver = true;
+                }
                 newCells[_y][_x] = {
-                    className: tetromino.className,
+                    className: tetromino.className + ' ' + additionalClassName,
                     occupied: fixOnBoard,
                     isDestructible: true,
                 };
             }
         });
     });
-    // console.log("newCells = ", newCells);
     return newCells
 }
 
@@ -138,27 +148,27 @@ export function checkCollision(board: IBoard, position: IPosition, shape: number
             }
         });
     });
-    // console.log("isCollision : ", isCollision)
     return isCollision;
 }
 
 export function changeStatePiecePosition(lobby: ILobby, cb: (position: IPosition) => IPosition): ILobby {
-    console.log("LOBBBBYYYYY = ", lobby.pieces)
     const { pieces, playerGame } = lobby;
     const currentPiece = pieces[0]
     if (currentPiece) {
         const newPos = cb(currentPiece.position);
-        let newPlayerGame = playerGame
         const haveCollided = checkCollision(playerGame.board, newPos, currentPiece.shape)
+        let newPlayerGame = playerGame
+        const oldDropPosition = getDropPosition(newPlayerGame.board, currentPiece);
+        
+        if (oldDropPosition && !haveCollided) {
+            newPlayerGame.board.cells = clearOldPosition({...currentPiece, position: oldDropPosition}, newPlayerGame.board);
+        }
+
         if (!haveCollided) {
+            const dropPosition = getDropPosition(newPlayerGame.board, {...currentPiece, position: newPos})
+            newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: dropPosition }, false, 'drop-preview')
             playerGame.board.cells = clearOldPosition(currentPiece, playerGame.board);
-            newPlayerGame =  {
-                ...playerGame,
-                board: Object.assign(playerGame.board, {
-                    ...playerGame.board,
-                    cells: transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
-                })
-            }
+            newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
         }
         
         return Object.assign(lobby, {
@@ -199,21 +209,30 @@ function clearOldPosition(tetromino: ITetromino, board: IBoard): ICell[][] {
 }
 
 export function rotate(board: IBoard, piece: ITetromino): ITetromino {
-    if (piece.className === TetrominoType.O) {
-        return;
+    if (!piece || piece.className === TetrominoType.O) {
+        return piece
     }
     const newPiece = {...piece}
     const newShape = getRotatedShape(newPiece.shape);
     const srs = newPiece.className === TetrominoType.I ? I_SRS : JLTSZ_SRS;
+    const oldDropPosition = getDropPosition(board, piece);
+    if (oldDropPosition) {
+        board.cells = clearOldPosition({...piece, position: oldDropPosition}, board);
+    }
     for (let position of srs[newPiece.rotationState]) {
         const newPosition = {
             x: newPiece.position.x + position.x,
             y: newPiece.position.y + position.y,
         };
         if (!checkCollision(board, newPosition, newShape)) {
+            if (oldDropPosition) {
+                board.cells = clearOldPosition(piece, board);
+            }
             board.cells = clearOldPosition(newPiece, board);
             newPiece.position = newPosition;
             newPiece.shape = newShape;
+            const dropPosition = getDropPosition(board, newPiece);
+            board.cells = transferPieceToBoard(board, {...newPiece, position: dropPosition}, false, 'drop-preview');
             board.cells = transferPieceToBoard(board, newPiece, false);
             newPiece.rotationState = (newPiece.rotationState + 1) % 4;
             break;

@@ -11,7 +11,7 @@ export function Lobby() {
         dispatch(startGame());
     }
 
-    console.log('LOBBY RE RENDER = ', lobby);
+    // console.log('LOBBY RE RENDER = ', lobby);
 
     if (!lobby.gameStarted) {
         return (

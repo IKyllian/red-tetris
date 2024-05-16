@@ -9,25 +9,23 @@ interface GameProps {
 }
 
 export function Game({ opponentsGames, playerGame, lobby }: GameProps) {
-    // const playerName = useAppSelector((state) => state.player.name);
-    // const playerGame = games.find((game) => game.player.name === playerName);
-    // const opponentsGame = games.filter((game) => game.player.name !== playerName);
     return (
         <div className="boards-container flex flex-row gap8">
             {
-                playerGame && 
+                playerGame && !playerGame.board.gameOver &&
                 <>
                     <Board
                         board={playerGame.board}
-                        // gameIdx={games.findIndex((game) => game.player.name === playerName)}
                         isGameOver={playerGame.gameOver}
                         game={playerGame}
                     />
-                    {
-                        lobby.pieces.slice(1, 4).map((piece, pieceIndex) => (
-                            <PiecePreview key={pieceIndex} tetromino={piece}   />
-                        ))
-                    }
+                    <div  className="flex flex-col gap4">
+                        {
+                            lobby.pieces.slice(1, 4).map((piece, pieceIndex) => (
+                                <PiecePreview key={pieceIndex} tetromino={piece}  />
+                            ))
+                        }
+                    </div>
                 </>
             }
             {

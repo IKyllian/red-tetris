@@ -44,6 +44,10 @@
     border-radius: 0 !important;
 }
 
+.drop-preview {
+    opacity: 0.2;
+}
+
 .tetromino {
     position: absolute;
     top: 0;

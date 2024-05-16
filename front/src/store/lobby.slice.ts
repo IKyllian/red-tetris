@@ -15,16 +15,17 @@ export const lobbySlice = createSlice({
 		joinLobby: (_, __) => { },
 		startGame: (_) => {},
 		startGameData: (state, action) => {
-			console.log("action = ", action)
+			// console.log("action = ", action)
 			state.gameStarted = true;
 			state.opponentsGames = action.payload.opponentsGames;
 			state.playerGame = action.payload.playerGame;
 			state.pieces = action.payload.pieces;
-			console.log("opponentsGames = ", state.opponentsGames)
+			// console.log("opponentsGames = ", state.opponentsGames)
 		},
 		moveStateDown: (state) => {
 			// const { gameIdx } = action.payload;
 			// console.log("STATE BEFORE = ", state.games, " - gameIdx = ", gameIdx)
+			// console.info("STATE PIECES = ", state.pieces)
 			state.playerGame = moveDown(state.playerGame, state)
 			// state = Object.assign(state, {
 			// 	...state,
@@ -37,7 +38,7 @@ export const lobbySlice = createSlice({
 			// 		return game;
 			// 	})]
 			// })
-			console.log("STATE AFTER = ", state.games)
+			// console.log("STATE AFTER = ", state.games)
 		},
 		// drawDropPosition: (state, action) => {
 		// 	const { gameIdx } = action.payload;
@@ -57,11 +58,11 @@ export const lobbySlice = createSlice({
 		commandPressed: (state, action: { payload: { command: COMMANDS} }) => {
 			const { command } = action.payload;
 			// console.log("BEFORE POS", {...state, state. });
-			const playerGame = state.playerGame
+			const playerGame = {...state.playerGame}
 			switch (command) {
 				case COMMANDS.KEY_UP:
 					state.pieces = [...state.pieces.map((piece, idx) => {
-						if (idx === 0) {
+						if (idx === 0 && piece) {
 							return rotate(playerGame.board, piece)
 						}
 						return piece;
@@ -119,7 +120,7 @@ export const lobbySlice = createSlice({
 					// })
 					break;
 			}
-			console.log("STATE = ", state);
+			// console.log("STATE = ", state);
 		},
 		updateGamesBoard: (state, action) => {
 			state.opponentsGames = [...action.payload];
