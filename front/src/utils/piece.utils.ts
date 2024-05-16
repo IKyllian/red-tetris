@@ -156,16 +156,17 @@ export function changeStatePiecePosition(lobby: ILobby, cb: (position: IPosition
     const currentPiece = pieces[0]
     if (currentPiece) {
         const newPos = cb(currentPiece.position);
+        const haveCollided = checkCollision(playerGame.board, newPos, currentPiece.shape)
         let newPlayerGame = playerGame
         const oldDropPosition = getDropPosition(newPlayerGame.board, currentPiece);
         
-        if (oldDropPosition) {
+        if (oldDropPosition && !haveCollided) {
             newPlayerGame.board.cells = clearOldPosition({...currentPiece, position: oldDropPosition}, newPlayerGame.board);
         }
-        const haveCollided = checkCollision(playerGame.board, newPos, currentPiece.shape)
-        const dropPosition = !haveCollided ? getDropPosition(newPlayerGame.board, {...currentPiece, position: newPos}) : getDropPosition(newPlayerGame.board, currentPiece)
-        newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: dropPosition }, false, 'drop-preview')
+
         if (!haveCollided) {
+            const dropPosition = getDropPosition(newPlayerGame.board, {...currentPiece, position: newPos})
+            newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: dropPosition }, false, 'drop-preview')
             playerGame.board.cells = clearOldPosition(currentPiece, playerGame.board);
             newPlayerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
         }

@@ -16,15 +16,16 @@ export function Game({ opponentsGames, playerGame, lobby }: GameProps) {
                 <>
                     <Board
                         board={playerGame.board}
-                        // gameIdx={games.findIndex((game) => game.player.name === playerName)}
                         isGameOver={playerGame.gameOver}
                         game={playerGame}
                     />
-                    {
-                        lobby.pieces.slice(1, 4).map((piece, pieceIndex) => (
-                            <PiecePreview key={pieceIndex} tetromino={piece}  />
-                        ))
-                    }
+                    <div  className="flex flex-col gap4">
+                        {
+                            lobby.pieces.slice(1, 4).map((piece, pieceIndex) => (
+                                <PiecePreview key={pieceIndex} tetromino={piece}  />
+                            ))
+                        }
+                    </div>
                 </>
             }
             {

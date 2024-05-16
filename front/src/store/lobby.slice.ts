@@ -25,7 +25,7 @@ export const lobbySlice = createSlice({
 		moveStateDown: (state) => {
 			// const { gameIdx } = action.payload;
 			// console.log("STATE BEFORE = ", state.games, " - gameIdx = ", gameIdx)
-			console.info("STATE PIECES = ", state.pieces)
+			// console.info("STATE PIECES = ", state.pieces)
 			state.playerGame = moveDown(state.playerGame, state)
 			// state = Object.assign(state, {
 			// 	...state,
