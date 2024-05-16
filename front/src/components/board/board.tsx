@@ -2,7 +2,7 @@ import "./board.css";
 import { ITetromino } from "../../types/tetrominoes.type";
 import { IBoard, ICell, IGame } from "../../types/board.types";
 import { buildBoard } from "../../utils/board.utils";
-import { isCommandType } from "../../types/command.types";
+import { COMMANDS, isCommandType } from "../../types/command.types";
 import { useAppDispatch } from "../../store/hook";
 import { commandPressed } from "../../store/lobby.slice";
 import { transferPieceToBoard } from "../../utils/piece.utils";
@@ -28,7 +28,7 @@ const Cell = ({ cellClassname }) => {
 };
 
 export const Board = ({ board, isGameOver, game }: BoardProps) => {
-	const { tick } = useTick(game);
+	const { tick, tickToMoveDownRef } = useTick(game);
 	const dispatch = useAppDispatch();
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
@@ -38,6 +38,9 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 		const code = event.code;
 		if (isCommandType(code) && !isGameOver) {
 			dispatch(commandPressed({ command: code }));
+            if (code === COMMANDS.KEY_DOWN) {
+                tickToMoveDownRef.current = 0
+            }
 		}
 	};
 

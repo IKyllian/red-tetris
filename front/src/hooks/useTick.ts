@@ -44,5 +44,6 @@ export const useTick = (game: IGame) => {
 
 	return {
 		tick: tickRef.current,
+		tickToMoveDownRef
 	};
 };
