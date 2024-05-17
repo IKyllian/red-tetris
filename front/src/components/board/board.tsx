@@ -7,6 +7,7 @@ import { useAppDispatch } from "../../store/hook";
 import { commandPressed } from "../../store/lobby.slice";
 import { transferPieceToBoard } from "../../utils/piece.utils";
 import { useTick } from "../../hooks/useTick";
+import { useState } from "react";
 interface BoardProps {
 	board: IBoard;
 	isGameOver: boolean;
@@ -29,6 +30,8 @@ const Cell = ({ cellClassname }) => {
 
 export const Board = ({ board, isGameOver, game }: BoardProps) => {
 	const { tick, tickToMoveDownRef } = useTick(game);
+	const [isKeyUpRelease, setIsKeyUpRelease] = useState<boolean>(true)
+	const [isKeySpaceRelease, setIsKeySpaceRelease] = useState<boolean>(true)
 	const dispatch = useAppDispatch();
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
@@ -37,12 +40,30 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 	const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const code = event.code;
 		if (isCommandType(code) && !isGameOver) {
+			if (code === COMMANDS.KEY_UP) {
+				if (!isKeyUpRelease) return;
+			    setIsKeyUpRelease(false)
+			}
+			if (code === COMMANDS.KEY_SPACE) {
+				if (!isKeySpaceRelease) return;
+			    setIsKeySpaceRelease(false)
+			}
 			dispatch(commandPressed({ command: code }));
-            if (code === COMMANDS.KEY_DOWN) {
-                tickToMoveDownRef.current = 0
-            }
+			if (code === COMMANDS.KEY_DOWN) {
+				tickToMoveDownRef.current = 0
+			}
 		}
 	};
+
+	const resolveKeyRelease = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		const code = event.code;
+		if (code === COMMANDS.KEY_UP) {
+			setIsKeyUpRelease(true);
+		}
+		if (code === COMMANDS.KEY_SPACE) {
+			setIsKeySpaceRelease(true);
+		}
+	}
 
 	return (
 		<>
@@ -51,6 +72,7 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 				className="board"
 				style={boardStyles}
 				onKeyDown={resolveKeyPress}
+				onKeyUp={resolveKeyRelease}
 				tabIndex={0}
 			>
 				{board.cells.map((row) =>

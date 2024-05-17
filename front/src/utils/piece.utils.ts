@@ -90,6 +90,7 @@ export function hardDrop(lobby: ILobby): void {
     while (!newPieceNeeded) {
         moveDown(lobby);
     }
+    newPieceNeeded = false;
 }
 
 export function getHardDropPos(piece: ITetromino, board: IBoard): IPosition {
@@ -151,7 +152,7 @@ export function checkCollision(board: IBoard, position: IPosition, shape: number
 export function changeStatePiecePosition(lobby: ILobby, cb: (position: IPosition) => IPosition): void {
     const { pieces, playerGame } = lobby;
     if (!playerGame) return;
-    const currentPiece = pieces[0]
+    let currentPiece = pieces[0]
     if (currentPiece) {
         const newPos = cb(currentPiece.position);
         const haveCollided = checkCollision(playerGame.board, newPos, currentPiece.shape)
@@ -167,14 +168,9 @@ export function changeStatePiecePosition(lobby: ILobby, cb: (position: IPosition
             clearOldPosition(currentPiece, playerGame.board);
             playerGame.board.cells = transferPieceToBoard(playerGame.board, { ...currentPiece, position: newPos }, false)
         }
-        if (!haveCollided)
-        lobby.pieces = [...pieces.map((piece, idx) => {
-            if (idx === 0 && !haveCollided) {
-                return { ...piece, position: newPos }
-            } else {
-                return piece;
-            }
-        })]
+        if (!haveCollided) {
+            pieces[0] = { ...currentPiece, position: newPos }
+        }
     }
 }
 

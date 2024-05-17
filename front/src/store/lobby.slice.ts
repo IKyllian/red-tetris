@@ -39,8 +39,10 @@ export const lobbySlice = createSlice({
 				case COMMANDS.KEY_RIGHT:
 				    changeStatePiecePosition(state, moveToRight);
 					break;
-				default:
+				case COMMANDS.KEY_SPACE:
 					hardDrop(state)
+					break;
+				default:
 					break;
 			}
 		},
