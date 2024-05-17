@@ -12,11 +12,10 @@ export function Game({ opponentsGames, playerGame, lobby }: GameProps) {
     return (
         <div className="boards-container flex flex-row gap8">
             {
-                playerGame && !playerGame.board.gameOver &&
+                playerGame &&
                 <>
                     <Board
                         board={playerGame.board}
-                        isGameOver={playerGame.gameOver}
                         game={playerGame}
                     />
                     <div  className="flex flex-col gap4">

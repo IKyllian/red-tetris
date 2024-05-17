@@ -1,14 +1,21 @@
 import { useAppDispatch, useAppSelector } from "../../store/hook"
 import { ILobby } from "../../types/lobby.type";
-import { startGame } from "../../store/lobby.slice";
+import { leaveLobby, startGame } from "../../store/lobby.slice";
 import { Game } from "../game/game";
 
 export function Lobby() {
     const lobby: ILobby = useAppSelector(state => state.lobby);
     const dispatch = useAppDispatch();
-
+    const playerConnected = useAppSelector(state => state.player);
+    const lobbyOwner = lobby.players.find(player => player.isLeader)
+    console.log("lobbyOwner = ", lobbyOwner)
+    console.log("playerConnected = ", playerConnected)
     const handleClick = () => {
         dispatch(startGame());
+    }
+
+    const handleLeave = () => {
+        dispatch(leaveLobby(lobby.id))
     }
 
     // console.log('LOBBY RE RENDER = ', lobby);
@@ -29,7 +36,11 @@ export function Lobby() {
                     </ul>
                 </div>
                 <div>
-                    <button type="button" onClick={handleClick}> Start Game </button>
+                    {
+                        lobbyOwner && lobbyOwner.id === playerConnected.id &&
+                        <button type="button" onClick={handleClick}> Start Game </button>
+                    }
+                    <button type="button" onClick={handleLeave}> Leave lobby </button>
                 </div>
             </div>
         )

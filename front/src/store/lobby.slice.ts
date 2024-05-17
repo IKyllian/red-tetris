@@ -23,6 +23,10 @@ export const lobbySlice = createSlice({
 			const { playerGame, opponentsGames, pieces } = action.payload;
 			Object.assign(state, { playerGame, opponentsGames, pieces, gameStarted: true });
 		},
+		onAllGamesOver: (state, action) => {
+			state.gamesOver = true;
+			state.leaderboard = action.payload;
+		},
 		moveStateDown: moveDown,
 		commandPressed: (state, action: { payload: { command: COMMANDS} }) => {
 			const { command } = action.payload;
@@ -67,6 +71,7 @@ export const {
 	commandPressed,
 	moveStateDown,
 	updatePieces,
+	onAllGamesOver
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

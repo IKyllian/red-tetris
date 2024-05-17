@@ -5,7 +5,7 @@ import { moveStateDown } from '../store/lobby.slice';
 import { getFramesPerGridCell } from '../utils/board.utils';
 
 const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
-export const useTick = (game: IGame) => {
+export const useTick = (game: IGame, isGameOver) => {
 	const requestRef = useRef<number>();
 	const lastUpdateRef = useRef<number | undefined>(undefined);
 	const tickRef = useRef<number>(0);
@@ -15,6 +15,7 @@ export const useTick = (game: IGame) => {
 	const currentPiece = game.pieces[0];
 
 	const update = () => {
+		if (isGameOver) return;
 		if (lastUpdateRef.current === undefined) {
 			lastUpdateRef.current = performance.now();
 		}
@@ -39,9 +40,11 @@ export const useTick = (game: IGame) => {
 	};
 
 	useEffect(() => {
-		requestRef.current = requestAnimationFrame(update);
+		if (!isGameOver) {
+			requestRef.current = requestAnimationFrame(update);
+		}
 		return () => cancelAnimationFrame(requestRef.current);
-	}, []);
+	}, [isGameOver]);
 
 	return {
 		tick: tickRef.current,

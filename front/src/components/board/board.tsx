@@ -10,7 +10,6 @@ import { useTick } from "../../hooks/useTick";
 import { useState } from "react";
 interface BoardProps {
 	board: IBoard;
-	isGameOver: boolean;
 	game: IGame;
 }
 
@@ -28,8 +27,9 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, isGameOver, game }: BoardProps) => {
-	const { tick, tickToMoveDownRef } = useTick(game);
+export const Board = ({ board, game }: BoardProps) => {
+	const gameOver = board.gameOver
+	const { tick, tickToMoveDownRef } = useTick(game, gameOver);
 	const [isKeyUpRelease, setIsKeyUpRelease] = useState<boolean>(true)
 	const [isKeySpaceRelease, setIsKeySpaceRelease] = useState<boolean>(true)
 	const dispatch = useAppDispatch();
@@ -37,9 +37,11 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
 	};
+	console.log("GAME OVER", gameOver)
 	const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const code = event.code;
-		if (isCommandType(code) && !isGameOver) {
+		console.log("resolveKeyPress = ", code)
+		if (isCommandType(code) && !gameOver) {
 			if (code === COMMANDS.KEY_UP) {
 				if (!isKeyUpRelease) return;
 			    setIsKeyUpRelease(false)
@@ -75,6 +77,7 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 				onKeyUp={resolveKeyRelease}
 				tabIndex={0}
 			>
+				{gameOver && <span className="gameOver"> Game Over </span>}
 				{board.cells.map((row) =>
 					row.map((cell, cellIndex) => (
 						<Cell key={cellIndex} cellClassname={cell.className} />
