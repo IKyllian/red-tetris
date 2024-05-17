@@ -56,10 +56,11 @@ export class Game {
 		this.newPieceNeeded = false;
 	}
 
-	public updateState(tick: number) {
+	public updateState(tick: number, ranking: Player[]) {
 		this.tick = tick;
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
 		if (this.board.gameOver) {
+			ranking.push(this.player);
 			this.gameOver = true;
 			return;
 		}

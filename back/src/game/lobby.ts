@@ -20,6 +20,7 @@ export class Lobby {
 	private tick: number = 0;
 	private lastUpdate: number;
 	private timer: number = 0;
+	private ranking: Player[] = [];
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -56,6 +57,8 @@ export class Lobby {
 		return newPieces;
 	}
 
+	//TODO classement, emit game over, errors, when leaving lobby in game, gamover in Game true
+
 	private updateState() {
 		this.dataToSend = [];
 		if (this.gameStarted === false) {
@@ -67,23 +70,11 @@ export class Lobby {
 		this.lastUpdate = now;
 		this.timer += deltaTime;
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
-			let nbOfGamesOver = 0;
 			for (const game of this.games) {
-				if (
-					this.games.length > 1 &&
-					nbOfGamesOver === this.games.length - 1
-				) {
-					this.stopGames();
-					return;
-				} else if (this.games.length === nbOfGamesOver) {
-					this.stopGames();
-					return;
-				}
 				if (game.gameOver) {
-					nbOfGamesOver++;
 					continue;
 				}
-				game.updateState(this.tick);
+				game.updateState(this.tick, this.ranking);
 				if (game.newPieceNeeded) {
 					// generate new piece when needed
 					if (this.pieces.length - game.nbOfpieceDown < 10) {
@@ -103,40 +94,43 @@ export class Lobby {
 					}
 					game.destructibleLinesToGive = 0;
 				}
-				// const filteredData = this.games.filter(
-				// 	(elem) => elem.player.id != game.player.id
-				// );
-				// const dataToSend = filteredData.map((data) =>
-				// 	data.getDataToSend()
-				// );
-				// not good ? other game not updated
-				// this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
-				// 	playerGame: game.getDataToSend(),
-				// 	opponentsGames: dataToSend,
-				// });
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
-		}
-		for (const game of this.games) {
-			const filteredData = this.games.filter(
-				(elem) => elem.player.id != game.player.id
+			if (
+				this.games.length > 1 &&
+				this.ranking.length === this.games.length - 1
+			) {
+				this.server.emit(SocketEvent.GameOver, this.ranking);
+				this.stopGames();
+			} else if (this.games.length === this.ranking.length) {
+				this.server.emit(SocketEvent.GameOver, this.ranking);
+				this.stopGames();
+			} else {
+				for (const game of this.games) {
+					const filteredData = this.games.filter(
+						(elem) => elem.player.id != game.player.id
+					);
+					const dataToSend = filteredData.map((data) =>
+						data.getDataToSend()
+					);
+					this.server
+						.to(game.player.id)
+						.emit(SocketEvent.GamesUpdate, {
+							playerGame: game.getDataToSend(),
+							opponentsGames: dataToSend,
+						});
+				}
+			}
+			this.gameInterval = setTimeout(
+				this.updateState.bind(this),
+				MIN_TIME_BETWEEN_TICKS
 			);
-			const dataToSend = filteredData.map((data) => data.getDataToSend());
-			this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
-				playerGame: game.getDataToSend(),
-				opponentsGames: dataToSend,
-			});
 		}
 		// for (const game of this.games) {
 		// 	this.dataToSend.push(game.getDataToSend());
 		// }
 		// this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
-
-		this.gameInterval = setTimeout(
-			this.updateState.bind(this),
-			MIN_TIME_BETWEEN_TICKS
-		);
 	}
 
 	public startGames(server: Server) {
