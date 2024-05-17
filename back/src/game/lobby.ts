@@ -103,28 +103,31 @@ export class Lobby {
 					}
 					game.destructibleLinesToGive = 0;
 				}
-				const filteredData = this.games.filter(
-					(elem) => elem.player.id != game.player.id
-				);
-				const dataToSend = filteredData.map((data) =>
-					data.getDataToSend()
-				);
-				this.server
-					.to(game.player.id)
-					.emit(SocketEvent.GamesUpdate, dataToSend);
+				// const filteredData = this.games.filter(
+				// 	(elem) => elem.player.id != game.player.id
+				// );
+				// const dataToSend = filteredData.map((data) =>
+				// 	data.getDataToSend()
+				// );
+				// not good ? other game not updated
+				// this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
+				// 	playerGame: game.getDataToSend(),
+				// 	opponentsGames: dataToSend,
+				// });
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
 		}
-		// for (const game of this.games) {
-		// 	const filteredData = this.games.filter(
-		// 		(elem) => elem.player.id != game.player.id
-		// 	);
-		// 	const dataToSend = filteredData.map((data) => data.getDataToSend());
-		// 	this.server
-		// 		.to(game.player.id)
-		// 		.emit(SocketEvent.GamesUpdate, dataToSend);
-		// }
+		for (const game of this.games) {
+			const filteredData = this.games.filter(
+				(elem) => elem.player.id != game.player.id
+			);
+			const dataToSend = filteredData.map((data) => data.getDataToSend());
+			this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
+				playerGame: game.getDataToSend(),
+				opponentsGames: dataToSend,
+			});
+		}
 		// for (const game of this.games) {
 		// 	this.dataToSend.push(game.getDataToSend());
 		// }

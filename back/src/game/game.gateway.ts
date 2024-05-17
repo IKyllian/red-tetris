@@ -100,7 +100,6 @@ export class GameGateway
 		@MessageBody('data') data: { command: COMMANDS }
 	) {
 		const command = data.command;
-		// console.log('Command pressed = ', command);
 		//TODO check if command is valid
 		if (isCommandType(command)) {
 			const lobby: Lobby | undefined = this.lobbyManager.getLobby(

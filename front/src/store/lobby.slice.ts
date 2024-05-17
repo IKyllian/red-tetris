@@ -1,7 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { defaultLobby } from '../types/lobby.type';
 import { COMMANDS } from '../types/command.types';
-import { moveToBottom, moveToLeft, moveToRight , changeStatePiecePosition, rotate, moveDown, hardDrop} from '../utils/piece.utils';
+import {
+	moveToBottom,
+	moveToLeft,
+	moveToRight,
+	changeStatePiecePosition,
+	rotate,
+	moveDown,
+	hardDrop,
+} from '../utils/piece.utils';
 
 export const lobbySlice = createSlice({
 	name: 'lobby',
@@ -10,9 +18,9 @@ export const lobbySlice = createSlice({
 		setLobby: (state, action) => {
 			state = Object.assign(state, action.payload);
 		},
-		createLobby: (_, __) => { },
-		leaveLobby: (_, __) => { },
-		joinLobby: (_, __) => { },
+		createLobby: (_, __) => {},
+		leaveLobby: (_, __) => {},
+		joinLobby: (_, __) => {},
 		startGame: (_) => {},
 		startGameData: (state, action) => {
 			// console.log("action = ", action)
@@ -26,7 +34,7 @@ export const lobbySlice = createSlice({
 			// const { gameIdx } = action.payload;
 			// console.log("STATE BEFORE = ", state.games, " - gameIdx = ", gameIdx)
 			// console.info("STATE PIECES = ", state.pieces)
-			state.playerGame = moveDown(state.playerGame, state)
+			state.playerGame = moveDown(state.playerGame, state);
 			// state = Object.assign(state, {
 			// 	...state,
 			// 	games: [...state.games.map((game, idx) => {
@@ -53,21 +61,23 @@ export const lobbySlice = createSlice({
 		// 			return game;
 		// 		})]
 		// 	})
-			
+
 		// },
-		commandPressed: (state, action: { payload: { command: COMMANDS} }) => {
+		commandPressed: (state, action: { payload: { command: COMMANDS } }) => {
 			const { command } = action.payload;
 			// console.log("BEFORE POS", {...state, state. });
-			const playerGame = {...state.playerGame}
+			const playerGame = { ...state.playerGame };
 			switch (command) {
 				case COMMANDS.KEY_UP:
-					state.pieces = [...state.pieces.map((piece, idx) => {
-						if (idx === 0 && piece) {
-							return rotate(playerGame.board, piece)
-						}
-						return piece;
-					})]
-				    // state = Object.assign(state, {
+					state.pieces = [
+						...state.pieces.map((piece, idx) => {
+							if (idx === 0 && piece) {
+								return rotate(playerGame.board, piece);
+							}
+							return piece;
+						}),
+					];
+					// state = Object.assign(state, {
 					// 	...state,
 					// 	games: [...state.games.map((game, idx) => {
 					// 		if (idx === gameIdx) {
@@ -84,10 +94,10 @@ export const lobbySlice = createSlice({
 					// 		return game;
 					// 	})]
 					// })
-				    break;
+					break;
 				case COMMANDS.KEY_DOWN:
-					state.playerGame = moveDown(playerGame, state)
-				    // state = Object.assign(state, {
+					state.playerGame = moveDown(playerGame, state);
+					// state = Object.assign(state, {
 					// 	...state,
 					// 	games: [...state.games.map((game, idx) => {
 					// 		console.log("IDX = ", idx)
@@ -98,15 +108,15 @@ export const lobbySlice = createSlice({
 					// 		return game;
 					// 	})]
 					// })
-				    break;
+					break;
 				case COMMANDS.KEY_LEFT:
-				    state = changeStatePiecePosition(state, moveToLeft);
+					state = changeStatePiecePosition(state, moveToLeft);
 					break;
 				case COMMANDS.KEY_RIGHT:
-				    state = changeStatePiecePosition(state, moveToRight);
+					state = changeStatePiecePosition(state, moveToRight);
 					break;
 				default:
-					state.playerGame = hardDrop(playerGame, state)
+					state.playerGame = hardDrop(playerGame, state);
 					// state = Object.assign(state, {
 					// 	...state,
 					// 	games: [...state.games.map((game, idx) => {
@@ -123,12 +133,12 @@ export const lobbySlice = createSlice({
 			// console.log("STATE = ", state);
 		},
 		updateGamesBoard: (state, action) => {
-			state.opponentsGames = [...action.payload];
+			state.opponentsGames = [...action.payload.opponentsGames];
 		},
 		updatePieces: (state, action) => {
 			const piecesToAdd = action.payload;
 			state.pieces = [...state.pieces, ...piecesToAdd];
-		}
+		},
 	},
 });
 
@@ -142,7 +152,7 @@ export const {
 	updateGamesBoard,
 	commandPressed,
 	moveStateDown,
-	updatePieces
+	updatePieces,
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;
