@@ -1,7 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { defaultLobby } from '../types/lobby.type';
 import { COMMANDS } from '../types/command.types';
-import { moveToLeft, moveToRight , changeStatePiecePosition, rotate, moveDown, hardDrop} from '../utils/piece.utils';
+import {
+	moveToLeft,
+	moveToRight,
+	changeStatePiecePosition,
+	rotate,
+	moveDown,
+	hardDrop,
+} from '../utils/piece.utils';
 
 export const lobbySlice = createSlice({
 	name: 'lobby',
@@ -38,12 +45,12 @@ export const lobbySlice = createSlice({
 			}
 		},
 		updateGamesBoard: (state, action) => {
-			state.opponentsGames = [...action.payload];
+			state.opponentsGames = [...action.payload.opponentsGames];
 		},
 		updatePieces: (state, action) => {
 			const piecesToAdd = action.payload;
 			state.pieces = [...state.pieces, ...piecesToAdd];
-		}
+		},
 	},
 });
 
@@ -57,7 +64,7 @@ export const {
 	updateGamesBoard,
 	commandPressed,
 	moveStateDown,
-	updatePieces
+	updatePieces,
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

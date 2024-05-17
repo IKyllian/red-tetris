@@ -1,11 +1,25 @@
-import { Middleware } from "@reduxjs/toolkit";
-import SocketFactory, { SocketInterface } from "./socketFactory";
-import { connectionEstablished, connectionLost, initSocket } from "./socket.slice";
-import { setBoard, setBoardListener } from "./board.slice";
+import { Middleware } from '@reduxjs/toolkit';
+import SocketFactory, { SocketInterface } from './socketFactory';
+import {
+	connectionEstablished,
+	connectionLost,
+	initSocket,
+} from './socket.slice';
+import { setBoard, setBoardListener } from './board.slice';
 import { ICell, IGame } from '../types/board.types';
-import { commandPressed, createLobby, joinLobby, leaveLobby, setLobby, startGame, updateGamesBoard, updatePieces, startGameData } from "./lobby.slice";
-import { ILobby } from "../types/lobby.type";
-import { ITetromino } from "../types/tetrominoes.type";
+import {
+	commandPressed,
+	createLobby,
+	joinLobby,
+	leaveLobby,
+	setLobby,
+	startGame,
+	updateGamesBoard,
+	updatePieces,
+	startGameData,
+} from './lobby.slice';
+import { ILobby } from '../types/lobby.type';
+import { ITetromino } from '../types/tetrominoes.type';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -20,92 +34,100 @@ export enum SocketEvent {
 	StartGame = 'start-game',
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
-    PiecesUpdate = 'pieces-update',
-    StartingGame = 'starting-game',
+	PiecesUpdate = 'pieces-update',
+	StartingGame = 'starting-game',
 	// On events
 	Error = 'error',
 }
 
-let AZE = 0
+let AZE = 0;
 const socketMiddleware: Middleware = (store) => {
-    let socket: SocketInterface;
+	let socket: SocketInterface;
 
-    return (next) => (action) => {
-        // Middleware logic for the `initSocket` action
-        if (initSocket.match(action)) {
-            if (!socket) {
-                // Create Socket
-                socket = SocketFactory.create();
+	return (next) => (action) => {
+		// Middleware logic for the `initSocket` action
+		if (initSocket.match(action)) {
+			if (!socket) {
+				// Create Socket
+				socket = SocketFactory.create();
 
-                socket.socket.on(SocketEvent.Connect, () => {
-                    store.dispatch(connectionEstablished());
-                });
+				socket.socket.on(SocketEvent.Connect, () => {
+					store.dispatch(connectionEstablished());
+				});
 
-                // handle all Error events
-                socket.socket.on(SocketEvent.Error, (message) => {
-                    console.error(message);
-                });
+				// handle all Error events
+				socket.socket.on(SocketEvent.Error, (message) => {
+					console.error(message);
+				});
 
-                // Handle disconnect event
-                socket.socket.on(SocketEvent.Disconnect, (reason) => {
-                    console.error(reason);
-                    store.dispatch(connectionLost());
-                });
+				// Handle disconnect event
+				socket.socket.on(SocketEvent.Disconnect, (reason) => {
+					console.error(reason);
+					store.dispatch(connectionLost());
+				});
 
-                socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
-                    console.log("Updated Lobby = ", lobby);
-                    store.dispatch(setLobby(lobby));
-                })
+				socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
+					console.log('Updated Lobby = ', lobby);
+					store.dispatch(setLobby(lobby));
+				});
 
-                socket.socket.on(SocketEvent.GamesUpdate, (games: IGame[]) => {
-                    // if (AZE < 1) {
-                        store.dispatch(updateGamesBoard(games));
-                        // AZE++
-                    // }
-                })
+				socket.socket.on(SocketEvent.GamesUpdate, (data) => {
+					// if (AZE < 1) {
+					store.dispatch(updateGamesBoard(data));
+					// AZE++
+					// }
+				});
 
-                socket.socket.on(SocketEvent.PiecesUpdate, (pieces: ITetromino[]) => {
-                    store.dispatch(updatePieces(pieces));
-                })
+				socket.socket.on(
+					SocketEvent.PiecesUpdate,
+					(pieces: ITetromino[]) => {
+						store.dispatch(updatePieces(pieces));
+					}
+				);
 
-                socket.socket.on(SocketEvent.StartingGame, (data: {games: IGame[], pieces: ITetromino}) => {
-                    console.log("StartingGame = ", data)
-                    store.dispatch(startGameData(data));
-                })
-            }
-        }
+				socket.socket.on(
+					SocketEvent.StartingGame,
+					(data: { games: IGame[]; pieces: ITetromino }) => {
+						console.log('StartingGame = ', data);
+						store.dispatch(startGameData(data));
+					}
+				);
+			}
+		}
 
-        if (createLobby.match(action) && socket) {
-            console.log('CreateLobby', action.payload);
-            socket.socket.emit(SocketEvent.CreateLobby, {data: action.payload} );
-        }
+		if (createLobby.match(action) && socket) {
+			console.log('CreateLobby', action.payload);
+			socket.socket.emit(SocketEvent.CreateLobby, {
+				data: action.payload,
+			});
+		}
 
-        if (joinLobby.match(action) && socket) {
-            socket.socket.emit(SocketEvent.JoinLobby, {data: action.payload});
-        }
+		if (joinLobby.match(action) && socket) {
+			socket.socket.emit(SocketEvent.JoinLobby, { data: action.payload });
+		}
 
-        if (leaveLobby.match(action) && socket) {
-            socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
-        }
+		if (leaveLobby.match(action) && socket) {
+			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
+		}
 
-        if (startGame.match(action) && socket) {
-            socket.socket.emit(SocketEvent.StartGame, {data: action.payload} );
-        }
-        
-        // Listen for board updates
-        if (setBoardListener.match(action) && socket) {
-            socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
-                store.dispatch(setBoard({ cells }));
-            })
-        }
+		if (startGame.match(action) && socket) {
+			socket.socket.emit(SocketEvent.StartGame, { data: action.payload });
+		}
 
-        // Handle the commands action
-        if (commandPressed.match(action) && socket) {
-            let command = {data: {...action.payload}};
-            socket.socket.emit(SocketEvent.CommandPressed, command);
-        }
-        next(action);
-    };
+		// Listen for board updates
+		if (setBoardListener.match(action) && socket) {
+			socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
+				store.dispatch(setBoard({ cells }));
+			});
+		}
+
+		// Handle the commands action
+		if (commandPressed.match(action) && socket) {
+			let command = { data: { ...action.payload } };
+			socket.socket.emit(SocketEvent.CommandPressed, command);
+		}
+		next(action);
+	};
 };
 
 export default socketMiddleware;

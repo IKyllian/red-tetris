@@ -62,7 +62,9 @@ export class Lobby {
 			this.stopGames();
 			return;
 		}
-		const deltaTime = performance.now() - this.lastUpdate;
+		const now = performance.now();
+		const deltaTime = now - this.lastUpdate;
+		this.lastUpdate = now;
 		this.timer += deltaTime;
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
 			let nbOfGamesOver = 0;
@@ -101,21 +103,30 @@ export class Lobby {
 					}
 					game.destructibleLinesToGive = 0;
 				}
+				// const filteredData = this.games.filter(
+				// 	(elem) => elem.player.id != game.player.id
+				// );
+				// const dataToSend = filteredData.map((data) =>
+				// 	data.getDataToSend()
+				// );
+				// not good ? other game not updated
+				// this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
+				// 	playerGame: game.getDataToSend(),
+				// 	opponentsGames: dataToSend,
+				// });
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
-			this.lastUpdate = performance.now();
-			for (const game of this.games) {
-				const filteredData = this.games.filter(
-					(elem) => elem.player.id != game.player.id
-				);
-				const dataToSend = filteredData.map((data) =>
-					data.getDataToSend()
-				);
-				this.server
-					.to(game.player.id)
-					.emit(SocketEvent.GamesUpdate, dataToSend);
-			}
+		}
+		for (const game of this.games) {
+			const filteredData = this.games.filter(
+				(elem) => elem.player.id != game.player.id
+			);
+			const dataToSend = filteredData.map((data) => data.getDataToSend());
+			this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
+				playerGame: game.getDataToSend(),
+				opponentsGames: dataToSend,
+			});
 		}
 		// for (const game of this.games) {
 		// 	this.dataToSend.push(game.getDataToSend());

@@ -27,6 +27,7 @@ export class Game {
 	public totalLinesCleared: number = 0;
 	public destructibleLinesToGive: number = 0;
 
+	private tick = 0;
 	private linesCleared: number = 0;
 	private board: Board;
 	private currentPiece: Piece;
@@ -56,6 +57,7 @@ export class Game {
 	}
 
 	public updateState(tick: number) {
+		this.tick = tick;
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
 		if (this.board.gameOver) {
 			this.gameOver = true;
@@ -101,7 +103,6 @@ export class Game {
 		};
 		if (this.board.checkCollision(newPosition, this.currentPiece.shape)) {
 			this.board.transferPieceToBoard(this.currentPiece, true);
-
 			this.newPieceNeeded = true;
 			this.currentPiece = this.pieces[1];
 			this.nbOfpieceDown++;

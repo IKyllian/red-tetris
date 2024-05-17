@@ -18,7 +18,9 @@ export const useTick = (game: IGame) => {
 		if (lastUpdateRef.current === undefined) {
 			lastUpdateRef.current = performance.now();
 		}
-		const deltaTime = performance.now() - lastUpdateRef.current;
+		const now = performance.now();
+		const deltaTime = now - lastUpdateRef.current;
+		lastUpdateRef.current = now;
 		timerRef.current += deltaTime;
 		while (timerRef.current >= MIN_TIME_BETWEEN_TICKS) {
 			if (
@@ -32,14 +34,13 @@ export const useTick = (game: IGame) => {
 			}
 			timerRef.current -= MIN_TIME_BETWEEN_TICKS;
 			tickRef.current = tickRef.current + 1;
-			lastUpdateRef.current = performance.now();
 		}
-		requestRef.current = setTimeout(update, MIN_TIME_BETWEEN_TICKS);
+		requestRef.current = requestAnimationFrame(update);
 	};
 
 	useEffect(() => {
-		update();
-		return () => clearTimeout(requestRef.current);
+		requestRef.current = requestAnimationFrame(update);
+		return () => cancelAnimationFrame(requestRef.current);
 	}, []);
 
 	return {
