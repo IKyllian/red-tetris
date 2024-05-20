@@ -17,9 +17,12 @@ import {
 	updateGamesBoard,
 	updatePieces,
 	startGameData,
+	onAllGamesOver,
 } from './lobby.slice';
 import { ILobby } from '../types/lobby.type';
 import { ITetromino } from '../types/tetrominoes.type';
+import { createPlayer, setName } from './player.slice';
+import { IPlayer } from '../types/player.type';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -36,8 +39,10 @@ export enum SocketEvent {
 	GamesUpdate = 'games-update',
 	PiecesUpdate = 'pieces-update',
 	StartingGame = 'starting-game',
+	GameOver = 'game-over',
 	// On events
 	Error = 'error',
+	SetName = 'set-name',
 }
 
 let AZE = 0;
@@ -86,6 +91,11 @@ const socketMiddleware: Middleware = (store) => {
 					}
 				);
 
+				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
+                    console.log('GameOver = ', data);
+					store.dispatch(onAllGamesOver(data));
+                });
+
 				socket.socket.on(
 					SocketEvent.StartingGame,
 					(data: { games: IGame[]; pieces: ITetromino }) => {
@@ -94,6 +104,10 @@ const socketMiddleware: Middleware = (store) => {
 					}
 				);
 			}
+		}
+
+		if (setName.match(action) && socket) {
+			store.dispatch(createPlayer({name: action.payload, id: socket.socket.id}))
 		}
 
 		if (createLobby.match(action) && socket) {

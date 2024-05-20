@@ -12,13 +12,17 @@ export const playerSlice = createSlice({
     name: 'player',
     initialState: defaultPlayer,
     reducers: {
-        setName: (state, action) => {
-            state.name = action.payload;
+        setName: (_, __) => { },
+        createPlayer: (state, action) => {
+            console.log(action.payload)
+            const { name, id } = action.payload;
+            Object.assign(state, { name, id });
+            console.log("PLayer = ", state)
         }
     }
 })
 
-export const { setName } = playerSlice.actions
+export const { setName, createPlayer } = playerSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectPlayerName = (state: RootState) => state.player.name;

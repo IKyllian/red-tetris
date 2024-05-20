@@ -11,6 +11,8 @@ export interface ILobby {
     gameStarted: boolean,
     playerGame?: IGame,
     opponentsGames: IGame[],
+    gamesOver: boolean,
+    leaderboard: IPlayer[]
 }
 
 export const defaultLobby: ILobby = {
@@ -22,4 +24,6 @@ export const defaultLobby: ILobby = {
     gameStarted: false,
     opponentsGames: [],
     playerGame: null,
+    gamesOver: false,
+    leaderboard: []
 }

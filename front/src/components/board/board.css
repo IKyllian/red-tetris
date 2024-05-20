@@ -4,6 +4,7 @@
     border: 1px solid red;
     width: 450px;
     height: 800px;
+    position: relative;
 }
 
 

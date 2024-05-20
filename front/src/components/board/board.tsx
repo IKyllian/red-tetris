@@ -6,7 +6,6 @@ import { transferPieceToBoard } from "../../utils/piece.utils";
 import { useTick } from "../../hooks/useTick";
 interface BoardProps {
 	board: IBoard;
-	isGameOver: boolean;
 	game: IGame;
 }
 
@@ -24,9 +23,9 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, isGameOver, game }: BoardProps) => {
-	const { fps } = useTick(game);
-	// const dispatch = useAppDispatch();
+export const Board = ({ board, game }: BoardProps) => {
+	const gameOver = board.gameOver;
+	const { fps } = useTick(game, gameOver);
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
@@ -35,6 +34,7 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 	return (
 		<>
 			<div className="board" style={boardStyles} tabIndex={0}>
+				{gameOver && <span className="gameOver"> Game Over </span>}
 				{board.cells.map((row) =>
 					row.map((cell, cellIndex) => (
 						<Cell key={cellIndex} cellClassname={cell.className} />

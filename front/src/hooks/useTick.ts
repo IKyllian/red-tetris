@@ -7,7 +7,7 @@ import { COMMANDS, isCommandType } from '../types/command.types';
 
 const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
 
-export const useTick = (game: IGame) => {
+export const useTick = (game: IGame, gameOver: boolean) => {
 	const requestRef = useRef<number>();
 	const lastUpdateRef = useRef<number>();
 	const tickRef = useRef<number>(0);
@@ -64,6 +64,8 @@ export const useTick = (game: IGame) => {
 	};
 
 	const update = (timeStamp: number) => {
+		console.log('update', gameOver);
+		if (gameOver) return;
 		const deltaTime = timeStamp - lastUpdateRef.current;
 		lastUpdateRef.current = timeStamp;
 		timerRef.current += deltaTime;
@@ -98,6 +100,7 @@ export const useTick = (game: IGame) => {
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyRelease);
 		lastUpdateRef.current = performance.now();
+		console.log('useTick mounted');
 		requestRef.current = requestAnimationFrame(update);
 		return () => {
 			cancelAnimationFrame(requestRef.current!);
