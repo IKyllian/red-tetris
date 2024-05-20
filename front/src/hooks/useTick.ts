@@ -15,6 +15,8 @@ export const useTick = (game: IGame) => {
 	const tickToMoveDownRef = useRef<number>(0);
 	const dispatch = useAppDispatch();
 	const currentPiece = game.pieces[0];
+	const isKeyUpRelease = useRef<boolean>(true);
+	const isKeySpaceRelease = useRef<boolean>(true);
 
 	const [fps, setFps] = useState(0);
 	const fpsCounterRef = useRef(0);
@@ -23,18 +25,41 @@ export const useTick = (game: IGame) => {
 	const inputQueueRef = useRef<string[]>([]);
 
 	const handleKeyDown = useCallback((event: KeyboardEvent) => {
-		if (isCommandType(event.key)) {
-			inputQueueRef.current.push(event.key);
+		if (isCommandType(event.code)) {
+			if (event.code === COMMANDS.KEY_UP) {
+				if (!isKeyUpRelease.current) return;
+				isKeyUpRelease.current = false;
+			}
+			if (event.code === COMMANDS.KEY_SPACE) {
+				if (!isKeySpaceRelease.current) return;
+				isKeySpaceRelease.current = false;
+			}
+			inputQueueRef.current.push(event.code);
 		}
 	}, []);
 
-	const processInputs = (tick: number) => {
+	const handleKeyRelease = (event: KeyboardEvent) => {
+		const code = event.code;
+		if (code === COMMANDS.KEY_UP) {
+			isKeyUpRelease.current = true;
+		}
+		if (code === COMMANDS.KEY_SPACE) {
+			isKeySpaceRelease.current = true;
+		}
+	};
+
+	const processInputs = () => {
 		if (inputQueueRef.current.length === 0) return;
 		inputQueueRef.current.forEach((key) => {
 			dispatch(commandPressed({ command: key as COMMANDS }));
 			// socket.emit('playerAction', key);
 		});
-		console.log('tick: ', tick, ' - keys: ', inputQueueRef.current);
+		// console.log(
+		// 	'tick: ',
+		// 	tickRef.current,
+		// 	' - keys: ',
+		// 	inputQueueRef.current
+		// );
 		inputQueueRef.current = [];
 	};
 
@@ -43,7 +68,7 @@ export const useTick = (game: IGame) => {
 		lastUpdateRef.current = timeStamp;
 		timerRef.current += deltaTime;
 
-		processInputs(tickRef.current);
+		processInputs();
 		while (timerRef.current >= MIN_TIME_BETWEEN_TICKS) {
 			if (
 				tickToMoveDownRef.current >= getFramesPerGridCell(game.level) &&
@@ -71,11 +96,13 @@ export const useTick = (game: IGame) => {
 
 	useEffect(() => {
 		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('keyup', handleKeyRelease);
 		lastUpdateRef.current = performance.now();
 		requestRef.current = requestAnimationFrame(update);
 		return () => {
 			cancelAnimationFrame(requestRef.current!);
 			window.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keyup', handleKeyRelease);
 		};
 	}, [handleKeyDown]);
 

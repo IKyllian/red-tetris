@@ -21,26 +21,35 @@ export const lobbySlice = createSlice({
 		startGame: (_) => {},
 		startGameData: (state, action) => {
 			const { playerGame, opponentsGames, pieces } = action.payload;
-			Object.assign(state, { playerGame, opponentsGames, pieces, gameStarted: true });
+			Object.assign(state, {
+				playerGame,
+				opponentsGames,
+				pieces,
+				gameStarted: true,
+			});
+		},
+		onAllGamesOver: (state, action) => {
+			state.gamesOver = true;
+			state.leaderboard = action.payload;
 		},
 		moveStateDown: moveDown,
-		commandPressed: (state, action: { payload: { command: COMMANDS} }) => {
+		commandPressed: (state, action: { payload: { command: COMMANDS } }) => {
 			const { command } = action.payload;
 			switch (command) {
 				case COMMANDS.KEY_UP:
-					rotate(state)
-				    break;
+					rotate(state);
+					break;
 				case COMMANDS.KEY_DOWN:
-					moveDown(state)
-				    break;
+					moveDown(state);
+					break;
 				case COMMANDS.KEY_LEFT:
-				    changeStatePiecePosition(state, moveToLeft);
+					changeStatePiecePosition(state, moveToLeft);
 					break;
 				case COMMANDS.KEY_RIGHT:
-				    changeStatePiecePosition(state, moveToRight);
+					changeStatePiecePosition(state, moveToRight);
 					break;
 				case COMMANDS.KEY_SPACE:
-					hardDrop(state)
+					hardDrop(state);
 					break;
 				default:
 					break;
@@ -67,6 +76,7 @@ export const {
 	commandPressed,
 	moveStateDown,
 	updatePieces,
+	onAllGamesOver,
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

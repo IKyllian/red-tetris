@@ -34,12 +34,7 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 
 	return (
 		<>
-			<div
-				className="board"
-				style={boardStyles}
-				// onKeyDown={resolveKeyPress}
-				tabIndex={0}
-			>
+			<div className="board" style={boardStyles} tabIndex={0}>
 				{board.cells.map((row) =>
 					row.map((cell, cellIndex) => (
 						<Cell key={cellIndex} cellClassname={cell.className} />
