@@ -77,17 +77,31 @@ export class Board {
 	}
 
 	public addIndestructibleLines(nbOfLines: number) {
-		for (let i = this.size.rows - 1; i >= 0 && nbOfLines > 0; i--) {
-			const row = this.cells[i];
-			if (row[0].isDestructible) {
-				row.forEach((cell) => {
-					cell.occupied = true;
-					cell.isDestructible = false;
-					cell.className = indestructibleCell;
-				});
-				--nbOfLines;
-			}
+		const indestructibleRow = Array.from(
+			{ length: this.size.columns },
+			() => ({
+				occupied: true,
+				isDestructible: false,
+				className: indestructibleCell,
+			})
+		);
+		for (let i = 0; i < nbOfLines; i++) {
+			this.cells.push(indestructibleRow);
+			this.cells.shift();
 		}
+		//TODO push back current piece if in collision ?
+
+		// for (let i = this.size.rows - 1; i >= 0 && nbOfLines > 0; i--) {
+		// 	const row = this.cells[i];
+		// 	if (row[0].isDestructible) {
+		// 		row.forEach((cell) => {
+		// 			cell.occupied = true;
+		// 			cell.isDestructible = false;
+		// 			cell.className = indestructibleCell;
+		// 		});
+		// 		--nbOfLines;
+		// 	}
+		// }
 	}
 
 	public checkCollision(position: IPosition, shape: number[][]) {

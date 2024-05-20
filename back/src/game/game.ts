@@ -26,6 +26,7 @@ export class Game {
 	public score: number = 0;
 	public totalLinesCleared: number = 0;
 	public destructibleLinesToGive: number = 0;
+	public lastPacketSendAt: number = 0;
 
 	private tick = 0;
 	private linesCleared: number = 0;

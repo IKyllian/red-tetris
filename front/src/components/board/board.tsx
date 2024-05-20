@@ -2,9 +2,6 @@ import "./board.css";
 import { ITetromino } from "../../types/tetrominoes.type";
 import { IBoard, ICell, IGame } from "../../types/board.types";
 import { buildBoard } from "../../utils/board.utils";
-import { isCommandType } from "../../types/command.types";
-import { useAppDispatch } from "../../store/hook";
-import { commandPressed } from "../../store/lobby.slice";
 import { transferPieceToBoard } from "../../utils/piece.utils";
 import { useTick } from "../../hooks/useTick";
 interface BoardProps {
@@ -28,26 +25,25 @@ const Cell = ({ cellClassname }) => {
 };
 
 export const Board = ({ board, isGameOver, game }: BoardProps) => {
-	const { tick } = useTick(game);
-	const dispatch = useAppDispatch();
+	const { fps } = useTick(game);
+	// const dispatch = useAppDispatch();
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
 	};
-	const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		const code = event.code;
-		if (isCommandType(code) && !isGameOver) {
-			dispatch(commandPressed({ command: code }));
-		}
-	};
+	// const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+	// 	const code = event.code;
+	// 	if (isCommandType(code) && !isGameOver) {
+	// 		dispatch(commandPressed({ command: code }));
+	// 	}
+	// };
 
 	return (
 		<>
-			<span style={{ fontSize: "25px", color: "red" }}> {tick} </span>
 			<div
 				className="board"
 				style={boardStyles}
-				onKeyDown={resolveKeyPress}
+				// onKeyDown={resolveKeyPress}
 				tabIndex={0}
 			>
 				{board.cells.map((row) =>
@@ -56,6 +52,7 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 					))
 				)}
 			</div>
+			<span style={{ fontSize: "25px", color: "red" }}> {fps} </span>
 		</>
 	);
 };

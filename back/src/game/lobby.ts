@@ -103,35 +103,25 @@ export class Lobby {
 					}
 					game.destructibleLinesToGive = 0;
 				}
-				// const filteredData = this.games.filter(
-				// 	(elem) => elem.player.id != game.player.id
-				// );
-				// const dataToSend = filteredData.map((data) =>
-				// 	data.getDataToSend()
-				// );
-				// not good ? other game not updated
-				// this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
-				// 	playerGame: game.getDataToSend(),
-				// 	opponentsGames: dataToSend,
-				// });
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
+			//emit here ?
 		}
 		for (const game of this.games) {
 			const filteredData = this.games.filter(
 				(elem) => elem.player.id != game.player.id
 			);
-			const dataToSend = filteredData.map((data) => data.getDataToSend());
+			const opponentsGames = filteredData.map((data) =>
+				data.getDataToSend()
+			);
+			game.lastPacketSendAt = performance.now();
+			const playerGame = game.getDataToSend();
 			this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
-				playerGame: game.getDataToSend(),
-				opponentsGames: dataToSend,
+				playerGame,
+				opponentsGames,
 			});
 		}
-		// for (const game of this.games) {
-		// 	this.dataToSend.push(game.getDataToSend());
-		// }
-		// this.server.to(this.id).emit(SocketEvent.GamesUpdate, this.dataToSend);
 
 		this.gameInterval = setTimeout(
 			this.updateState.bind(this),

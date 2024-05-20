@@ -110,4 +110,20 @@ export class GameGateway
 			}
 		}
 	}
+
+	@SubscribeMessage('pong')
+	pong(@ConnectedSocket() socket: Socket) {
+		const game = this.lobbyManager
+			.getLobby(socket.id)
+			?.getPlayerGame(socket.id);
+		if (game) {
+			const ping = performance.now() - game.lastPacketSendAt;
+			console.log(
+				'client: ',
+				game.player.name,
+				' - ping: ',
+				ping.toFixed(2) + 'ms'
+			);
+		}
+	}
 }

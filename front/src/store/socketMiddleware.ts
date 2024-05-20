@@ -73,6 +73,7 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(SocketEvent.GamesUpdate, (data) => {
 					// if (AZE < 1) {
+					socket.socket.emit('pong');
 					store.dispatch(updateGamesBoard(data));
 					// AZE++
 					// }
