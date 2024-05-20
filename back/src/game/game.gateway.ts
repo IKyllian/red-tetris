@@ -68,10 +68,7 @@ export class GameGateway
 	}
 
 	@SubscribeMessage(SocketEvent.LeaveLobby)
-	leaveLobby(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody('data') lobbyId: string // TODO plus besoin
-	) {
+	leaveLobby(@ConnectedSocket() socket: Socket) {
 		this.lobbyManager.leaveLobby(socket);
 	}
 

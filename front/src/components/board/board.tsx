@@ -31,12 +31,6 @@ export const Board = ({ board, isGameOver, game }: BoardProps) => {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
 	};
-	// const resolveKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
-	// 	const code = event.code;
-	// 	if (isCommandType(code) && !isGameOver) {
-	// 		dispatch(commandPressed({ command: code }));
-	// 	}
-	// };
 
 	return (
 		<>
