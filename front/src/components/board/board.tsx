@@ -25,6 +25,7 @@ const Cell = ({ cellClassname }) => {
 
 export const Board = ({ board, game }: BoardProps) => {
 	const gameOver = board.gameOver;
+	// console.log("GAME OVER", gameOver);
 	const { fps } = useTick(game, gameOver);
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,

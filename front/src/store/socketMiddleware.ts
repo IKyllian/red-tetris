@@ -18,6 +18,7 @@ import {
 	updatePieces,
 	startGameData,
 	onAllGamesOver,
+	sendInputs,
 } from './lobby.slice';
 import { ILobby } from '../types/lobby.type';
 import { ITetromino } from '../types/tetrominoes.type';
@@ -92,9 +93,9 @@ const socketMiddleware: Middleware = (store) => {
 				);
 
 				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
-                    console.log('GameOver = ', data);
+					console.log('GameOver = ', data);
 					store.dispatch(onAllGamesOver(data));
-                });
+				});
 
 				socket.socket.on(
 					SocketEvent.StartingGame,
@@ -107,7 +108,9 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		if (setName.match(action) && socket) {
-			store.dispatch(createPlayer({name: action.payload, id: socket.socket.id}))
+			store.dispatch(
+				createPlayer({ name: action.payload, id: socket.socket.id })
+			);
 		}
 
 		if (createLobby.match(action) && socket) {
@@ -137,7 +140,12 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		// Handle the commands action
-		if (commandPressed.match(action) && socket) {
+		// if (commandPressed.match(action) && socket) {
+		// 	let command = { data: { ...action.payload } };
+		// 	socket.socket.emit(SocketEvent.CommandPressed, command);
+		// }
+
+		if (sendInputs.match(action) && socket) {
 			let command = { data: { ...action.payload } };
 			socket.socket.emit(SocketEvent.CommandPressed, command);
 		}

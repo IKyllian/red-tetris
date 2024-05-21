@@ -5,6 +5,7 @@ import { cloneDeep } from 'lodash';
 import { Piece } from './piece';
 import { COMMANDS } from 'src/type/command.types';
 import { Scoring } from 'src/type/scoring.enum';
+import { IInputsPacket } from 'src/type/event.enum';
 
 export interface IGame {
 	player: Player;
@@ -29,6 +30,7 @@ export class Game {
 	public lastPacketSendAt: number = 0;
 
 	private tick = 0;
+	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
 	private board: Board;
 	private currentPiece: Piece;
@@ -65,6 +67,7 @@ export class Game {
 			this.gameOver = true;
 			return;
 		}
+		this.processInputs(tick);
 		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
 		} else {
@@ -72,25 +75,51 @@ export class Game {
 		}
 	}
 
-	public handleCommand(command: COMMANDS) {
-		if (this.gameOver) return;
+	public pushInputsInQueue(inputs: IInputsPacket) {
+		this.inputsQueue.push(inputs);
+	}
 
-		switch (command) {
-			case COMMANDS.KEY_UP:
-				this.rotate();
-				break;
-			case COMMANDS.KEY_LEFT:
-				this.moveLeft();
-				break;
-			case COMMANDS.KEY_RIGHT:
-				this.moveRight();
-				break;
-			case COMMANDS.KEY_DOWN:
-				this.moveDown();
-				break;
-			default:
-				this.hardDrop();
-				break;
+	// TODO client server sync, server reconciliation
+	public processInputs(tick: number) {
+		if (this.inputsQueue.length === 1) {
+			console.log('server tick = ', tick);
+			console.log(
+				'inputsQueue tick = ',
+				this.inputsQueue[0].tick,
+				' - inputs = ',
+				this.inputsQueue[0].inputs
+			);
+		}
+		while (
+			this.inputsQueue.length > 0 &&
+			tick === this.inputsQueue[0].tick
+		) {
+			this.handleInputs(this.inputsQueue[0].inputs);
+			this.inputsQueue.shift();
+		}
+	}
+
+	public handleInputs(commands: COMMANDS[]) {
+		for (const command of commands) {
+			if (this.gameOver) return;
+			console.log('command = ', command);
+			switch (command) {
+				case COMMANDS.KEY_UP:
+					this.rotate();
+					break;
+				case COMMANDS.KEY_LEFT:
+					this.moveLeft();
+					break;
+				case COMMANDS.KEY_RIGHT:
+					this.moveRight();
+					break;
+				case COMMANDS.KEY_DOWN:
+					this.moveDown();
+					break;
+				default:
+					this.hardDrop();
+					break;
+			}
 		}
 	}
 

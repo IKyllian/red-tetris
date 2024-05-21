@@ -1,3 +1,4 @@
+import { set } from 'lodash';
 import { Game, IGame } from './game';
 import { Piece } from './piece';
 import { Player } from './player';
@@ -98,30 +99,34 @@ export class Lobby {
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
 			//emit here ?
-		}
-		if (
-			this.games.length > 1 &&
-			this.ranking.length === this.games.length - 1
-		) {
-			this.server.emit(SocketEvent.GameOver, this.ranking);
-			this.stopGames();
-		} else if (this.games.length === this.ranking.length) {
-			this.server.emit(SocketEvent.GameOver, this.ranking);
-			this.stopGames();
-		} else {
-			for (const game of this.games) {
-				const filteredData = this.games.filter(
-					(elem) => elem.player.id != game.player.id
-				);
-				const opponentsGames = filteredData.map((data) =>
-					data.getDataToSend()
-				);
-				game.lastPacketSendAt = performance.now();
-				const playerGame = game.getDataToSend();
-				this.server.to(game.player.id).emit(SocketEvent.GamesUpdate, {
-					playerGame,
-					opponentsGames,
-				});
+			if (
+				this.games.length > 1 &&
+				this.ranking.length === this.games.length - 1
+			) {
+				this.server.emit(SocketEvent.GameOver, this.ranking);
+				this.stopGames();
+				return;
+			} else if (this.games.length === this.ranking.length) {
+				this.server.emit(SocketEvent.GameOver, this.ranking);
+				this.stopGames();
+				return;
+			} else {
+				for (const game of this.games) {
+					const filteredData = this.games.filter(
+						(elem) => elem.player.id != game.player.id
+					);
+					const opponentsGames = filteredData.map((data) =>
+						data.getDataToSend()
+					);
+					game.lastPacketSendAt = performance.now();
+					const playerGame = game.getDataToSend();
+					this.server
+						.to(game.player.id)
+						.emit(SocketEvent.GamesUpdate, {
+							playerGame,
+							opponentsGames,
+						});
+				}
 			}
 		}
 
@@ -157,8 +162,17 @@ export class Lobby {
 				pieces: this.pieces,
 			});
 		}
-		this.lastUpdate = performance.now();
-		this.updateState();
+		// sleep some miliseconds
+		setTimeout(() => {
+			this.lastUpdate = performance.now();
+			this.updateState();
+		}, 100);
+		// this.lastUpdate = performance.now();
+		// setTimeout(
+		// 	this.updateState.bind(this),
+		// 	MIN_TIME_BETWEEN_TICKS
+		// );
+		// this.updateState();
 	}
 
 	public cancelGames() {

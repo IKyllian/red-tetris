@@ -1,3 +1,5 @@
+import { COMMANDS } from './command.types';
+
 export enum SocketEvent {
 	Connect = 'connect',
 	Disconnect = 'disconnect',
@@ -17,4 +19,9 @@ export enum SocketEvent {
 	GameOver = 'game-over',
 	// On events
 	Error = 'error',
+}
+
+export interface IInputsPacket {
+	tick: number;
+	inputs: COMMANDS[];
 }

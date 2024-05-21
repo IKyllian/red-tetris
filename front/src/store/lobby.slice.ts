@@ -19,6 +19,7 @@ export const lobbySlice = createSlice({
 		leaveLobby: (_, __) => {},
 		joinLobby: (_, __) => {},
 		startGame: (_) => {},
+		sendInputs: (_, __) => {},
 		startGameData: (state, action) => {
 			const { playerGame, opponentsGames, pieces } = action.payload;
 			Object.assign(state, {
@@ -77,6 +78,7 @@ export const {
 	moveStateDown,
 	updatePieces,
 	onAllGamesOver,
+	sendInputs,
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

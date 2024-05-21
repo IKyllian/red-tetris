@@ -1,13 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '../store/hook';
 import { IGame } from '../types/board.types';
-import { commandPressed, moveStateDown } from '../store/lobby.slice';
+import {
+	commandPressed,
+	moveStateDown,
+	sendInputs,
+} from '../store/lobby.slice';
 import { getFramesPerGridCell } from '../utils/board.utils';
 import { COMMANDS, isCommandType } from '../types/command.types';
 
+export interface IInputsPacket {
+	tick: number;
+	inputs: COMMANDS[];
+}
 const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
 
 export const useTick = (game: IGame, gameOver: boolean) => {
+	// console.log('game over', gameOver);
 	const requestRef = useRef<number>();
 	const lastUpdateRef = useRef<number>();
 	const tickRef = useRef<number>(0);
@@ -38,7 +47,7 @@ export const useTick = (game: IGame, gameOver: boolean) => {
 		}
 	}, []);
 
-	const handleKeyRelease = (event: KeyboardEvent) => {
+	const handleKeyRelease = useCallback((event: KeyboardEvent) => {
 		const code = event.code;
 		if (code === COMMANDS.KEY_UP) {
 			isKeyUpRelease.current = true;
@@ -46,27 +55,21 @@ export const useTick = (game: IGame, gameOver: boolean) => {
 		if (code === COMMANDS.KEY_SPACE) {
 			isKeySpaceRelease.current = true;
 		}
-	};
+	}, []);
 
 	const processInputs = () => {
 		if (inputQueueRef.current.length === 0) return;
 		inputQueueRef.current.forEach((key) => {
 			dispatch(commandPressed({ command: key as COMMANDS }));
-			// socket.emit('playerAction', key);
 		});
-		// console.log(
-		// 	'tick: ',
-		// 	tickRef.current,
-		// 	' - keys: ',
-		// 	inputQueueRef.current
-		// );
+		dispatch(
+			sendInputs({ tick: tickRef.current, inputs: inputQueueRef.current })
+		);
 		inputQueueRef.current = [];
 	};
 
 	const update = (timeStamp: number) => {
-		console.log('update', gameOver);
-		if (gameOver) return;
-		const deltaTime = timeStamp - lastUpdateRef.current;
+		const deltaTime = timeStamp - lastUpdateRef.current!;
 		lastUpdateRef.current = timeStamp;
 		timerRef.current += deltaTime;
 
@@ -97,17 +100,20 @@ export const useTick = (game: IGame, gameOver: boolean) => {
 	};
 
 	useEffect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		window.addEventListener('keyup', handleKeyRelease);
-		lastUpdateRef.current = performance.now();
-		console.log('useTick mounted');
-		requestRef.current = requestAnimationFrame(update);
+		console.log('GAME OVER in useEffect', gameOver);
+		if (!gameOver) {
+			window.addEventListener('keydown', handleKeyDown);
+			window.addEventListener('keyup', handleKeyRelease);
+			lastUpdateRef.current = performance.now();
+			requestRef.current = requestAnimationFrame(update);
+		}
+
 		return () => {
 			cancelAnimationFrame(requestRef.current!);
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyRelease);
 		};
-	}, [handleKeyDown]);
+	}, [handleKeyDown, handleKeyRelease, gameOver]);
 
 	return {
 		fps,
