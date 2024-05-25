@@ -22,7 +22,8 @@ export class LobbyManager {
 		server: Server
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
-		if (lobby) {
+		//TODO send error if game started?
+		if (lobby && lobby.gameStarted === false) {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
@@ -45,6 +46,7 @@ export class LobbyManager {
 				if (lobby.players.length === 0) {
 					this.lobbys.delete(lobby.id);
 				} else {
+					//TODO check if in game it cause problems
 					lobby.players[0].isLeader = true;
 					socket
 						.to(lobby.id)

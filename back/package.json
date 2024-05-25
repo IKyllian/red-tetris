@@ -30,7 +30,8 @@
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
@@ -41,6 +42,7 @@
     "@types/lodash": "^4.17.0",
     "@types/node": "^16.0.0",
     "@types/pako": "^2.0.3",
+    "@types/seedrandom": "^3.0.8",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

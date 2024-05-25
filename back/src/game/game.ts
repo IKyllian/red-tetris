@@ -6,6 +6,8 @@ import { Piece } from './piece';
 import { COMMANDS } from 'src/type/command.types';
 import { Scoring } from 'src/type/scoring.enum';
 import { IInputsPacket } from 'src/type/event.enum';
+import seedrandom from 'seedrandom';
+import { TetriminosArray } from 'src/type/tetromino.interface';
 
 export interface IGame {
 	player: Player;
@@ -14,6 +16,7 @@ export interface IGame {
 	gameOver: boolean;
 	score: number;
 	level: number;
+	currentPieceIndex: number;
 }
 
 export class Game {
@@ -28,13 +31,17 @@ export class Game {
 	public totalLinesCleared: number = 0;
 	public destructibleLinesToGive: number = 0;
 	public lastPacketSendAt: number = 0;
+	public positionChanged: boolean = false;
+	public boardChanged: boolean = false;
+	public tickAdjustment = 0;
+	public adjustmentIteration = 0;
 
-	private tick = 0;
 	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
-	private board: Board;
+	public board: Board; //todo private
 	private currentPiece: Piece;
 	private tickToMoveDown: number = 0;
+	private rng: seedrandom.PRNG;
 	private lineScores = [
 		Scoring.OneLine,
 		Scoring.TwoLines,
@@ -42,36 +49,57 @@ export class Game {
 		Scoring.FourLines,
 	];
 
-	constructor(player: Player, pieces: Piece[], level: number) {
+	constructor(player: Player, level: number, seed: string) {
 		this.level = level;
-		for (let i = 0; i < 4; ++i) {
-			this.pieces.push(cloneDeep(pieces[i]));
+		this.rng = seedrandom(seed);
+		for (let i = 0; i < 4; i++) {
+			this.pieces.push(this.getNextPiece());
 		}
 		this.currentPiece = this.pieces[0];
 		this.board = new Board(defaultBoardSize);
-		this.board.transferPieceToBoard(this.currentPiece, false);
+		const shape = this.currentPiece.getShape();
+		this.board.transferPieceToBoard(this.currentPiece, shape, false);
 		this.player = player;
 	}
 
-	public addPiece(piece: Piece) {
-		this.pieces = this.pieces.slice(1);
-		this.pieces.push(cloneDeep(piece));
-		this.newPieceNeeded = false;
+	// public addPiece(piece: Piece) {
+	// 	this.pieces = this.pieces.slice(1);
+	// 	this.pieces.push(cloneDeep(piece));
+	// 	this.newPieceNeeded = false;
+	// }
+
+	private getNextPiece() {
+		const index = Math.floor(this.rng() * TetriminosArray.length);
+		const piece = new Piece(TetriminosArray[index]);
+		return piece;
+	}
+
+	private shiftPieces() {
+		this.pieces.shift();
+		const piece = this.getNextPiece();
+		this.pieces.push(piece);
+		this.currentPiece = this.pieces[0];
 	}
 
 	public updateState(tick: number, ranking: Player[]) {
-		this.tick = tick;
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
-		if (this.board.gameOver) {
-			ranking.push(this.player);
-			this.gameOver = true;
+		if (this.gameOver) {
 			return;
 		}
+		this.positionChanged = false;
+		this.boardChanged = false;
 		this.processInputs(tick);
 		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
+			this.positionChanged = true;
 		} else {
 			this.tickToMoveDown++;
+		}
+		if (this.board.gameOver) {
+			ranking.push(this.player);
+			this.gameOver = true;
+			//TODO game over update type
+			this.boardChanged = true;
 		}
 	}
 
@@ -82,27 +110,49 @@ export class Game {
 	// TODO client server sync, server reconciliation
 	public processInputs(tick: number) {
 		if (this.inputsQueue.length === 1) {
-			console.log('server tick = ', tick);
-			console.log(
-				'inputsQueue tick = ',
-				this.inputsQueue[0].tick,
-				' - inputs = ',
-				this.inputsQueue[0].inputs
-			);
 		}
-		while (
-			this.inputsQueue.length > 0 &&
-			tick === this.inputsQueue[0].tick
-		) {
-			this.handleInputs(this.inputsQueue[0].inputs);
-			this.inputsQueue.shift();
+		while (this.inputsQueue.length > 0) {
+			// console.log(
+			// 	'inputsQueue: ',
+			// 	this.inputsQueue[0].inputs,
+			// 	' - tick: ',
+			// 	tick,
+			// 	' - client tick: ',
+			// 	this.inputsQueue[0].tick
+			// );
+			const packet = this.inputsQueue[0];
+
+			// this.handleInputs(packet.inputs);
+			// this.inputsQueue.shift();
+
+			if (packet.tick > tick) {
+				break;
+			} else if (packet.tick === tick) {
+				this.handleInputs(packet.inputs);
+				console.log(
+					'inputs processed: ',
+					packet.inputs,
+					' - tick: ',
+					tick,
+					' - client tick: ',
+					packet.tick
+				);
+				this.inputsQueue.shift();
+			} else if (tick > packet.tick) {
+				if (this.adjustmentIteration === packet.adjustmentIteration) {
+					this.adjustmentIteration++;
+					this.tickAdjustment = tick - packet.tick + 1;
+					console.log('adjustment: ', this.tickAdjustment);
+				}
+				this.inputsQueue.shift();
+			}
 		}
 	}
 
 	public handleInputs(commands: COMMANDS[]) {
 		for (const command of commands) {
 			if (this.gameOver) return;
-			console.log('command = ', command);
+			this.positionChanged = true;
 			switch (command) {
 				case COMMANDS.KEY_UP:
 					this.rotate();
@@ -132,10 +182,12 @@ export class Game {
 			...this.currentPiece.position,
 			y: this.currentPiece.position.y + 1,
 		};
-		if (this.board.checkCollision(newPosition, this.currentPiece.shape)) {
-			this.board.transferPieceToBoard(this.currentPiece, true);
-			this.newPieceNeeded = true;
-			this.currentPiece = this.pieces[1];
+		const shape = this.currentPiece.getShape();
+		if (this.board.checkCollision(newPosition, shape)) {
+			this.board.transferPieceToBoard(this.currentPiece, shape, true);
+			this.shiftPieces();
+			this.board.printBoard();
+			this.boardChanged = true;
 			this.nbOfpieceDown++;
 			const linesCleared = this.board.checkForLines();
 			if (linesCleared > 0) {
@@ -155,16 +207,19 @@ export class Game {
 				this.totalLinesCleared += linesCleared;
 			}
 			// add new piece to the board
-			this.board.transferPieceToBoard(this.currentPiece, false);
+			const newShape = this.currentPiece.getShape();
+			this.board.transferPieceToBoard(this.currentPiece, newShape, false);
 		} else {
-			this.board.clearOldPosition(this.currentPiece);
+			this.board.clearOldPosition(this.currentPiece, shape);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, false);
+			this.board.transferPieceToBoard(this.currentPiece, shape, false);
 		}
 	}
 
 	public hardDrop() {
-		while (!this.newPieceNeeded) {
+		//TODO get drop position and add score
+		const nb = this.nbOfpieceDown;
+		while (this.nbOfpieceDown === nb) {
 			this.score += 1;
 			this.moveDown();
 		}
@@ -179,10 +234,11 @@ export class Game {
 			...this.currentPiece.position,
 			x: this.currentPiece.position.x - 1,
 		};
-		if (!this.board.checkCollision(newPosition, this.currentPiece.shape)) {
-			this.board.clearOldPosition(this.currentPiece);
+		const shape = this.currentPiece.getShape();
+		if (!this.board.checkCollision(newPosition, shape)) {
+			this.board.clearOldPosition(this.currentPiece, shape);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, false);
+			this.board.transferPieceToBoard(this.currentPiece, shape, false);
 		}
 	}
 
@@ -191,15 +247,17 @@ export class Game {
 			...this.currentPiece.position,
 			x: this.currentPiece.position.x + 1,
 		};
-		if (!this.board.checkCollision(newPosition, this.currentPiece.shape)) {
-			this.board.clearOldPosition(this.currentPiece);
+		const shape = this.currentPiece.getShape();
+		if (!this.board.checkCollision(newPosition, shape)) {
+			this.board.clearOldPosition(this.currentPiece, shape);
 			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, false);
+			this.board.transferPieceToBoard(this.currentPiece, shape, false);
 		}
 	}
 
 	public addDestructibleLines(nbOfLines: number) {
 		this.board.addIndestructibleLines(nbOfLines);
+		this.boardChanged = true;
 	}
 
 	private getFramesPerGridCell(level: number): number {
@@ -229,6 +287,7 @@ export class Game {
 			gameOver: this.gameOver,
 			score: this.score,
 			level: this.level,
+			currentPieceIndex: this.nbOfpieceDown,
 		};
 	}
 }

@@ -8,14 +8,13 @@ import {
 import { setBoard, setBoardListener } from './board.slice';
 import { ICell, IGame } from '../types/board.types';
 import {
-	commandPressed,
+	// commandPressed,
 	createLobby,
 	joinLobby,
 	leaveLobby,
 	setLobby,
 	startGame,
 	updateGamesBoard,
-	updatePieces,
 	startGameData,
 	onAllGamesOver,
 	sendInputs,
@@ -24,6 +23,8 @@ import { ILobby } from '../types/lobby.type';
 import { ITetromino } from '../types/tetrominoes.type';
 import { createPlayer, setName } from './player.slice';
 import { IPlayer } from '../types/player.type';
+import { IGameUpdatePacketHeader } from '../types/packet.types';
+import { setGamesState, setTickAdjustments } from './tick.slice';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -38,7 +39,6 @@ export enum SocketEvent {
 	StartGame = 'start-game',
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
-	PiecesUpdate = 'pieces-update',
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
 	// On events
@@ -77,18 +77,20 @@ const socketMiddleware: Middleware = (store) => {
 					store.dispatch(setLobby(lobby));
 				});
 
-				socket.socket.on(SocketEvent.GamesUpdate, (data) => {
-					// if (AZE < 1) {
-					socket.socket.emit('pong');
-					store.dispatch(updateGamesBoard(data));
-					// AZE++
-					// }
-				});
-
 				socket.socket.on(
-					SocketEvent.PiecesUpdate,
-					(pieces: ITetromino[]) => {
-						store.dispatch(updatePieces(pieces));
+					SocketEvent.GamesUpdate,
+					(data: IGameUpdatePacketHeader) => {
+						// if (AZE < 1) {
+						socket.socket.emit('pong');
+						store.dispatch(updateGamesBoard(data));
+						store.dispatch(
+							setTickAdjustments({
+								packet: data,
+								playerId: socket.socket.id,
+							})
+						);
+						// AZE++
+						// }
 					}
 				);
 
@@ -99,9 +101,10 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(
 					SocketEvent.StartingGame,
-					(data: { games: IGame[]; pieces: ITetromino }) => {
+					(data: { games: IGame[]; seed: string }) => {
 						console.log('StartingGame = ', data);
 						store.dispatch(startGameData(data));
+						store.dispatch(setGamesState(data.games));
 					}
 				);
 			}

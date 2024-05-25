@@ -1,93 +1,216 @@
-
 export interface ITetromino {
-  shape: number[][];
-  className: string;
+	// shape: number[][];
+	// className: string;
+	type: CellType;
 	position: IPosition;
 	rotationState: number;
 }
 
 export interface IPosition {
-  x: number;
-  y: number;
+	x: number;
+	y: number;
 }
 
 export const defaultPosition: IPosition = {
-  x: 3,
-  y: 0,
+	x: 3,
+	y: 0,
 };
 
-const className = "tetromino";
-
-export enum TetrominoType {
-	I = `${className} tetromino_I`,
-	J = `${className} tetromino_J`,
-	L = `${className} tetromino_L`,
-	O = `${className} tetromino_O`,
-	S = `${className} tetromino_S`,
-	T = `${className} tetromino_T`,
-	Z = `${className} tetromino_Z`,
+export enum CellType {
+	I,
+	J,
+	L,
+	O,
+	S,
+	T,
+	Z,
+	INDESTRUCTIBLE,
+	EMPTY,
 }
 
-export const indestructibleCell = `${className} ${className}_indestructible`;
+export const TetriminosArray: Array<ITetromino> = [
+	{
+		type: CellType.I,
+		position: { x: 3, y: -1 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.J,
+		position: { x: 3, y: 0 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.L,
+		position: { x: 3, y: 0 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.O,
+		position: { x: 4, y: 0 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.S,
+		position: { x: 3, y: 0 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.T,
+		position: { x: 3, y: 0 },
+		rotationState: 0,
+	},
+	{
+		type: CellType.Z,
+		position: { x: 3, y: 0 },
+		rotationState: 0,
+	},
+];
 
-export const TETROMINOES = {
-  I: {
-    shape: [
-      [0, 0, 0, 0],
-      [1, 1, 1, 1],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ],
-    className: `${className} ${className}_I`,
-  },
-  J: {
-    shape: [
-      [1, 0, 0],
-      [1, 1, 1],
-      [0, 0, 0],
-    ],
-    className: `${className} ${className}_J`,
-  },
-  L: {
-    shape: [
-      [0, 0, 1],
-      [1, 1, 1],
-      [0, 0, 0],
-    ],
-    className: `${className} ${className}_L`,
-  },
-  O: {
-    shape: [
-      [1, 1],
-      [1, 1],
-    ],
-    className: `${className} ${className}_O`,
-  },
-  S: {
-    shape: [
-      [0, 1, 1],
-      [1, 1, 0],
-      [0, 0, 0],
-    ],
-    className: `${className} ${className}_S`,
-  },
-  T: {
-    shape: [
-      [0, 1, 0],
-      [1, 1, 1],
-      [0, 0, 0],
-    ],
-    className: `${className} ${className}_T`,
-  },
-  Z: {
-    shape: [
-      [1, 1, 0],
-      [0, 1, 1],
-      [0, 0, 0],
-    ],
-    className: `${className} ${className}_Z`,
-  },
-};
+export const I_TetrominoShape = [
+	[
+		[0, 0, 0, 0],
+		[1, 1, 1, 1],
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+	],
+	[
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+	],
+	[
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+		[1, 1, 1, 1],
+		[0, 0, 0, 0],
+	],
+	[
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+	],
+];
+
+export const J_TetrominoShape = [
+	[
+		[1, 0, 0],
+		[1, 1, 1],
+		[0, 0, 0],
+	],
+	[
+		[0, 1, 1],
+		[0, 1, 0],
+		[0, 1, 0],
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[0, 0, 1],
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 0],
+		[1, 1, 0],
+	],
+];
+
+export const L_TetrominoShape = [
+	[
+		[0, 0, 1],
+		[1, 1, 1],
+		[0, 0, 0],
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 0],
+		[0, 1, 1],
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[1, 0, 0],
+	],
+	[
+		[1, 1, 0],
+		[0, 1, 0],
+		[0, 1, 0],
+	],
+];
+
+export const O_TetrominoShape = [
+	[1, 1],
+	[1, 1],
+];
+export const S_TetrominoShape = [
+	[
+		[0, 1, 1],
+		[1, 1, 0],
+		[0, 0, 0],
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 1],
+		[0, 0, 1],
+	],
+	[
+		[0, 0, 0],
+		[0, 1, 1],
+		[1, 1, 0],
+	],
+	[
+		[1, 0, 0],
+		[1, 1, 0],
+		[0, 1, 0],
+	],
+];
+
+export const T_TetrominoShape = [
+	[
+		[0, 1, 0],
+		[1, 1, 1],
+		[0, 0, 0],
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 1],
+		[0, 1, 0],
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[0, 1, 0],
+	],
+	[
+		[0, 1, 0],
+		[1, 1, 0],
+		[0, 1, 0],
+	],
+];
+
+export const Z_TetrominoShape = [
+	[
+		[1, 1, 0],
+		[0, 1, 1],
+		[0, 0, 0],
+	],
+	[
+		[0, 0, 1],
+		[0, 1, 1],
+		[0, 1, 0],
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 0],
+		[0, 1, 1],
+	],
+	[
+		[0, 1, 0],
+		[1, 1, 0],
+		[1, 0, 0],
+	],
+];
 
 export const JLTSZ_SRS = [
 	// State 0

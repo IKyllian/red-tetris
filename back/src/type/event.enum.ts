@@ -15,7 +15,6 @@ export enum SocketEvent {
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
-	PiecesUpdate = 'pieces-update',
 	GameOver = 'game-over',
 	// On events
 	Error = 'error',
@@ -23,5 +22,6 @@ export enum SocketEvent {
 
 export interface IInputsPacket {
 	tick: number;
+	adjustmentIteration: number;
 	inputs: COMMANDS[];
 }

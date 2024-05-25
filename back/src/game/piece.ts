@@ -2,118 +2,76 @@ import { zip } from 'lodash';
 import {
 	IPosition,
 	ITetromino,
+	I_SRS,
+	I_TetrominoShape,
+	JLTSZ_SRS,
+	J_TetrominoShape,
+	L_TetrominoShape,
+	O_TetrominoShape,
+	S_TetrominoShape,
+	T_TetrominoShape,
 	TetriminosArray,
-	TetrominoType,
+	Z_TetrominoShape,
 } from 'src/type/tetromino.interface';
 import { Board } from './board';
-
-const JLTSZ_SRS = [
-	// State 0
-	[
-		{ x: 0, y: 0 },
-		{ x: -1, y: 0 },
-		{ x: -1, y: -1 },
-		{ x: 0, y: 2 },
-		{ x: -1, y: 2 },
-	],
-	// State 1
-	[
-		{ x: 0, y: 0 },
-		{ x: 1, y: 0 },
-		{ x: 1, y: 1 },
-		{ x: 0, y: -2 },
-		{ x: 1, y: -2 },
-	],
-	// State 2
-	[
-		{ x: 0, y: 0 },
-		{ x: 1, y: 0 },
-		{ x: 1, y: -1 },
-		{ x: 0, y: 2 },
-		{ x: 1, y: 2 },
-	],
-	// State 3
-	[
-		{ x: 0, y: 0 },
-		{ x: -1, y: 0 },
-		{ x: -1, y: 1 },
-		{ x: 0, y: -2 },
-		{ x: -1, y: -2 },
-	],
-];
-
-const I_SRS = [
-	// State 0
-	[
-		{ x: 0, y: 0 },
-		{ x: -1, y: 0 },
-		{ x: 2, y: 0 },
-		{ x: -1, y: -2 },
-		{ x: 2, y: 1 },
-	],
-	// State 1
-	[
-		{ x: 0, y: 0 },
-		{ x: 2, y: 0 },
-		{ x: -1, y: 0 },
-		{ x: 2, y: -1 },
-		{ x: -1, y: 2 },
-	],
-	// State 2
-	[
-		{ x: 0, y: 0 },
-		{ x: 1, y: 0 },
-		{ x: -2, y: 0 },
-		{ x: 1, y: 2 },
-		{ x: -2, y: -1 },
-	],
-	// State 3
-	[
-		{ x: 0, y: 0 },
-		{ x: -2, y: 0 },
-		{ x: 1, y: 0 },
-		{ x: -2, y: 1 },
-		{ x: 1, y: -2 },
-	],
-];
+import { CellType } from 'src/type/cell.interface';
 
 export class Piece {
 	// Ou Tetromino
-	public shape: number[][];
-	public className: string;
+	// public shape: number[][];
+	public type: CellType;
 	public position: IPosition;
 	private rotationState: number = 0;
 
-	constructor() {
-		const tetromino = this.getRandomPiece();
-		this.shape = tetromino.shape;
-		this.className = tetromino.className;
+	constructor(tetromino: ITetromino) {
+		// const tetromino = this.getRandomPiece();
+		this.type = tetromino.type;
 		this.position = tetromino.position;
+		// this.shape = this.getShape();
 	}
-	private getRotatedShape(): number[][] {
-		// Transpose the shape matrix (columns become rows)
-		const transposed = zip(...this.shape);
-		// Reverse each row of the transposed matrix to rotate clockwise
-		return transposed.map((row) => row.reverse());
+	public getShape(rotationState: number = this.rotationState): number[][] {
+		switch (this.type) {
+			case CellType.I:
+				return I_TetrominoShape[rotationState];
+			case CellType.J:
+				return J_TetrominoShape[rotationState];
+			case CellType.L:
+				return L_TetrominoShape[rotationState];
+			case CellType.O:
+				return O_TetrominoShape;
+			case CellType.S:
+				return S_TetrominoShape[rotationState];
+			case CellType.T:
+				return T_TetrominoShape[rotationState];
+			default:
+				return Z_TetrominoShape[rotationState];
+		}
 	}
+	// private getRotatedShape(): number[][] {
+	// 	// Transpose the shape matrix (columns become rows)
+	// 	const transposed = zip(...this.shape);
+	// 	// Reverse each row of the transposed matrix to rotate clockwise
+	// 	return transposed.map((row) => row.reverse());
+	// }
 
 	public rotate(board: Board): void {
-		if (this.className === TetrominoType.O) {
+		if (this.type === CellType.O) {
 			return;
 		}
-		const newShape = this.getRotatedShape();
-		const srs = this.className === TetrominoType.I ? I_SRS : JLTSZ_SRS;
+		const currentShape = this.getShape();
+		const newRotation = (this.rotationState + 1) % 4;
+		const newShape = this.getShape(newRotation);
+		const srs = this.type === CellType.I ? I_SRS : JLTSZ_SRS;
 		for (let position of srs[this.rotationState]) {
 			const newPosition = {
 				x: this.position.x + position.x,
 				y: this.position.y + position.y,
 			};
 			if (!board.checkCollision(newPosition, newShape)) {
-				board.clearOldPosition(this);
+				board.clearOldPosition(this, currentShape);
 				this.position = newPosition;
-				this.shape = newShape;
-				board.transferPieceToBoard(this, false);
-				this.rotationState = (this.rotationState + 1) % 4;
+				board.transferPieceToBoard(this, newShape, false);
+				this.rotationState = newRotation;
 				break;
 			}
 		}

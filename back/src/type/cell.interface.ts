@@ -1,12 +1,23 @@
+export enum CellType {
+	I,
+	J,
+	L,
+	O,
+	S,
+	T,
+	Z,
+	INDESTRUCTIBLE,
+	EMPTY,
+}
 export interface ICell {
 	occupied: boolean;
-	className: string;
+	type: CellType;
 	isDestructible: boolean;
 }
 
 export const defaultCell: ICell = {
 	occupied: false,
-	className: '',
+	type: CellType.EMPTY,
 	isDestructible: true,
 };
 

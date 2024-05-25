@@ -1,5 +1,5 @@
-import { ICell, ISize, defaultCell } from 'src/type/cell.interface';
-import { IPosition, indestructibleCell } from 'src/type/tetromino.interface';
+import { CellType, ICell, ISize, defaultCell } from 'src/type/cell.interface';
+import { IPosition } from 'src/type/tetromino.interface';
 import { Piece } from './piece';
 
 export class Board {
@@ -23,8 +23,8 @@ export class Board {
 		return builtRows;
 	};
 
-	public clearOldPosition(tetromino: Piece) {
-		tetromino.shape.forEach((row: number[], y: number) => {
+	public clearOldPosition(tetromino: Piece, shape: number[][]) {
+		shape.forEach((row: number[], y: number) => {
 			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
@@ -36,8 +36,12 @@ export class Board {
 		});
 	}
 
-	public transferPieceToBoard(tetromino: Piece, fixOnBoard: boolean) {
-		tetromino.shape.forEach((row: number[], y: number) => {
+	public transferPieceToBoard(
+		tetromino: Piece,
+		shape: number[][],
+		fixOnBoard: boolean
+	) {
+		shape.forEach((row: number[], y: number) => {
 			if (tetromino.position.y + y < 0) return;
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
@@ -49,7 +53,7 @@ export class Board {
 						this.gameOver = true;
 					}
 					this.cells[_y][_x] = {
-						className: tetromino.className,
+						type: tetromino.type,
 						occupied: fixOnBoard,
 						isDestructible: true,
 					};
@@ -77,12 +81,12 @@ export class Board {
 	}
 
 	public addIndestructibleLines(nbOfLines: number) {
-		const indestructibleRow = Array.from(
+		const indestructibleRow: ICell[] = Array.from(
 			{ length: this.size.columns },
 			() => ({
 				occupied: true,
 				isDestructible: false,
-				className: indestructibleCell,
+				type: CellType.INDESTRUCTIBLE,
 			})
 		);
 		for (let i = 0; i < nbOfLines; i++) {

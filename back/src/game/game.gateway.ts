@@ -57,7 +57,7 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: { playerName: string; lobbyId: string }
 	) {
-		console.log('Join lobby = ', data);
+		// console.log('Join lobby = ', data);
 		this.lobbyManager.joinLobby(
 			socket,
 			data.playerName,
@@ -101,24 +101,27 @@ export class GameGateway
 		// if (isCommandType(command)) {
 		const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
 		if (lobby && lobby.gameStarted) {
-			lobby.getPlayerGame(socket.id)?.pushInputsInQueue(data);
+			const game = lobby.getPlayerGame(socket.id);
+			if (game && !game.gameOver) {
+				game.pushInputsInQueue(data);
+			}
 		}
 		// }
 	}
 
 	@SubscribeMessage('pong')
 	pong(@ConnectedSocket() socket: Socket) {
-		const game = this.lobbyManager
-			.getLobby(socket.id)
-			?.getPlayerGame(socket.id);
-		if (game) {
-			const ping = performance.now() - game.lastPacketSendAt;
-			console.log(
-				'client: ',
-				game.player.name,
-				' - ping: ',
-				ping.toFixed(2) + 'ms'
-			);
-		}
+		// const game = this.lobbyManager
+		// 	.getLobby(socket.id)
+		// 	?.getPlayerGame(socket.id);
+		// if (game) {
+		// 	const ping = performance.now() - game.lastPacketSendAt;
+		// 	console.log(
+		// 		'client: ',
+		// 		game.player.name,
+		// 		' - ping: ',
+		// 		ping.toFixed(2) + 'ms'
+		// 	);
+		// }
 	}
 }
