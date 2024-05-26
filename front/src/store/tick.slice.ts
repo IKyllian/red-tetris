@@ -3,6 +3,7 @@ import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
 	IPositionUpdate,
+	IServerState,
 	UpdateType,
 } from '../types/packet.types';
 import { IGame } from '../types/board.types';
@@ -20,11 +21,6 @@ interface ITick {
 	adjustmentIteration: number;
 	lastServerState: IServerState | undefined;
 	gamesState: IGame[];
-}
-
-export interface IServerState {
-	tick: number;
-	packet: IGameUpdatePacket;
 }
 
 const defaultTickState: ITick = {

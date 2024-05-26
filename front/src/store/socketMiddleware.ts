@@ -14,10 +14,9 @@ import {
 	leaveLobby,
 	setLobby,
 	startGame,
-	updateGamesBoard,
 	startGameData,
 	onAllGamesOver,
-	sendInputs,
+	// sendInputs,
 } from './lobby.slice';
 import { ILobby } from '../types/lobby.type';
 import { ITetromino } from '../types/tetrominoes.type';
@@ -25,6 +24,11 @@ import { createPlayer, setName } from './player.slice';
 import { IPlayer } from '../types/player.type';
 import { IGameUpdatePacketHeader } from '../types/packet.types';
 import { setGamesState, setTickAdjustments } from './tick.slice';
+import {
+	sendInputs,
+	setGameStartingState,
+	updateGamesBoard,
+} from './game.slice';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -83,12 +87,12 @@ const socketMiddleware: Middleware = (store) => {
 						// if (AZE < 1) {
 						socket.socket.emit('pong');
 						store.dispatch(updateGamesBoard(data));
-						store.dispatch(
-							setTickAdjustments({
-								packet: data,
-								playerId: socket.socket.id,
-							})
-						);
+						// store.dispatch(
+						// 	setTickAdjustments({
+						// 		packet: data,
+						// 		playerId: socket.socket.id,
+						// 	})
+						// );
 						// AZE++
 						// }
 					}
@@ -101,10 +105,15 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(
 					SocketEvent.StartingGame,
-					(data: { games: IGame[]; seed: string }) => {
+					(data: {
+						playerGame: IGame;
+						opponentsGames: IGame[];
+						seed: string;
+					}) => {
 						console.log('StartingGame = ', data);
-						store.dispatch(startGameData(data));
-						store.dispatch(setGamesState(data.games));
+						// store.dispatch(startGameData(data));
+						store.dispatch(setGameStartingState(data));
+						// store.dispatch(setGamesState(data.games));
 					}
 				);
 			}
@@ -149,6 +158,7 @@ const socketMiddleware: Middleware = (store) => {
 		// }
 
 		if (sendInputs.match(action) && socket) {
+			console.log('emit sendInputs');
 			let command = { data: { ...action.payload } };
 			socket.socket.emit(SocketEvent.CommandPressed, command);
 		}

@@ -13,7 +13,7 @@ import { useMemo } from "react";
 interface BoardProps {
 	board: IBoard;
 	game: IGame;
-	seed: string;
+	// seed: string;
 }
 
 interface BoardPreviewProps {
@@ -30,10 +30,10 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, game, seed }: BoardProps) => {
+export const Board = ({ board, game }: BoardProps) => {
 	const gameOver = board.gameOver;
 	// console.log("GAME OVER", gameOver);
-	const { fps } = useTick(game, gameOver, seed);
+	// const { fps } = useTick(game, gameOver, seed);
 	// const boardStyles = {
 	// 	gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 	// 	gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
@@ -62,7 +62,7 @@ export const Board = ({ board, game, seed }: BoardProps) => {
 					))
 				)}
 			</div>
-			<span style={{ fontSize: "25px", color: "red" }}> {fps} </span>
+			{/* <span style={{ fontSize: "25px", color: "red" }}> {fps} </span> */}
 			<span style={{ fontSize: "25px", color: "red" }}>
 				{" "}
 				{game.player.name}{" "}

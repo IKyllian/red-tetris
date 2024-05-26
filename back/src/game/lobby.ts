@@ -72,6 +72,7 @@ export class Lobby {
 	//TODO classement, emit game over, errors, when leaving lobby in game, gamover in Game true
 	//  send board only if line cleared or destructible lines?
 	// do better update Type
+	// Separate game  and lobby
 	private updateState() {
 		if (this.gameStarted === false) {
 			this.stopGames();

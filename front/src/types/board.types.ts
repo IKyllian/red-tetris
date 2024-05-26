@@ -43,4 +43,26 @@ export interface IGame {
 	currentPieceIndex: number;
 }
 
+export const defaultGame = {
+	board: {
+		cells: Array.from({ length: defaultBoardSize.rows }, () =>
+			Array.from({ length: defaultBoardSize.columns }, () => defaultCell)
+		),
+		size: defaultBoardSize,
+		gameOver: false,
+	},
+	player: {
+		id: '',
+		name: '',
+		isLeader: false,
+	},
+	score: 0,
+	pieces: [],
+	gameOver: false,
+	level: 0,
+	linesCleared: 0,
+	totalLinesCleared: 0,
+	currentPieceIndex: 0,
+};
+
 export const NbOfLinesForNextLevel = 10;

@@ -99,6 +99,7 @@ export class GameGateway
 		// console.log('command pressed: ', data);
 		//TODO check if command is valid
 		// if (isCommandType(command)) {
+		console.log('command pressed: ', data);
 		const lobby: Lobby | undefined = this.lobbyManager.getLobby(socket.id);
 		if (lobby && lobby.gameStarted) {
 			const game = lobby.getPlayerGame(socket.id);

@@ -1,4 +1,4 @@
-import _, { set } from 'lodash';
+import _, { get, set } from 'lodash';
 import {
 	CellType,
 	IPosition,
@@ -13,7 +13,9 @@ import {
 	checkCollision,
 	// clearDropPreview,
 	clearOldPosition,
+	generatePieces,
 	getNextPiece,
+	getPieceIndex,
 	getPosLeft,
 	getPosRight,
 	getShape,
@@ -21,56 +23,57 @@ import {
 	transferPieceToBoard,
 } from './piece.utils';
 import { checkForLines } from './board.utils';
+import { IGameState } from '../store/game.slice';
 
-export function moveDown(
-	game: IGame,
-	tetromino: ITetromino,
-	rng: seedrandom.PRNG,
-	tickToMoveDown: React.MutableRefObject<number>
-): void {
+export function moveDown(state: IGameState): void {
+	let tetromino =
+		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
 	const newPosition = {
 		...tetromino.position,
 		y: tetromino.position.y + 1,
 	};
+	state.tickToMoveDown = 0;
+
 	const shape = getShape(tetromino.type, tetromino.rotationState);
-	tickToMoveDown.current = 0;
 	// clearDropPreview(game.board, tetromino, shape);
-	if (checkCollision(game.board, newPosition, shape)) {
-		game.board.cells = transferPieceToBoard(
-			game.board,
+	if (checkCollision(state.playerGame.board, newPosition, shape)) {
+		state.playerGame.board.cells = transferPieceToBoard(
+			state.playerGame.board,
 			tetromino,
 			shape,
 			true
 		);
-		game.currentPieceIndex++;
-		if (game.currentPieceIndex + 3 >= game.pieces.length) {
-			game.pieces.push(getNextPiece(rng));
-		}
-		tetromino = game.pieces[game.currentPieceIndex];
+		generatePieces(state, 1, 4);
+		state.playerGame.currentPieceIndex++;
+		// if (state.playerGame.currentPieceIndex + 3 >= state.pieces.length) {
+		// 	state.pieces.push(getNextPiece(state.rng));
+		// }
+		tetromino =
+			state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
 		const newShape = getShape(tetromino.type, tetromino.rotationState);
-		const linesCleared = checkForLines(game.board);
+		const linesCleared = checkForLines(state.playerGame.board);
 		if (linesCleared > 0) {
-			game.linesCleared += linesCleared;
-			if (game.linesCleared >= NbOfLinesForNextLevel) {
-				game.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
-				game.level++;
-				game.linesCleared = 0;
+			state.playerGame.linesCleared += linesCleared;
+			if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
+				state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
+				state.playerGame.level++;
+				state.playerGame.linesCleared = 0;
 			}
-			game.totalLinesCleared += linesCleared;
+			state.playerGame.totalLinesCleared += linesCleared;
 		}
 		// setDropPreview(game.board, tetromino, newShape);
-		game.board.cells = transferPieceToBoard(
-			game.board,
+		state.playerGame.board.cells = transferPieceToBoard(
+			state.playerGame.board,
 			tetromino,
 			newShape,
 			false
 		);
 	} else {
-		clearOldPosition(tetromino, shape, game.board);
-		// setDropPreview(game.board, tetromino, shape);
+		clearOldPosition(tetromino, shape, state.playerGame.board);
+		// setDropPreview(state.playerGame.board, tetromino, shape);
 		tetromino.position = newPosition;
-		game.board.cells = transferPieceToBoard(
-			game.board,
+		state.playerGame.board.cells = transferPieceToBoard(
+			state.playerGame.board,
 			tetromino,
 			shape,
 			false
@@ -78,28 +81,21 @@ export function moveDown(
 	}
 }
 
-export function hardDrop(
-	game: IGame,
-	rng: seedrandom.PRNG,
-	tickToMoveDown: React.MutableRefObject<number>
-): void {
+export function hardDrop(state): void {
 	//TODO get the position of the piece after hard drop and update the board
-	const currentPieceIndex = game.currentPieceIndex;
-	while (currentPieceIndex === game.currentPieceIndex) {
-		moveDown(
-			game,
-			game.pieces[game.currentPieceIndex],
-			rng,
-			tickToMoveDown
-		);
+	const currentPieceIndex = state.playerGame.currentPieceIndex;
+	while (currentPieceIndex === state.playerGame.currentPieceIndex) {
+		moveDown(state);
 	}
 }
 
 export function changeStatePiecePosition(
-	board: IBoard,
-	tetromino: ITetromino,
+	state: IGameState,
 	cb: (position: IPosition) => IPosition
 ): void {
+	const tetromino =
+		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
+	const board = state.playerGame.board;
 	const newPos = cb(tetromino.position);
 	const shape = getShape(tetromino.type, tetromino.rotationState);
 
@@ -112,7 +108,10 @@ export function changeStatePiecePosition(
 	}
 }
 
-export function rotate(piece: ITetromino, board: IBoard): void {
+export function rotate(state): void {
+	const piece =
+		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
+	const board = state.playerGame.board;
 	if (piece.type === CellType.O) return;
 	const currentShape = getShape(piece.type, piece.rotationState);
 	const newRotation = (piece.rotationState + 1) % 4;
@@ -135,28 +134,22 @@ export function rotate(piece: ITetromino, board: IBoard): void {
 	}
 }
 
-export function handleInput(
-	input: COMMANDS,
-	game: IGame,
-	rng: seedrandom.PRNG,
-	tickToMoveDown: React.MutableRefObject<number>
-): void {
-	const currentPiece = game.pieces[game.currentPieceIndex];
+export function handleInput(input: COMMANDS, state: IGameState): void {
 	switch (input) {
 		case COMMANDS.KEY_UP:
-			rotate(currentPiece, game.board);
+			rotate(state);
 			break;
 		case COMMANDS.KEY_DOWN:
-			moveDown(game, currentPiece, rng, tickToMoveDown);
+			moveDown(state);
 			break;
 		case COMMANDS.KEY_LEFT:
-			changeStatePiecePosition(game.board, currentPiece, getPosLeft);
+			changeStatePiecePosition(state, getPosLeft);
 			break;
 		case COMMANDS.KEY_RIGHT:
-			changeStatePiecePosition(game.board, currentPiece, getPosRight);
+			changeStatePiecePosition(state, getPosRight);
 			break;
 		case COMMANDS.KEY_SPACE:
-			hardDrop(game, rng, tickToMoveDown);
+			hardDrop(state);
 			break;
 		default:
 			break;

@@ -6,10 +6,6 @@ import { sendInputs, updatePlayerGame } from '../store/lobby.slice';
 import { compareCells, getFramesPerGridCell } from '../utils/board.utils';
 import { COMMANDS, isCommandType } from '../types/command.types';
 
-export interface IInputsPacket {
-	tick: number;
-	inputs: COMMANDS[];
-}
 import { cloneDeep } from 'lodash';
 import { handleInput, moveDown } from '../utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';

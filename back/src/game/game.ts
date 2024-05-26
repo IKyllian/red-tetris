@@ -83,11 +83,11 @@ export class Game {
 
 	public updateState(tick: number, ranking: Player[]) {
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
+		this.positionChanged = false;
+		this.boardChanged = false;
 		if (this.gameOver) {
 			return;
 		}
-		this.positionChanged = false;
-		this.boardChanged = false;
 		this.processInputs(tick);
 		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
@@ -186,7 +186,7 @@ export class Game {
 		if (this.board.checkCollision(newPosition, shape)) {
 			this.board.transferPieceToBoard(this.currentPiece, shape, true);
 			this.shiftPieces();
-			this.board.printBoard();
+			// this.board.printBoard();
 			this.boardChanged = true;
 			this.nbOfpieceDown++;
 			const linesCleared = this.board.checkForLines();

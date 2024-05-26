@@ -30,7 +30,7 @@ export const lobbySlice = createSlice({
 		leaveLobby: (_, __) => {},
 		joinLobby: (_, __) => {},
 		startGame: (_) => {},
-		sendInputs: (_, __) => {},
+		// sendInputs: (_, __) => {},
 		startGameData: (state, action) => {
 			const { playerGame, opponentsGames, seed } = action.payload;
 			Object.assign(state, {
@@ -70,56 +70,56 @@ export const lobbySlice = createSlice({
 		updatePlayerGame: (state, action) => {
 			state.playerGame = action.payload;
 		},
-		updateGamesBoard: (
-			state,
-			action: { payload: IGameUpdatePacketHeader }
-		) => {
-			const packetWhithHeader = action.payload;
-			const gamePackets = packetWhithHeader.gamePackets;
-			for (const gamePacket of gamePackets) {
-				if (gamePacket.state.player.id === state.playerGame.player.id) {
-					continue;
-				}
+		// updateGamesBoard: (
+		// 	state,
+		// 	action: { payload: IGameUpdatePacketHeader }
+		// ) => {
+		// 	const packetWhithHeader = action.payload;
+		// 	const gamePackets = packetWhithHeader.gamePackets;
+		// 	for (const gamePacket of gamePackets) {
+		// 		if (gamePacket.state.player.id === state.playerGame.player.id) {
+		// 			continue;
+		// 		}
 
-				const index = state.opponentsGames.findIndex(
-					(g) => g.player.id === gamePacket.state.player.id
-				);
-				// let currentState = state.opponentsGames[index];
-				let currentState: IGame = state.opponentsGames.find((g) => {
-					return g.player.id === gamePacket.state.player.id;
-				});
-				if (
-					currentState &&
-					gamePacket.updateType === UpdateType.POSITION
-				) {
-					const newState = gamePacket.state as IPositionUpdate;
-					const piece = currentState.pieces[0];
-					let shape = getShape(piece.type, piece.rotationState);
-					//why is it working
-					clearOldPosition(piece, shape, currentState.board);
-					if (piece.rotationState !== newState.piece.rotationState) {
-						shape = getShape(
-							newState.piece.type,
-							newState.piece.rotationState
-						);
-					}
-					transferPieceToBoard(
-						currentState.board,
-						newState.piece,
-						shape,
-						false
-					);
-					currentState.pieces[0] = newState.piece;
-				} else if (
-					currentState &&
-					gamePacket.updateType === UpdateType.GAME
-				) {
-					const newState = gamePacket.state as IGame;
-					currentState = newState;
-					state.opponentsGames[index] = currentState;
-				}
-			}
-		},
+		// 		const index = state.opponentsGames.findIndex(
+		// 			(g) => g.player.id === gamePacket.state.player.id
+		// 		);
+		// 		// let currentState = state.opponentsGames[index];
+		// 		let currentState: IGame = state.opponentsGames.find((g) => {
+		// 			return g.player.id === gamePacket.state.player.id;
+		// 		});
+		// 		if (
+		// 			currentState &&
+		// 			gamePacket.updateType === UpdateType.POSITION
+		// 		) {
+		// 			const newState = gamePacket.state as IPositionUpdate;
+		// 			const piece = currentState.pieces[0];
+		// 			let shape = getShape(piece.type, piece.rotationState);
+		// 			//why is it working
+		// 			clearOldPosition(piece, shape, currentState.board);
+		// 			if (piece.rotationState !== newState.piece.rotationState) {
+		// 				shape = getShape(
+		// 					newState.piece.type,
+		// 					newState.piece.rotationState
+		// 				);
+		// 			}
+		// 			transferPieceToBoard(
+		// 				currentState.board,
+		// 				newState.piece,
+		// 				shape,
+		// 				false
+		// 			);
+		// 			currentState.pieces[0] = newState.piece;
+		// 		} else if (
+		// 			currentState &&
+		// 			gamePacket.updateType === UpdateType.GAME
+		// 		) {
+		// 			const newState = gamePacket.state as IGame;
+		// 			currentState = newState;
+		// 			state.opponentsGames[index] = currentState;
+		// 		}
+		// 	}
+		// },
 	},
 });
 
@@ -130,10 +130,10 @@ export const {
 	joinLobby,
 	startGame,
 	startGameData,
-	updateGamesBoard,
+	// updateGamesBoard,
 	// moveStateDown,
 	onAllGamesOver,
-	sendInputs,
+	// sendInputs,
 	updatePlayerGame,
 } = lobbySlice.actions;
 

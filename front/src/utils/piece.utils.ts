@@ -13,6 +13,7 @@ import {
 } from '../types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from '../types/board.types';
 import seedrandom from 'seedrandom';
+import { IGameState, PIECES_BUFFER_SIZE } from '../store/game.slice';
 
 export function getTetrominoClassName(
 	type: CellType,
@@ -80,6 +81,18 @@ export function getNextPiece(rng: seedrandom.PRNG) {
 	const index = Math.floor(rng() * TetriminosArray.length);
 	const piece = { ...TetriminosArray[index] };
 	return piece;
+}
+
+export function generatePieces(
+	state: IGameState,
+	count: number,
+	offset: number = 0
+) {
+	const i =
+		(state.playerGame.currentPieceIndex % PIECES_BUFFER_SIZE) + offset;
+	for (let j = 0; j < count; j++) {
+		state.pieces[i + j] = getNextPiece(state.rng);
+	}
 }
 
 export function checkCollision(
@@ -242,4 +255,8 @@ export function setDropPreview(board: IBoard, piece: ITetromino): void {
 			shape
 		);
 	}
+}
+
+export function getPieceIndex(currentPieceIndex: number) {
+	return currentPieceIndex % PIECES_BUFFER_SIZE;
 }

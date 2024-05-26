@@ -2,21 +2,26 @@ import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { ILobby } from "../../types/lobby.type";
 import { leaveLobby, startGame } from "../../store/lobby.slice";
 import { Game } from "../game/game";
+import { useNavigate } from "react-router-dom";
 
 export function Lobby() {
 	const lobby: ILobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
 	const lobbyOwner = lobby.players.find((player) => player.isLeader);
+	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
 	const handleClick = () => {
 		dispatch(startGame());
+		navigate("/game");
 	};
 
 	const handleLeave = () => {
 		dispatch(leaveLobby(lobby.id));
 	};
+
+	//TODO on start, server emit tick several times, client respond with tick to get in sync
 
 	// console.log('LOBBY RE RENDER = ', lobby);
 
@@ -47,13 +52,14 @@ export function Lobby() {
 				</div>
 			</div>
 		);
-	} else {
-		return (
-			<Game
-				opponentsGames={lobby.opponentsGames}
-				playerGame={lobby.playerGame}
-				lobby={lobby}
-			/>
-		);
 	}
+	// else {
+	// 	return (
+	// 		<Game
+	// 			opponentsGames={lobby.opponentsGames}
+	// 			playerGame={lobby.playerGame}
+	// 			lobby={lobby}
+	// 		/>
+	// 	);
+	// }
 }
