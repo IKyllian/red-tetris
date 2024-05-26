@@ -18,7 +18,8 @@ import { handleInput, moveDown } from '../utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
 import { COMMANDS } from '../types/command.types';
 import { getFramesPerGridCell } from '../utils/board.utils';
-import { cloneDeep } from 'lodash';
+import SocketFactory from './socketFactory';
+import { SocketEvent } from './socketMiddleware';
 
 export const PIECES_BUFFER_SIZE = 100;
 const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
@@ -141,7 +142,7 @@ export const gameSlice = createSlice({
 					gamePacket.updateType === UpdateType.POSITION
 				) {
 					const newState = gamePacket.state as IPositionUpdate;
-					const piece = currentState.pieces[0];
+					const piece = currentState.piece;
 					let shape = getShape(piece.type, piece.rotationState);
 					//why is it working
 					clearOldPosition(piece, shape, currentState.board);
@@ -157,7 +158,7 @@ export const gameSlice = createSlice({
 						shape,
 						false
 					);
-					currentState.pieces[0] = newState.piece;
+					currentState.piece = newState.piece;
 				} else if (
 					currentState &&
 					gamePacket.updateType === UpdateType.GAME
@@ -184,12 +185,22 @@ export const gameSlice = createSlice({
 						handleInput(input, state);
 					});
 
+					const instance = SocketFactory.Instance();
+
 					//TODO cant i just emit pls ?
-					state.pendingInputs = {
+					// state.pendingInputs = {
+					// 	tick: state.tick,
+					// 	adjustmentIteration: state.adjustmentIteration,
+					// 	inputs: [...state.inputQueue],
+					// };
+					const data = {
 						tick: state.tick,
 						adjustmentIteration: state.adjustmentIteration,
 						inputs: [...state.inputQueue],
 					};
+					instance.socket.emit(SocketEvent.CommandPressed, {
+						data: data,
+					});
 					state.inputQueue.length = 0;
 				}
 				if (

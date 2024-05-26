@@ -35,7 +35,7 @@ export interface IGame {
 	board: IBoard;
 	player: IPlayer;
 	score: number;
-	pieces: ITetromino[];
+	piece: ITetromino;
 	gameOver: boolean;
 	level: number;
 	linesCleared: number;
@@ -43,7 +43,7 @@ export interface IGame {
 	currentPieceIndex: number;
 }
 
-export const defaultGame = {
+export const defaultGame: IGame = {
 	board: {
 		cells: Array.from({ length: defaultBoardSize.rows }, () =>
 			Array.from({ length: defaultBoardSize.columns }, () => defaultCell)
@@ -57,7 +57,7 @@ export const defaultGame = {
 		isLeader: false,
 	},
 	score: 0,
-	pieces: [],
+	piece: null,
 	gameOver: false,
 	level: 0,
 	linesCleared: 0,

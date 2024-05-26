@@ -16,6 +16,7 @@ interface IGameUpdatePacketHeader {
 }
 interface IGameUpdatePacket {
 	updateType: number;
+	//TODO send piece Index to compare in client to clear old piece
 	state: IGame | { player: Player; piece: Piece };
 }
 export class Lobby {
@@ -32,12 +33,14 @@ export class Lobby {
 	private lastUpdate: number;
 	private timer: number = 0;
 	private ranking: Player[] = [];
+	private nbOfPlayerAlive: number = 0;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
 		this.id = this.createRandomId();
 		console.log('Lobby created with id: ', this.id);
+		console.log('nbOfPlayerAlive', this.nbOfPlayerAlive);
 		this.seed = 'test';
 	}
 
@@ -85,6 +88,9 @@ export class Lobby {
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
 			for (const game of this.games) {
 				game.updateState(this.tick, this.ranking);
+				if (game.gameOver) {
+					this.nbOfPlayerAlive--;
+				}
 				if (game.destructibleLinesToGive > 0) {
 					for (const otherGame of this.games) {
 						if (otherGame.player.id !== game.player.id) {
@@ -113,7 +119,7 @@ export class Lobby {
 						updateType: 1,
 						state: {
 							player: game.player,
-							piece: game.pieces[0],
+							piece: game.piece,
 						},
 					});
 				}
@@ -161,6 +167,7 @@ export class Lobby {
 		// this.generatePieces(100);
 		//TODO generate seed here
 		let playerGame: IGame;
+		this.nbOfPlayerAlive = this.players.length;
 		for (const player of this.players) {
 			this.games.push(new Game(player, 0, this.seed));
 		}

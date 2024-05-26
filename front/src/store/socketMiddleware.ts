@@ -59,7 +59,7 @@ const socketMiddleware: Middleware = (store) => {
 		if (initSocket.match(action)) {
 			if (!socket) {
 				// Create Socket
-				socket = SocketFactory.create();
+				socket = SocketFactory.Instance();
 
 				socket.socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());

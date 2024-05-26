@@ -15,7 +15,7 @@ export function JoinLobbyByPath() {
 		const { lobbyId, playerName } = params;
 		console.log("join by path: ", lobbyId, playerName);
 		if (lobbyId && playerName) {
-			dispatch(initSocket());
+			// dispatch(initSocket());
 			dispatch(setName(playerName));
 			dispatch(
 				joinLobby({

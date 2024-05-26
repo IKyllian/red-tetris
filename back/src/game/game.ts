@@ -11,7 +11,7 @@ import { TetriminosArray } from 'src/type/tetromino.interface';
 
 export interface IGame {
 	player: Player;
-	pieces: Piece[];
+	piece: Piece;
 	board: Board;
 	gameOver: boolean;
 	score: number;
@@ -21,7 +21,7 @@ export interface IGame {
 
 export class Game {
 	public player: Player;
-	public pieces: Piece[] = [];
+	public piece: Piece;
 	public nbOfpieceDown: number = 0;
 	public newPieceNeeded: boolean = false;
 	public gameOver: boolean = false;
@@ -39,7 +39,7 @@ export class Game {
 	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
 	public board: Board; //todo private
-	private currentPiece: Piece;
+	// private currentPiece: Piece;
 	private tickToMoveDown: number = 0;
 	private rng: seedrandom.PRNG;
 	private lineScores = [
@@ -52,14 +52,15 @@ export class Game {
 	constructor(player: Player, level: number, seed: string) {
 		this.level = level;
 		this.rng = seedrandom(seed);
-		for (let i = 0; i < 4; i++) {
-			this.pieces.push(this.getNextPiece());
-		}
-		this.currentPiece = this.pieces[0];
+		// for (let i = 0; i < 4; i++) {
+		// 	this.pieces.push(this.getNextPiece());
+		// }
+		// this.currentPiece = this.pieces[0];
+		this.piece = this.getNextPiece();
 		this.board = new Board(defaultBoardSize);
-		const shape = this.currentPiece.getShape();
-		this.board.transferPieceToBoard(this.currentPiece, shape, false);
 		this.player = player;
+		const shape = this.piece.getShape();
+		this.board.transferPieceToBoard(this.piece, shape, false);
 	}
 
 	// public addPiece(piece: Piece) {
@@ -74,12 +75,12 @@ export class Game {
 		return piece;
 	}
 
-	private shiftPieces() {
-		this.pieces.shift();
-		const piece = this.getNextPiece();
-		this.pieces.push(piece);
-		this.currentPiece = this.pieces[0];
-	}
+	// private shiftPieces() {
+	// 	this.pieces.shift();
+	// 	const piece = this.getNextPiece();
+	// 	this.pieces.push(piece);
+	// 	this.currentPiece = this.getNextPiece();;
+	// }
 
 	public updateState(tick: number, ranking: Player[]) {
 		// console.log('Score = ', this.score, ' - Level = ', this.level);
@@ -151,6 +152,7 @@ export class Game {
 
 	public handleInputs(commands: COMMANDS[]) {
 		for (const command of commands) {
+			//TODO check if old position is not the same as new position to not emit useless data
 			if (this.gameOver) return;
 			this.positionChanged = true;
 			switch (command) {
@@ -179,14 +181,15 @@ export class Game {
 		}
 		this.tickToMoveDown = 0;
 		const newPosition = {
-			...this.currentPiece.position,
-			y: this.currentPiece.position.y + 1,
+			...this.piece.position,
+			y: this.piece.position.y + 1,
 		};
-		const shape = this.currentPiece.getShape();
+		const shape = this.piece.getShape();
 		if (this.board.checkCollision(newPosition, shape)) {
-			this.board.transferPieceToBoard(this.currentPiece, shape, true);
-			this.shiftPieces();
+			this.board.transferPieceToBoard(this.piece, shape, true);
+			// this.shiftPieces();
 			// this.board.printBoard();
+			this.piece = this.getNextPiece();
 			this.boardChanged = true;
 			this.nbOfpieceDown++;
 			const linesCleared = this.board.checkForLines();
@@ -207,12 +210,13 @@ export class Game {
 				this.totalLinesCleared += linesCleared;
 			}
 			// add new piece to the board
-			const newShape = this.currentPiece.getShape();
-			this.board.transferPieceToBoard(this.currentPiece, newShape, false);
+			const newShape = this.piece.getShape();
+			//TODO check colision here and get rid of gameover in board?
+			this.board.transferPieceToBoard(this.piece, newShape, false);
 		} else {
-			this.board.clearOldPosition(this.currentPiece, shape);
-			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, shape, false);
+			this.board.clearOldPosition(this.piece, shape);
+			this.piece.position = newPosition;
+			this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
@@ -226,32 +230,32 @@ export class Game {
 	}
 
 	public rotate() {
-		this.currentPiece.rotate(this.board);
+		this.piece.rotate(this.board);
 	}
 
 	public moveLeft() {
 		const newPosition = {
-			...this.currentPiece.position,
-			x: this.currentPiece.position.x - 1,
+			...this.piece.position,
+			x: this.piece.position.x - 1,
 		};
-		const shape = this.currentPiece.getShape();
+		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
-			this.board.clearOldPosition(this.currentPiece, shape);
-			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, shape, false);
+			this.board.clearOldPosition(this.piece, shape);
+			this.piece.position = newPosition;
+			this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
 	public moveRight() {
 		const newPosition = {
-			...this.currentPiece.position,
-			x: this.currentPiece.position.x + 1,
+			...this.piece.position,
+			x: this.piece.position.x + 1,
 		};
-		const shape = this.currentPiece.getShape();
+		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
-			this.board.clearOldPosition(this.currentPiece, shape);
-			this.currentPiece.position = newPosition;
-			this.board.transferPieceToBoard(this.currentPiece, shape, false);
+			this.board.clearOldPosition(this.piece, shape);
+			this.piece.position = newPosition;
+			this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
@@ -282,7 +286,7 @@ export class Game {
 	public getDataToSend(): IGame {
 		return {
 			player: this.player,
-			pieces: this.pieces,
+			piece: this.piece,
 			board: this.board,
 			gameOver: this.gameOver,
 			score: this.score,
