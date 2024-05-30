@@ -68,6 +68,7 @@ export class LobbyManager {
 				id: lobby.id,
 				name: lobby.name,
 				players: lobby.players,
+				games: lobby.games,
 			});
 		}
 		return lobbys;

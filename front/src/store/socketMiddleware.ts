@@ -13,9 +13,9 @@ import {
 	joinLobby,
 	leaveLobby,
 	setLobby,
-	startGame,
-	startGameData,
-	onAllGamesOver,
+	sendStartGame,
+	setGameStarted,
+	// onAllGamesOver,
 	// sendInputs,
 } from './lobby.slice';
 import { ILobby } from '../types/lobby.type';
@@ -28,7 +28,9 @@ import {
 	sendInputs,
 	setGameStartingState,
 	updateGamesBoard,
+	updateIndestructibleLines,
 } from './game.slice';
+import history from 'history/browser';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -45,6 +47,7 @@ export enum SocketEvent {
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
+	IndestructibleLine = 'indestructible-line',
 	// On events
 	Error = 'error',
 	SetName = 'set-name',
@@ -100,7 +103,7 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
-					store.dispatch(onAllGamesOver(data));
+					// store.dispatch(onAllGamesOver(data));
 				});
 
 				socket.socket.on(
@@ -111,9 +114,18 @@ const socketMiddleware: Middleware = (store) => {
 						seed: string;
 					}) => {
 						console.log('StartingGame = ', data);
-						// store.dispatch(startGameData(data));
+						store.dispatch(setGameStarted(true));
 						store.dispatch(setGameStartingState(data));
-						// store.dispatch(setGamesState(data.games));
+						// if (history.location.pathname !== '/game') {
+						// 	history.push('/game');
+						// }
+					}
+				);
+
+				socket.socket.on(
+					SocketEvent.IndestructibleLine,
+					(nbOflines: number) => {
+						store.dispatch(updateIndestructibleLines(nbOflines));
 					}
 				);
 			}
@@ -140,8 +152,8 @@ const socketMiddleware: Middleware = (store) => {
 			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
 		}
 
-		if (startGame.match(action) && socket) {
-			socket.socket.emit(SocketEvent.StartGame, { data: action.payload });
+		if (sendStartGame.match(action) && socket) {
+			socket.socket.emit(SocketEvent.StartGame);
 		}
 
 		// Listen for board updates

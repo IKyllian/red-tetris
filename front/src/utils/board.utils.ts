@@ -1,4 +1,6 @@
+import { IGameState } from '../store/game.slice';
 import { IBoard, ICell, defaultCell } from '../types/board.types';
+import { CellType } from '../types/tetrominoes.type';
 
 export const buildBoard = ({ rows, columns }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>
@@ -8,7 +10,6 @@ export const buildBoard = ({ rows, columns }): IBoard => {
 	return {
 		cells: builtRows,
 		size: { rows, columns },
-		gameOver: false,
 	};
 };
 
@@ -31,13 +32,20 @@ export const getFramesPerGridCell = (level: number): number => {
 	return framesPerGridCell / 2;
 };
 
-export function compareCells(cell1: ICell[][], cell2: ICell[][]): boolean {
-	for (let i = 0; i < cell1.length; i++) {
-		for (let j = 0; j < cell1[i].length; j++) {
+export function compareCells(
+	clientBoard: ICell[][],
+	serverBoard: ICell[][]
+): boolean {
+	for (let i = 0; i < clientBoard.length; i++) {
+		for (let j = 0; j < clientBoard[i].length; j++) {
+			if (clientBoard[i][j].isPreview) {
+				continue;
+			}
 			if (
-				cell1[i][j].occupied !== cell2[i][j].occupied ||
-				cell1[i][j].type !== cell2[i][j].type ||
-				cell1[i][j].isDestructible !== cell2[i][j].isDestructible
+				clientBoard[i][j].occupied !== serverBoard[i][j].occupied ||
+				clientBoard[i][j].type !== serverBoard[i][j].type ||
+				clientBoard[i][j].isDestructible !==
+					serverBoard[i][j].isDestructible
 			) {
 				return false;
 			}
@@ -62,4 +70,22 @@ export function checkForLines(board: IBoard): number {
 		}
 	}
 	return lines;
+}
+
+export function addIndestructibleLines(state: IGameState, nbOfLines: number) {
+	const indestructibleRow: ICell[] = Array.from(
+		{ length: state.playerGame.board.size.columns },
+		() => ({
+			occupied: true,
+			isDestructible: false,
+			type: CellType.INDESTRUCTIBLE,
+			isPreview: false,
+		})
+	);
+	console.log('adding indestructible lines');
+	for (let i = 0; i < nbOfLines; i++) {
+		state.playerGame.board.cells.push(indestructibleRow);
+		state.playerGame.board.cells.shift();
+		state.playerGame.piece.position.y--;
+	}
 }

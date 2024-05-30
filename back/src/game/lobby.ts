@@ -8,6 +8,11 @@ import { Board } from './board';
 
 const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
 
+export enum UpdateType {
+	POSITION = 1,
+	GAME,
+}
+
 interface IGameUpdatePacketHeader {
 	tick: number;
 	tickAdjustment: number;
@@ -90,14 +95,23 @@ export class Lobby {
 				game.updateState(this.tick, this.ranking);
 				if (game.gameOver) {
 					this.nbOfPlayerAlive--;
+					//TODO push ranking here
 				}
 				if (game.destructibleLinesToGive > 0) {
 					for (const otherGame of this.games) {
-						if (otherGame.player.id !== game.player.id) {
-							otherGame.addDestructibleLines(
+						//TODO uncomment
+						// if (otherGame.player.id !== game.player.id) {
+						this.server
+							.to(otherGame.player.id)
+							.emit(
+								SocketEvent.IndestructibleLine,
 								game.destructibleLinesToGive
 							);
-						}
+
+						otherGame.addDestructibleLines(
+							game.destructibleLinesToGive
+						);
+						// }
 					}
 					game.destructibleLinesToGive = 0;
 				}
@@ -126,7 +140,14 @@ export class Lobby {
 			}
 			if (gamePackets.length > 0) {
 				for (const game of this.games) {
-					game.lastPacketSendAt = performance.now(); //
+					game.lastPacketSendAt = performance.now();
+					let playerPacket = gamePackets.find(
+						(packet) => packet.state.player.id === game.player.id
+					);
+					if (playerPacket) {
+						playerPacket.updateType = UpdateType.GAME;
+						playerPacket.state = game.getDataToSend();
+					}
 					const dataToSend: IGameUpdatePacketHeader = {
 						tick: this.tick,
 						tickAdjustment: game.tickAdjustment,
@@ -146,6 +167,7 @@ export class Lobby {
 				(this.games.length > 1 &&
 					this.ranking.length === this.games.length - 1)
 			) {
+				//todo get last player alive
 				this.server.emit(SocketEvent.GameOver, this.ranking);
 				this.stopGames();
 				return;

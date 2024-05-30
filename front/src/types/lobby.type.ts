@@ -5,24 +5,24 @@ export interface ILobby {
 	name: string;
 	id: string;
 	players: IPlayer[];
-	games: IGame[];
-	seed: string;
+	// games: IGame[];
+	// seed: string;
 	gameStarted: boolean;
-	playerGame?: IGame;
-	opponentsGames: IGame[];
-	gamesOver: boolean;
-	leaderboard: IPlayer[];
+	// playerGame?: IGame;
+	// opponentsGames: IGame[];
+	// gamesOver: boolean;
+	// leaderboard: IPlayer[];
 }
 
 export const defaultLobby: ILobby = {
 	name: '',
 	id: '',
 	players: [],
-	games: [],
-	seed: '',
+	// games: [],
+	// seed: '',
 	gameStarted: false,
-	opponentsGames: [],
-	playerGame: null,
-	gamesOver: false,
-	leaderboard: [],
+	// opponentsGames: [],
+	// playerGame: null,
+	// gamesOver: false,
+	// leaderboard: [],
 };

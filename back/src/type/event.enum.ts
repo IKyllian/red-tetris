@@ -16,6 +16,7 @@ export enum SocketEvent {
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
+	IndestructibleLine = 'indestructible-line',
 	// On events
 	Error = 'error',
 }

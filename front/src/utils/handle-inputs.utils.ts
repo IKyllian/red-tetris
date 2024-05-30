@@ -1,20 +1,17 @@
-import _, { get, set } from 'lodash';
+import _ from 'lodash';
 import {
 	CellType,
 	IPosition,
-	ITetromino,
 	I_SRS,
 	JLTSZ_SRS,
 } from '../types/tetrominoes.type';
-import { IBoard, IGame, NbOfLinesForNextLevel } from '../types/board.types';
+import { NbOfLinesForNextLevel } from '../types/board.types';
 import { COMMANDS } from '../types/command.types';
-import seedrandom from 'seedrandom';
 import {
 	checkCollision,
 	// clearDropPreview,
 	clearOldPosition,
 	generatePieces,
-	getNextPiece,
 	getPieceIndex,
 	getPosLeft,
 	getPosRight,
@@ -26,31 +23,39 @@ import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 
 export function moveDown(state: IGameState): void {
-	let tetromino =
-		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
+	// let tetromino = state.playerGame.piece;
 	const newPosition = {
-		...tetromino.position,
-		y: tetromino.position.y + 1,
+		...state.playerGame.piece.position,
+		y: state.playerGame.piece.position.y + 1,
 	};
 	state.tickToMoveDown = 0;
 
-	const shape = getShape(tetromino.type, tetromino.rotationState);
-	// clearDropPreview(game.board, tetromino, shape);
+	const shape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
+	// clearDropPreview(game.board, state.playerGame.piece, shape);
 	if (checkCollision(state.playerGame.board, newPosition, shape)) {
 		state.playerGame.board.cells = transferPieceToBoard(
 			state.playerGame.board,
-			tetromino,
+			state.playerGame.piece,
 			shape,
 			true
 		);
+		//  Generate one new piece + nbPieceToGenerate,
+		//	nbPieceToGenerate can be negative so that in reconciliation we can generate the right amount of pieces
 		generatePieces(state, 1, 4);
 		state.playerGame.currentPieceIndex++;
-		// if (state.playerGame.currentPieceIndex + 3 >= state.pieces.length) {
-		// 	state.pieces.push(getNextPiece(state.rng));
-		// }
-		tetromino =
+		state.playerGame.piece = {
+			...state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)],
+		};
+
+		state.playerGame.piece =
 			state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
-		const newShape = getShape(tetromino.type, tetromino.rotationState);
+		const newShape = getShape(
+			state.playerGame.piece.type,
+			state.playerGame.piece.rotationState
+		);
 		const linesCleared = checkForLines(state.playerGame.board);
 		if (linesCleared > 0) {
 			state.playerGame.linesCleared += linesCleared;
@@ -61,27 +66,36 @@ export function moveDown(state: IGameState): void {
 			}
 			state.playerGame.totalLinesCleared += linesCleared;
 		}
-		// setDropPreview(game.board, tetromino, newShape);
+		// setDropPreview(game.board, state.playerGame.piece, newShape);
+		if (
+			checkCollision(
+				state.playerGame.board,
+				state.playerGame.piece.position,
+				newShape
+			)
+		) {
+			// state.playerGame.gameOver = true;
+		}
 		state.playerGame.board.cells = transferPieceToBoard(
 			state.playerGame.board,
-			tetromino,
+			state.playerGame.piece,
 			newShape,
 			false
 		);
 	} else {
-		clearOldPosition(tetromino, shape, state.playerGame.board);
-		// setDropPreview(state.playerGame.board, tetromino, shape);
-		tetromino.position = newPosition;
+		clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
+		// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
+		state.playerGame.piece.position = newPosition;
 		state.playerGame.board.cells = transferPieceToBoard(
 			state.playerGame.board,
-			tetromino,
+			state.playerGame.piece,
 			shape,
 			false
 		);
 	}
 }
 
-export function hardDrop(state): void {
+export function hardDrop(state: IGameState): void {
 	//TODO get the position of the piece after hard drop and update the board
 	const currentPieceIndex = state.playerGame.currentPieceIndex;
 	while (currentPieceIndex === state.playerGame.currentPieceIndex) {
@@ -93,42 +107,56 @@ export function changeStatePiecePosition(
 	state: IGameState,
 	cb: (position: IPosition) => IPosition
 ): void {
-	const tetromino =
-		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
+	// const tetromino = state.playerGame.piece;
 	const board = state.playerGame.board;
-	const newPos = cb(tetromino.position);
-	const shape = getShape(tetromino.type, tetromino.rotationState);
+	const newPos = cb(state.playerGame.piece.position);
+	const shape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
 
 	if (!checkCollision(board, newPos, shape)) {
-		// clearDropPreview(board, tetromino, shape);
-		clearOldPosition(tetromino, shape, board);
-		tetromino.position = newPos;
-		// setDropPreview(board, tetromino, shape);
-		board.cells = transferPieceToBoard(board, tetromino, shape, false);
+		// clearDropPreview(board, state.playerGame.piece, shape);
+		clearOldPosition(state.playerGame.piece, shape, board);
+		state.playerGame.piece.position = newPos;
+		// setDropPreview(board, state.playerGame.piece, shape);
+		board.cells = transferPieceToBoard(
+			board,
+			state.playerGame.piece,
+			shape,
+			false
+		);
 	}
 }
 
-export function rotate(state): void {
-	const piece =
-		state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
+export function rotate(state: IGameState): void {
+	// const piece = state.playerGame.piece;
 	const board = state.playerGame.board;
-	if (piece.type === CellType.O) return;
-	const currentShape = getShape(piece.type, piece.rotationState);
-	const newRotation = (piece.rotationState + 1) % 4;
-	const newShape = getShape(piece.type, newRotation);
-	const srs = piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
-	for (let position of srs[piece.rotationState]) {
+	if (state.playerGame.piece.type === CellType.O) return;
+	const currentShape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
+	const newRotation = (state.playerGame.piece.rotationState + 1) % 4;
+	const newShape = getShape(state.playerGame.piece.type, newRotation);
+	const srs = state.playerGame.piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
+	for (let position of srs[state.playerGame.piece.rotationState]) {
 		const newPosition = {
-			x: piece.position.x + position.x,
-			y: piece.position.y + position.y,
+			x: state.playerGame.piece.position.x + position.x,
+			y: state.playerGame.piece.position.y + position.y,
 		};
 		if (!checkCollision(board, newPosition, newShape)) {
-			// clearDropPreview(board, piece, currentShape);
-			clearOldPosition(piece, currentShape, board);
-			piece.position = newPosition;
-			piece.rotationState = newRotation;
-			// setDropPreview(board, piece, newShape);
-			board.cells = transferPieceToBoard(board, piece, newShape, false);
+			// clearDropPreview(board, state.playerGame.piece, currentShape);
+			clearOldPosition(state.playerGame.piece, currentShape, board);
+			state.playerGame.piece.position = newPosition;
+			state.playerGame.piece.rotationState = newRotation;
+			// setDropPreview(board, state.playerGame.piece, newShape);
+			board.cells = transferPieceToBoard(
+				board,
+				state.playerGame.piece,
+				newShape,
+				false
+			);
 			break;
 		}
 	}

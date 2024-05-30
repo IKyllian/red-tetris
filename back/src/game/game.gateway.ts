@@ -125,4 +125,15 @@ export class GameGateway
 		// 	);
 		// }
 	}
+
+	//TESTER
+	@SubscribeMessage('add_indestructible')
+	addIndestructible(@ConnectedSocket() socket: Socket) {
+		const lobby = this.lobbyManager.getLobbys();
+		if (lobby.length > 0) {
+			const game = lobby[0].games[0];
+			// game.addDestructibleLines(1);
+			game.destructibleLinesToGive = 1;
+		}
+	}
 }

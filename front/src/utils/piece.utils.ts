@@ -90,7 +90,13 @@ export function generatePieces(
 ) {
 	const i =
 		(state.playerGame.currentPieceIndex % PIECES_BUFFER_SIZE) + offset;
+	// console.log('generatePieces', i);
 	for (let j = 0; j < count; j++) {
+		// console.log('in loop');
+		if (state.skipPieceGeneration > 0) {
+			state.skipPieceGeneration--;
+			continue;
+		}
 		state.pieces[i + j] = getNextPiece(state.rng);
 	}
 }
@@ -158,9 +164,9 @@ export function transferPieceToBoard(
 			if (cell) {
 				const _x = x + tetromino.position.x;
 				const _y = y + tetromino.position.y;
-				if (newCells[_y][_x].occupied) {
-					board.gameOver = true;
-				}
+				// if (newCells[_y][_x].occupied) {
+				// 	board.gameOver = true;
+				// }
 				newCells[_y][_x] = {
 					type: tetromino.type,
 					occupied: fixOnBoard,

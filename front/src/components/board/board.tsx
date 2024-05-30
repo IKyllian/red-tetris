@@ -1,6 +1,6 @@
 import "./board.css";
 import { ITetromino } from "../../types/tetrominoes.type";
-import { IBoard, ICell, IGame } from "../../types/board.types";
+import { IBoard, ICell } from "../../types/board.types";
 import { buildBoard } from "../../utils/board.utils";
 import {
 	getShape,
@@ -8,12 +8,11 @@ import {
 	transferPieceToBoard,
 	// transferPieceToBoard,
 } from "../../utils/piece.utils";
-import { useTick } from "../../hooks/useTick";
 import { useMemo } from "react";
 interface BoardProps {
 	board: IBoard;
-	game: IGame;
-	// seed: string;
+	playerName: string;
+	isGameOver: boolean;
 }
 
 interface BoardPreviewProps {
@@ -30,8 +29,7 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, game }: BoardProps) => {
-	const gameOver = board.gameOver;
+export const Board = ({ board, playerName, isGameOver }: BoardProps) => {
 	// console.log("GAME OVER", gameOver);
 	// const { fps } = useTick(game, gameOver, seed);
 	// const boardStyles = {
@@ -49,7 +47,7 @@ export const Board = ({ board, game }: BoardProps) => {
 	return (
 		<>
 			<div className="board" style={boardStyles} tabIndex={0}>
-				{gameOver && <span className="gameOver"> Game Over </span>}
+				{isGameOver && <span className="gameOver"> Game Over </span>}
 				{board.cells.map((row) =>
 					row.map((cell, cellIndex) => (
 						<Cell
@@ -65,7 +63,7 @@ export const Board = ({ board, game }: BoardProps) => {
 			{/* <span style={{ fontSize: "25px", color: "red" }}> {fps} </span> */}
 			<span style={{ fontSize: "25px", color: "red" }}>
 				{" "}
-				{game.player.name}{" "}
+				{playerName}{" "}
 			</span>
 		</>
 	);

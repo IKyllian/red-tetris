@@ -17,6 +17,7 @@ export interface IGame {
 	score: number;
 	level: number;
 	currentPieceIndex: number;
+	tickToMoveDown: number;
 }
 
 export class Game {
@@ -142,7 +143,7 @@ export class Game {
 			} else if (tick > packet.tick) {
 				if (this.adjustmentIteration === packet.adjustmentIteration) {
 					this.adjustmentIteration++;
-					this.tickAdjustment = tick - packet.tick + 1;
+					this.tickAdjustment = tick - packet.tick + 5;
 					console.log('adjustment: ', this.tickAdjustment);
 				}
 				this.inputsQueue.shift();
@@ -260,7 +261,10 @@ export class Game {
 	}
 
 	public addDestructibleLines(nbOfLines: number) {
+		console.log('addDestructibleLines: ', nbOfLines);
 		this.board.addIndestructibleLines(nbOfLines);
+		this.piece.position.y -= nbOfLines;
+
 		this.boardChanged = true;
 	}
 
@@ -292,6 +296,7 @@ export class Game {
 			score: this.score,
 			level: this.level,
 			currentPieceIndex: this.nbOfpieceDown,
+			tickToMoveDown: this.tickToMoveDown,
 		};
 	}
 }

@@ -21,7 +21,7 @@ export const defaultBoardSize: ISize = {
 export interface IBoard {
 	cells: ICell[][];
 	size: ISize;
-	gameOver: boolean;
+	// gameOver: boolean;
 }
 
 export const defaultCell: ICell = {
@@ -41,6 +41,7 @@ export interface IGame {
 	linesCleared: number;
 	totalLinesCleared: number;
 	currentPieceIndex: number;
+	tickToMoveDown: number;
 }
 
 export const defaultGame: IGame = {
@@ -49,7 +50,7 @@ export const defaultGame: IGame = {
 			Array.from({ length: defaultBoardSize.columns }, () => defaultCell)
 		),
 		size: defaultBoardSize,
-		gameOver: false,
+		// gameOver: false,
 	},
 	player: {
 		id: '',
@@ -63,6 +64,7 @@ export const defaultGame: IGame = {
 	linesCleared: 0,
 	totalLinesCleared: 0,
 	currentPieceIndex: 0,
+	tickToMoveDown: 0,
 };
 
 export const NbOfLinesForNextLevel = 10;

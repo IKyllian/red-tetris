@@ -1,20 +1,18 @@
 import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { ILobby } from "../../types/lobby.type";
-import { leaveLobby, startGame } from "../../store/lobby.slice";
+import { leaveLobby, sendStartGame } from "../../store/lobby.slice";
 import { Game } from "../game/game";
-import { useNavigate } from "react-router-dom";
 
 export function Lobby() {
 	const lobby: ILobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
 	const lobbyOwner = lobby.players.find((player) => player.isLeader);
-	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
 	const handleClick = () => {
-		dispatch(startGame());
-		navigate("/game");
+		dispatch(sendStartGame(null));
+		// navigate("/game");
 	};
 
 	const handleLeave = () => {
@@ -52,14 +50,7 @@ export function Lobby() {
 				</div>
 			</div>
 		);
+	} else {
+		return <Game />;
 	}
-	// else {
-	// 	return (
-	// 		<Game
-	// 			opponentsGames={lobby.opponentsGames}
-	// 			playerGame={lobby.playerGame}
-	// 			lobby={lobby}
-	// 		/>
-	// 	);
-	// }
 }

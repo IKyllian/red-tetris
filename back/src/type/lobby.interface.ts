@@ -5,5 +5,5 @@ export interface ILobby {
 	id: string;
 	name: string;
 	players: Player[];
-	// games: Game[];
+	games: Game[]; //TODO dont keep games in lobby?
 }

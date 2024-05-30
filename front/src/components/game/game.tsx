@@ -1,23 +1,47 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../store/hook";
-import { IGameState } from "../../store/game.slice";
 import { Board, PiecePreview, BoardPreview } from "../board/board";
 import { gameLoop } from "../../utils/gameLoop";
 import { getPieceIndex } from "../../utils/piece.utils";
 
 export function Game() {
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
-	const gameOver = useAppSelector(
-		(state) => state.game.playerGame.board.gameOver
-	);
+	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
 	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
-	const playerGame = useAppSelector((state) => state.game.playerGame);
+	const playerGameBoard = useAppSelector(
+		(state) => state.game.playerGame?.board
+	);
+	const playerGamePieceIndex = useAppSelector(
+		(state) => state.game.playerGame?.currentPieceIndex
+	);
+	const playerName = useAppSelector(
+		(state) => state.game.playerGame?.player.name
+	);
 	const pieces = useAppSelector((state) => state.game.pieces);
 	const fpsRef = useRef<number>(0);
 	const dispatch = useAppDispatch();
 
+	const lastRenderTimeRef = useRef(null);
+	const renderCountRef = useRef<number>(0);
+	const renderArrayRef = useRef<number[]>([]);
+	const renderAverage = useRef<number>(0);
+
+	const now = performance.now();
+	if (!lastRenderTimeRef.current) {
+		lastRenderTimeRef.current = now;
+	}
+	const elapsed = now - lastRenderTimeRef.current;
+	if (elapsed >= 1000) {
+		lastRenderTimeRef.current = now;
+		renderArrayRef.current.push(renderCountRef.current);
+		const sum = renderArrayRef.current.reduce((a, b) => a + b, 0);
+		renderAverage.current = sum / renderArrayRef.current.length;
+		renderCountRef.current = 0;
+	} else {
+		renderCountRef.current++;
+	}
+
 	useEffect(() => {
-		//TODO handle game over better
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
@@ -28,31 +52,34 @@ export function Game() {
 		};
 	}, [gameStarted, dispatch, gameOver]);
 
-	// useEffect(gameLoop(fpsRef), [game.gameStarted]);
+	const opponentsGame = useMemo(() => opponentsGames, [opponentsGames]);
 
+	// console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
 	}
 
 	return (
-		// console.log("rendering"),
 		<div>
 			<div style={{ fontSize: "25px", color: "red" }}>
 				FPS: {fpsRef.current.toFixed(2)}
 			</div>
+			<div style={{ fontSize: "25px", color: "blue" }}>
+				Render average: {renderAverage.current}
+			</div>
 			<div className="boards-container flex flex-row gap8">
-				{playerGame && (
+				{playerGameBoard && (
 					<>
-						<Board board={playerGame.board} game={playerGame} />
+						<Board
+							board={playerGameBoard}
+							playerName={playerName}
+							isGameOver={gameOver}
+						/>
 						<div className="flex flex-col gap4">
 							{pieces
 								.slice(
-									getPieceIndex(
-										playerGame.currentPieceIndex + 1
-									),
-									getPieceIndex(
-										playerGame.currentPieceIndex + 4
-									)
+									getPieceIndex(playerGamePieceIndex + 1),
+									getPieceIndex(playerGamePieceIndex + 4)
 								)
 								.map((piece, pieceIndex) => (
 									<PiecePreview
@@ -63,7 +90,7 @@ export function Game() {
 						</div>
 					</>
 				)}
-				{opponentsGames.map((game, index) => (
+				{opponentsGame.map((game, index) => (
 					<BoardPreview
 						key={index}
 						board={game.board}
