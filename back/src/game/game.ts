@@ -61,7 +61,7 @@ export class Game {
 		this.board = new Board(defaultBoardSize);
 		this.player = player;
 		const shape = this.piece.getShape();
-		this.board.transferPieceToBoard(this.piece, shape, false);
+		// this.board.transferPieceToBoard(this.piece, shape, false);
 	}
 
 	// public addPiece(piece: Piece) {
@@ -83,13 +83,12 @@ export class Game {
 	// 	this.currentPiece = this.getNextPiece();;
 	// }
 
-	public updateState(tick: number, ranking: Player[]) {
-		// console.log('Score = ', this.score, ' - Level = ', this.level);
-		this.positionChanged = false;
-		this.boardChanged = false;
+	public updateState(tick: number) {
+		//TODO find better way?
 		if (this.gameOver) {
 			return;
 		}
+
 		this.processInputs(tick);
 		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
@@ -97,9 +96,8 @@ export class Game {
 		} else {
 			this.tickToMoveDown++;
 		}
-		if (this.board.gameOver) {
-			ranking.push(this.player);
-			this.gameOver = true;
+		if (this.gameOver) {
+			// this.gameOver = true;
 			//TODO game over update type
 			this.boardChanged = true;
 		}
@@ -131,14 +129,14 @@ export class Game {
 				break;
 			} else if (packet.tick === tick) {
 				this.handleInputs(packet.inputs);
-				console.log(
-					'inputs processed: ',
-					packet.inputs,
-					' - tick: ',
-					tick,
-					' - client tick: ',
-					packet.tick
-				);
+				// console.log(
+				// 	'inputs processed: ',
+				// 	packet.inputs,
+				// 	' - tick: ',
+				// 	tick,
+				// 	' - client tick: ',
+				// 	packet.tick
+				// );
 				this.inputsQueue.shift();
 			} else if (tick > packet.tick) {
 				if (this.adjustmentIteration === packet.adjustmentIteration) {
@@ -213,11 +211,14 @@ export class Game {
 			// add new piece to the board
 			const newShape = this.piece.getShape();
 			//TODO check colision here and get rid of gameover in board?
-			this.board.transferPieceToBoard(this.piece, newShape, false);
+			if (this.board.checkCollision(this.piece.position, newShape)) {
+				this.gameOver = true;
+			}
+			// this.board.transferPieceToBoard(this.piece, newShape, false);
 		} else {
-			this.board.clearOldPosition(this.piece, shape);
+			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
-			this.board.transferPieceToBoard(this.piece, shape, false);
+			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
@@ -241,9 +242,9 @@ export class Game {
 		};
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
-			this.board.clearOldPosition(this.piece, shape);
+			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
-			this.board.transferPieceToBoard(this.piece, shape, false);
+			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
@@ -254,15 +255,22 @@ export class Game {
 		};
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
-			this.board.clearOldPosition(this.piece, shape);
+			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
-			this.board.transferPieceToBoard(this.piece, shape, false);
+			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
 	public addDestructibleLines(nbOfLines: number) {
-		console.log('addDestructibleLines: ', nbOfLines);
+		//TODO if game over returm
+		console.log(
+			'addDestructibleLines to ',
+			this.player.name,
+			'-',
+			nbOfLines
+		);
 		this.board.addIndestructibleLines(nbOfLines);
+		//TODO check if game over ?
 		this.piece.position.y -= nbOfLines;
 
 		this.boardChanged = true;

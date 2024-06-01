@@ -9,6 +9,7 @@ import { NbOfLinesForNextLevel } from '../types/board.types';
 import { COMMANDS } from '../types/command.types';
 import {
 	checkCollision,
+	clearDropPreview,
 	// clearDropPreview,
 	clearOldPosition,
 	generatePieces,
@@ -16,6 +17,7 @@ import {
 	getPosLeft,
 	getPosRight,
 	getShape,
+	setDropPreview,
 	// setDropPreview,
 	transferPieceToBoard,
 } from './piece.utils';
@@ -57,6 +59,9 @@ export function moveDown(state: IGameState): void {
 			state.playerGame.piece.rotationState
 		);
 		const linesCleared = checkForLines(state.playerGame.board);
+
+		//TODO give shape to the setDropPreview ?
+		setDropPreview(state.playerGame.board, state.playerGame.piece);
 		if (linesCleared > 0) {
 			state.playerGame.linesCleared += linesCleared;
 			if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
@@ -67,15 +72,16 @@ export function moveDown(state: IGameState): void {
 			state.playerGame.totalLinesCleared += linesCleared;
 		}
 		// setDropPreview(game.board, state.playerGame.piece, newShape);
-		if (
-			checkCollision(
-				state.playerGame.board,
-				state.playerGame.piece.position,
-				newShape
-			)
-		) {
-			// state.playerGame.gameOver = true;
-		}
+		// TODO client game over
+		// if (
+		// 	checkCollision(
+		// 		state.playerGame.board,
+		// 		state.playerGame.piece.position,
+		// 		newShape
+		// 	)
+		// ) {
+		// 	state.playerGame.gameOver = true;
+		// }
 		state.playerGame.board.cells = transferPieceToBoard(
 			state.playerGame.board,
 			state.playerGame.piece,
@@ -116,10 +122,10 @@ export function changeStatePiecePosition(
 	);
 
 	if (!checkCollision(board, newPos, shape)) {
-		// clearDropPreview(board, state.playerGame.piece, shape);
+		clearDropPreview(board, state.playerGame.piece);
 		clearOldPosition(state.playerGame.piece, shape, board);
 		state.playerGame.piece.position = newPos;
-		// setDropPreview(board, state.playerGame.piece, shape);
+		setDropPreview(board, state.playerGame.piece);
 		board.cells = transferPieceToBoard(
 			board,
 			state.playerGame.piece,
@@ -146,11 +152,11 @@ export function rotate(state: IGameState): void {
 			y: state.playerGame.piece.position.y + position.y,
 		};
 		if (!checkCollision(board, newPosition, newShape)) {
-			// clearDropPreview(board, state.playerGame.piece, currentShape);
+			clearDropPreview(board, state.playerGame.piece);
 			clearOldPosition(state.playerGame.piece, currentShape, board);
 			state.playerGame.piece.position = newPosition;
 			state.playerGame.piece.rotationState = newRotation;
-			// setDropPreview(board, state.playerGame.piece, newShape);
+			setDropPreview(board, state.playerGame.piece);
 			board.cells = transferPieceToBoard(
 				board,
 				state.playerGame.piece,

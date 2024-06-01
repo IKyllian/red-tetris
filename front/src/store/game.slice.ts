@@ -127,6 +127,17 @@ export const gameSlice = createSlice({
 			state.seed = action.payload.seed;
 			state.rng = seedrandom(state.seed);
 			generatePieces(state, 4);
+			setDropPreview(state.playerGame.board, state.playerGame.piece);
+			const shape = getShape(
+				state.playerGame.piece.type,
+				state.playerGame.piece.rotationState
+			);
+			transferPieceToBoard(
+				state.playerGame.board,
+				state.playerGame.piece,
+				shape,
+				false
+			);
 			state.gameStarted = true;
 		},
 		updateGamesBoard: (
@@ -230,17 +241,40 @@ export const gameSlice = createSlice({
 					if (
 						!compareCells(
 							state.clientStateBuffer[index].board.cells,
-							serverGameState.board.cells
+							serverGameState.board.cells,
+							state.clientStateBuffer[index].piece
 						) ||
-						serverGameState.gameOver
+						serverGameState.gameOver ||
+						!isEqual(
+							state.clientStateBuffer[index].piece,
+							serverGameState.piece
+						)
 					) {
-						console.log('board different');
-						state.clientStateBuffer[index] = serverGameState;
-						// state.tickToMoveDown =
-						// 	state.lastServerState.tick %
-						// 	getFramesPerGridCell(
-						// 		state.clientStateBuffer[index].level
-						// 	);
+						if (
+							!compareCells(
+								state.clientStateBuffer[index].board.cells,
+								serverGameState.board.cells,
+								state.clientStateBuffer[index].piece
+							)
+						) {
+							console.log('board different');
+						}
+						if (serverGameState.gameOver) {
+							console.log('game over from server update');
+						}
+						if (
+							!isEqual(
+								state.clientStateBuffer[index].piece,
+								serverGameState.piece
+							)
+						) {
+							console.log('piece different');
+						}
+						console.log(
+							'-----------------------------------------------------'
+						);
+
+						state.clientStateBuffer[index] = { ...serverGameState };
 						state.tickToMoveDown = serverGameState.tickToMoveDown;
 						let tickToProcess = state.lastServerState.tick + 1;
 						const pieceDiff =
@@ -255,8 +289,10 @@ export const gameSlice = createSlice({
 						while (tickToProcess < state.tick) {
 							const index = tickToProcess % BUFFER_SIZE;
 							if (state.inputBuffer[index]?.length > 0) {
+								//TODO problem here
 								console.log('reprocess inputs');
 								state.inputBuffer[index].forEach((input) => {
+									console.log('input', input);
 									handleInput(input, state);
 								});
 							}
@@ -275,26 +311,27 @@ export const gameSlice = createSlice({
 							};
 							tickToProcess++;
 						}
+						const shape = getShape(
+							state.playerGame.piece.type,
+							state.playerGame.piece.rotationState
+						);
+						setDropPreview(
+							state.playerGame.board,
+							state.playerGame.piece
+						);
+						transferPieceToBoard(
+							state.playerGame.board,
+							state.playerGame.piece,
+							shape,
+							false
+						);
 					}
 					state.lastProcessedServerState = state.lastServerState;
 				}
 			}
 			////--------------------------------------------------------------
-			// if (
-			// 	state.lastProcessedServerState &&
-			// 	state.lastProcessedServerState === state.lastServerState
-			// ) {
-			// 	state.playerGame.board.gameOver = true;
-			// 	return;
-			// }
 			//------------------------------------------------------------------
 			const now = performance.now();
-			if (state.timer >= MIN_TIME_BETWEEN_TICKS) {
-				clearDropPreview(
-					state.playerGame.board,
-					state.playerGame.piece
-				);
-			}
 			while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
 				// if (state.tick === 200) {
 				// 	console.log('force reconcile');
@@ -335,14 +372,8 @@ export const gameSlice = createSlice({
 				};
 
 				state.tick++;
-				console.log('one tick');
+				// console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
-				if (state.timer < MIN_TIME_BETWEEN_TICKS) {
-					setDropPreview(
-						state.playerGame.board,
-						state.playerGame.piece
-					);
-				}
 			}
 		},
 		updateIndestructibleLines(state, action) {

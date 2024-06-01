@@ -60,7 +60,6 @@ export const Board = ({ board, playerName, isGameOver }: BoardProps) => {
 					))
 				)}
 			</div>
-			{/* <span style={{ fontSize: "25px", color: "red" }}> {fps} </span> */}
 			<span style={{ fontSize: "25px", color: "red" }}>
 				{" "}
 				{playerName}{" "}
@@ -95,10 +94,10 @@ export function BoardPreview({
 					row.map((cell, cellIndex) => (
 						<Cell
 							key={cellIndex}
-							cellClassname={`${getTetrominoClassName(
+							cellClassname={getTetrominoClassName(
 								cell.type,
 								cell.isPreview
-							)} + cell-preview`}
+							)}
 						/>
 					))
 				)}

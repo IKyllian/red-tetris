@@ -7,7 +7,7 @@ import LobbyReducer from './lobby.slice';
 import TickReducer from './tick.slice';
 import GameReducer from './game.slice';
 import inputMiddleware from './inputMiddleware';
-// import logger from 'redux-logger';
+import logger from 'redux-logger';
 
 export const store = configureStore({
 	reducer: {

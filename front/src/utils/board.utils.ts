@@ -1,6 +1,7 @@
 import { IGameState } from '../store/game.slice';
 import { IBoard, ICell, defaultCell } from '../types/board.types';
-import { CellType } from '../types/tetrominoes.type';
+import { CellType, ITetromino } from '../types/tetrominoes.type';
+import { getShape } from './piece.utils';
 
 export const buildBoard = ({ rows, columns }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>
@@ -34,11 +35,25 @@ export const getFramesPerGridCell = (level: number): number => {
 
 export function compareCells(
 	clientBoard: ICell[][],
-	serverBoard: ICell[][]
+	serverBoard: ICell[][],
+	piece: ITetromino
 ): boolean {
+	const shape = getShape(piece.type, piece.rotationState);
 	for (let i = 0; i < clientBoard.length; i++) {
 		for (let j = 0; j < clientBoard[i].length; j++) {
 			if (clientBoard[i][j].isPreview) {
+				continue;
+			}
+			const relativeX = j - piece.position.x;
+			const relativeY = i - piece.position.y;
+			const isWithinPieceBounds =
+				relativeY >= 0 &&
+				relativeY < shape.length &&
+				relativeX >= 0 &&
+				relativeX < shape[0].length;
+
+			if (isWithinPieceBounds && shape[relativeY][relativeX] === 1) {
+				// Skip cells occupied by the current piece
 				continue;
 			}
 			if (
@@ -80,12 +95,13 @@ export function addIndestructibleLines(state: IGameState, nbOfLines: number) {
 			isDestructible: false,
 			type: CellType.INDESTRUCTIBLE,
 			isPreview: false,
+			isCurrentPiece: false,
 		})
 	);
-	console.log('adding indestructible lines');
-	for (let i = 0; i < nbOfLines; i++) {
-		state.playerGame.board.cells.push(indestructibleRow);
-		state.playerGame.board.cells.shift();
-		state.playerGame.piece.position.y--;
-	}
+	// console.log('adding indestructible lines');
+	// for (let i = 0; i < nbOfLines; i++) {
+	// 	state.playerGame.board.cells.push(indestructibleRow);
+	// 	state.playerGame.board.cells.shift();
+	// 	state.playerGame.piece.position.y--;
+	// }
 }

@@ -151,13 +151,9 @@ export function transferPieceToBoard(
 	board: IBoard,
 	tetromino: ITetromino,
 	shape: number[][],
-	fixOnBoard: boolean,
-	isPreview: boolean = false
+	fixOnBoard: boolean
 ): ICell[][] {
 	let newCells = [...board.cells];
-	if (isPreview) {
-		console.log('isPreview');
-	}
 	shape.forEach((row: number[], y: number) => {
 		if (tetromino.position.y + y < 0) return;
 		row.forEach((cell: number, x: number) => {
@@ -171,7 +167,7 @@ export function transferPieceToBoard(
 					type: tetromino.type,
 					occupied: fixOnBoard,
 					isDestructible: true,
-					isPreview,
+					isPreview: false,
 				};
 			}
 		});

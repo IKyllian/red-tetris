@@ -92,26 +92,21 @@ export class Lobby {
 		this.timer += deltaTime;
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
 			for (const game of this.games) {
-				game.updateState(this.tick, this.ranking);
-				if (game.gameOver) {
+				game.updateState(this.tick);
+				if (game.gameOver && game.boardChanged) {
 					this.nbOfPlayerAlive--;
-					//TODO push ranking here
+					this.ranking.push(game.player);
 				}
 				if (game.destructibleLinesToGive > 0) {
 					for (const otherGame of this.games) {
-						//TODO uncomment
-						// if (otherGame.player.id !== game.player.id) {
-						this.server
-							.to(otherGame.player.id)
-							.emit(
-								SocketEvent.IndestructibleLine,
+						if (
+							otherGame.player.id !== game.player.id &&
+							!otherGame.gameOver
+						) {
+							otherGame.addDestructibleLines(
 								game.destructibleLinesToGive
 							);
-
-						otherGame.addDestructibleLines(
-							game.destructibleLinesToGive
-						);
-						// }
+						}
 					}
 					game.destructibleLinesToGive = 0;
 				}
@@ -121,16 +116,12 @@ export class Lobby {
 			for (const game of this.games) {
 				if (game.boardChanged) {
 					gamePackets.push({
-						updateType: 2,
+						updateType: UpdateType.GAME,
 						state: game.getDataToSend(),
 					});
-					// console.log('---------');
-					// console.log('tick time', tickTime);
-					// console.log('player', game.player.name);
-					// game.board.printBoard();
-				} else if (game.positionChanged) {
+				} else if (game.positionChanged && this.nbOfPlayerAlive <= 4) {
 					gamePackets.push({
-						updateType: 1,
+						updateType: UpdateType.POSITION,
 						state: {
 							player: game.player,
 							piece: game.piece,
@@ -147,6 +138,11 @@ export class Lobby {
 					if (playerPacket) {
 						playerPacket.updateType = UpdateType.GAME;
 						playerPacket.state = game.getDataToSend();
+					} else if (game.positionChanged) {
+						gamePackets.push({
+							updateType: UpdateType.GAME,
+							state: game.getDataToSend(),
+						});
 					}
 					const dataToSend: IGameUpdatePacketHeader = {
 						tick: this.tick,
@@ -157,10 +153,9 @@ export class Lobby {
 					this.server
 						.to(game.player.id)
 						.emit(SocketEvent.GamesUpdate, dataToSend);
+					game.boardChanged = false;
+					game.positionChanged = false;
 				}
-				// const tickTime = performance.now() - now;
-				// console.log('---------');
-				// console.log('tick time', tickTime);
 			}
 			if (
 				this.games.length === this.ranking.length ||
@@ -216,6 +211,7 @@ export class Lobby {
 		// }, 500);
 		this.lastUpdate = performance.now();
 		this.updateState();
+		console.log('HUH');
 		// setTimeout(
 		// 	this.updateState.bind(this),
 		// 	MIN_TIME_BETWEEN_TICKS

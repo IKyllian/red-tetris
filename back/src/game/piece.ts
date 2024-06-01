@@ -26,7 +26,7 @@ export class Piece {
 	constructor(tetromino: ITetromino) {
 		// const tetromino = this.getRandomPiece();
 		this.type = tetromino.type;
-		this.position = tetromino.position;
+		this.position = { ...tetromino.position };
 		// this.shape = this.getShape();
 	}
 	public getShape(rotationState: number = this.rotationState): number[][] {
@@ -68,9 +68,9 @@ export class Piece {
 				y: this.position.y + position.y,
 			};
 			if (!board.checkCollision(newPosition, newShape)) {
-				board.clearOldPosition(this, currentShape);
+				// board.clearOldPosition(this, currentShape);
 				this.position = newPosition;
-				board.transferPieceToBoard(this, newShape, false);
+				// board.transferPieceToBoard(this, newShape, false);
 				this.rotationState = newRotation;
 				break;
 			}
