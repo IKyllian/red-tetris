@@ -3,8 +3,12 @@ import { useAppSelector, useAppDispatch } from "../../store/hook";
 import { Board, PiecePreview, BoardPreview } from "../board/board";
 import { gameLoop } from "../../utils/gameLoop";
 import { getPieceIndex } from "../../utils/piece.utils";
+import { addInputToQueue } from "../../store/game.slice";
+import { isCommandType, COMMANDS } from "../../types/command.types";
 
 export function Game() {
+	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
+	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
 	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
@@ -41,6 +45,7 @@ export function Game() {
 		renderCountRef.current++;
 	}
 
+	//TODO: stop using useEffect
 	useEffect(() => {
 		if (gameOver) {
 			console.log("GAME OVER");
@@ -51,6 +56,30 @@ export function Game() {
 			cleanup();
 		};
 	}, [gameStarted, dispatch, gameOver]);
+
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		if (isCommandType(event.code)) {
+			if (event.code === COMMANDS.KEY_UP) {
+				if (!isKeyUpReleased) return;
+				setIsKeyUpReleased(false);
+			}
+			if (event.code === COMMANDS.KEY_SPACE) {
+				if (!isKeySpaceReleased) return;
+				setIsKeySpaceReleased(false);
+			}
+			dispatch(addInputToQueue(event.code as COMMANDS));
+		}
+	};
+
+	const handleKeyRelease = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		const code = event.code;
+		if (code === COMMANDS.KEY_UP) {
+			setIsKeyUpReleased(true);
+		}
+		if (code === COMMANDS.KEY_SPACE) {
+			setIsKeySpaceReleased(true);
+		}
+	};
 
 	const opponentsGame = useMemo(() => opponentsGames, [opponentsGames]);
 
@@ -67,7 +96,13 @@ export function Game() {
 			<div style={{ fontSize: "25px", color: "blue" }}>
 				Render average: {renderAverage.current}
 			</div>
-			<div className="boards-container flex flex-row gap8">
+			<div
+				className="boards-container flex flex-row gap8"
+				tabIndex={0}
+				onKeyDown={handleKeyDown}
+				onKeyUp={handleKeyRelease}
+				style={{ outline: "none" }}
+			>
 				{playerGameBoard && (
 					<>
 						<Board
