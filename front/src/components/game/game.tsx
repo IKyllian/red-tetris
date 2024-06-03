@@ -9,19 +9,29 @@ import { isCommandType, COMMANDS } from "../../types/command.types";
 export function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
-	const gameStarted = useAppSelector((state) => state.game.gameStarted);
-	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
-	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
-	const playerGameBoard = useAppSelector(
-		(state) => state.game.playerGame?.board
-	);
-	const playerGamePieceIndex = useAppSelector(
-		(state) => state.game.playerGame?.currentPieceIndex
-	);
-	const playerName = useAppSelector(
-		(state) => state.game.playerGame?.player.name
-	);
-	const pieces = useAppSelector((state) => state.game.pieces);
+	const game = useAppSelector(state => state.game)
+	
+	const playerGame = game.playerGame
+	const gameStarted =game.gameStarted;
+	const gameOver = playerGame?.gameOver;
+	const opponentsGames = game.opponentsGames;
+	const playerGameBoard = playerGame?.board;
+	const playerGamePieceIndex = playerGame?.currentPieceIndex;
+	const playerName = playerGame?.player.name;
+	const pieces = game.pieces;
+	// const gameStarted = useAppSelector((state) => state.game.gameStarted);
+	// const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
+	// const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
+	// const playerGameBoard = useAppSelector(
+	// 	(state) => state.game.playerGame?.board
+	// );
+	// const playerGamePieceIndex = useAppSelector(
+	// 	(state) => state.game.playerGame?.currentPieceIndex
+	// );
+	// const playerName = useAppSelector(
+	// 	(state) => state.game.playerGame?.player.name
+	// );
+	// const pieces = useAppSelector((state) => state.game.pieces);
 	const fpsRef = useRef<number>(0);
 	const dispatch = useAppDispatch();
 
@@ -82,7 +92,9 @@ export function Game() {
 	};
 
 	const opponentsGame = useMemo(() => opponentsGames, [opponentsGames]);
-
+	// const half_length = Math.ceil(opponentsGame.length / 2);
+	// const leftSide = opponentsGame.slice(0, half_length);
+	// const rightSide = opponentsGame.slice(half_length);
 	// console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
@@ -97,20 +109,30 @@ export function Game() {
 				Render average: {renderAverage.current}
 			</div>
 			<div
-				className="boards-container flex flex-row gap8"
+				className="boards-container flex flex-row content-center items-center gap8"
 				tabIndex={0}
 				onKeyDown={handleKeyDown}
 				onKeyUp={handleKeyRelease}
-				style={{ outline: "none" }}
+				style={{ outline: "none"}}
 			>
+				{/* {leftSide.map((game, index) => (
+					<BoardPreview
+						key={index}
+						board={game.board}
+						playerName={game.player.name}
+						isGameOver={game.gameOver}
+					/>
+				))} */}
 				{playerGameBoard && (
 					<>
 						<Board
 							board={playerGameBoard}
 							playerName={playerName}
 							isGameOver={gameOver}
+							currentPiece={pieces[playerGamePieceIndex]}
+							nextPieces={pieces.slice(getPieceIndex(playerGamePieceIndex + 1),getPieceIndex(playerGamePieceIndex + 4))}
 						/>
-						<div className="flex flex-col gap4">
+						{/* <div className="flex flex-col gap4">
 							{pieces
 								.slice(
 									getPieceIndex(playerGamePieceIndex + 1),
@@ -122,7 +144,7 @@ export function Game() {
 										tetromino={piece}
 									/>
 								))}
-						</div>
+						</div> */}
 					</>
 				)}
 				{opponentsGame.map((game, index) => (

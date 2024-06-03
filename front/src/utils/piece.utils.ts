@@ -20,10 +20,7 @@ export function getTetrominoClassName(
 	preview: boolean = false
 ) {
 	let className = 'tetromino tetromino_';
-	let previewClass = '';
-	if (preview) {
-		previewClass = ' drop-preview';
-	}
+	const previewClass = preview ? ' drop-preview' : '';
 	switch (type) {
 		case CellType.I:
 			return className + 'I' + previewClass;

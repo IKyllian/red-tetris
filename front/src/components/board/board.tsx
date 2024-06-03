@@ -13,6 +13,8 @@ interface BoardProps {
 	board: IBoard;
 	playerName: string;
 	isGameOver: boolean;
+	currentPiece: ITetromino;
+	nextPieces: Array<ITetromino>;
 }
 
 interface BoardPreviewProps {
@@ -29,7 +31,7 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, playerName, isGameOver }: BoardProps) => {
+export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces }: BoardProps) => {
 	// console.log("GAME OVER", gameOver);
 	// const { fps } = useTick(game, gameOver, seed);
 	// const boardStyles = {
@@ -46,24 +48,45 @@ export const Board = ({ board, playerName, isGameOver }: BoardProps) => {
 
 	return (
 		<>
-			<div className="board" style={boardStyles} tabIndex={0}>
-				{isGameOver && <span className="gameOver"> Game Over </span>}
-				{board.cells.map((row) =>
-					row.map((cell, cellIndex) => (
-						<Cell
-							key={cellIndex}
-							cellClassname={getTetrominoClassName(
-								cell.type,
-								cell.isPreview
-							)}
-						/>
-					))
-				)}
+		
+		<div className="board-container flex flex-row">
+			<div className="board-box-container">
+				<div className="box-title"> HOLD </div>
+				<PiecePreview tetromino={currentPiece} />
 			</div>
-			<span style={{ fontSize: "25px", color: "red" }}>
-				{" "}
-				{playerName}{" "}
-			</span>
+			<div className="flex flex-col">
+				<div className="board" style={boardStyles} tabIndex={0}>
+					{isGameOver && <span className="gameOver"> Game Over </span>}
+					{board.cells.map((row) =>
+						row.map((cell, cellIndex) => (
+							<Cell
+								key={cellIndex}
+								cellClassname={getTetrominoClassName(
+									cell.type,
+									cell.isPreview
+								)}
+							/>
+						))
+					)}
+				</div>
+				<span style={{ fontSize: "25px", color: "red", textAlign: 'center' }}>
+					{" "}
+					{playerName}{" "}
+				</span>
+			</div>
+			<div className="board-box-container">
+				<div className="box-title"> NEXT </div>
+				<div className="flex flex-col">
+					{
+						nextPieces.map((piece, index) => (
+							<PiecePreview key={index} tetromino={piece} />
+						))
+					}
+				</div>
+			</div>
+		</div>
+			
+			
 		</>
 	);
 };
@@ -111,8 +134,8 @@ export function PiecePreview({ tetromino }: { tetromino: ITetromino }) {
 	const boardStyles = {
 		gridTemplateRows: `repeat(4, 1fr)`,
 		gridTemplateColumns: `repeat(4, 1fr)`,
-		height: "90px",
-		width: "90px",
+		height: "170px",
+		width: "170px",
 	};
 
 	const shape = getShape(tetromino.type, tetromino.rotationState);
@@ -126,13 +149,20 @@ export function PiecePreview({ tetromino }: { tetromino: ITetromino }) {
 		<div className="board" style={boardStyles}>
 			{rows.map((row) =>
 				row.map((cell: ICell, cellIndex: number) => (
-					<Cell
-						key={cellIndex}
-						cellClassname={getTetrominoClassName(
+					// <Cell
+					// 	key={cellIndex}
+					// 	cellClassname={getTetrominoClassName(
+					// 		cell.type,
+					// 		cell.isPreview
+					// 	)}
+					// />
+					<div key={cellIndex} className="cell-piece-preview">
+						<div className={getTetrominoClassName(
 							cell.type,
 							cell.isPreview
-						)}
-					/>
+						)}>
+						</div>
+					</div>
 				))
 			)}
 		</div>
