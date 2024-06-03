@@ -1,7 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
+const pwd = process.cwd()
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [react()],
+  // test: {
+  //   include: [`${pwd}/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
+  //   transformMode: {
+  //     web: [/\.[jt]sx?$/]
+  //   },
+  // }
+  test: {
+    include: [`${pwd}/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
+    globals: true
+  },
 })

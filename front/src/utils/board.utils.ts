@@ -7,7 +7,7 @@ export const buildBoard = ({ rows, columns }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>
 		Array.from({ length: columns }, () => ({ ...defaultCell }))
 	);
-
+	console.log('builtRows = ', builtRows)
 	return {
 		cells: builtRows,
 		size: { rows, columns },
