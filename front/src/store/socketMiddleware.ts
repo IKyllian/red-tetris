@@ -1,12 +1,12 @@
 import { Middleware } from '@reduxjs/toolkit';
-import SocketFactory, { SocketInterface } from './socketFactory';
+import SocketFactory, { SocketInterface } from 'front/store/socketFactory';
 import {
 	connectionEstablished,
 	connectionLost,
 	initSocket,
-} from './socket.slice';
-import { setBoard, setBoardListener } from './board.slice';
-import { ICell, IGame } from '../types/board.types';
+} from 'front/store/socket.slice';
+import { setBoard, setBoardListener } from 'front/store/board.slice';
+import { ICell, IGame } from 'front/types/board.types';
 import {
 	// commandPressed,
 	createLobby,
@@ -17,13 +17,13 @@ import {
 	setGameStarted,
 	// onAllGamesOver,
 	// sendInputs,
-} from './lobby.slice';
-import { ILobby } from '../types/lobby.type';
-import { ITetromino } from '../types/tetrominoes.type';
-import { createPlayer, setName } from './player.slice';
-import { IPlayer } from '../types/player.type';
-import { IGameUpdatePacketHeader } from '../types/packet.types';
-import { setGamesState, setTickAdjustments } from './tick.slice';
+} from 'front/store/lobby.slice';
+import { ILobby } from 'front/types/lobby.type';
+import { ITetromino } from 'front/types/tetrominoes.type';
+import { createPlayer, setName } from 'front/store/player.slice';
+import { IPlayer } from 'front/types/player.type';
+import { IGameUpdatePacketHeader } from 'front/types/packet.types';
+import { setGamesState, setTickAdjustments } from 'front/store/tick.slice';
 import {
 	sendInputs,
 	setGameStartingState,

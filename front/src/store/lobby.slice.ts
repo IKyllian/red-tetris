@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { defaultLobby } from '../types/lobby.type';
+import { defaultLobby } from 'front/types/lobby.type';
 
 export const lobbySlice = createSlice({
 	name: 'lobby',

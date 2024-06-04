@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import PlayerReducer from './player.slice';
-import BoardReducer from './board.slice';
-import SocketReducer from './socket.slice';
-import socketMiddleware from './socketMiddleware';
-import LobbyReducer from './lobby.slice';
-import TickReducer from './tick.slice';
-import GameReducer from './game.slice';
-import inputMiddleware from './inputMiddleware';
+import PlayerReducer from 'front/store/player.slice';
+import BoardReducer from 'front/store/board.slice';
+import SocketReducer from 'front/store/socket.slice';
+import socketMiddleware from 'front/store/socketMiddleware';
+import LobbyReducer from 'front/store/lobby.slice';
+import TickReducer from 'front/store/tick.slice';
+import GameReducer from 'front/store/game.slice';
+import inputMiddleware from 'front/store/inputMiddleware';
 import logger from 'redux-logger';
 
 export const store = configureStore({

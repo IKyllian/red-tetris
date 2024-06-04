@@ -1,5 +1,5 @@
-import { IPlayer } from './player.type';
-import { CellType, ITetromino } from './tetrominoes.type';
+import { IPlayer } from 'front/types/player.type';
+import { CellType, ITetromino } from 'front/types/tetrominoes.type';
 
 export interface ICell {
 	occupied: boolean;

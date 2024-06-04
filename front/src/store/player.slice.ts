@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { RootState } from './store';
-import { IPlayer } from '../types/player.type';
+import { RootState } from 'front/store/store';
+import { IPlayer } from 'front/types/player.type';
 
 const defaultPlayer: IPlayer = {
     name: "",

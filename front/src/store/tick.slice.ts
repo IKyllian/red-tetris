@@ -5,13 +5,13 @@ import {
 	IPositionUpdate,
 	IServerState,
 	UpdateType,
-} from '../types/packet.types';
-import { IGame } from '../types/board.types';
+} from 'front/types/packet.types';
+import { IGame } from 'front/types/board.types';
 import {
 	getShape,
 	clearOldPosition,
 	transferPieceToBoard,
-} from '../utils/piece.utils';
+} from 'front/utils/piece.utils';
 interface ITick {
 	tick: number;
 	lastUpdate: number | undefined;

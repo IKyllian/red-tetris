@@ -1,13 +1,13 @@
 import "./board.css";
-import { ITetromino } from "../../types/tetrominoes.type";
-import { IBoard, ICell } from "../../types/board.types";
-import { buildBoard } from "../../utils/board.utils";
+import { ITetromino } from "front/types/tetrominoes.type";
+import { IBoard, ICell } from "front/types/board.types";
+import { buildBoard } from "front/utils/board.utils";
 import {
 	getShape,
 	getTetrominoClassName,
 	transferPieceToBoard,
 	// transferPieceToBoard,
-} from "../../utils/piece.utils";
+} from "front/utils/piece.utils";
 import { useMemo } from "react";
 interface BoardProps {
 	board: IBoard;

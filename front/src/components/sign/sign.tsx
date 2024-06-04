@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "../../store/hook";
-import { setName } from "../../store/player.slice";
+import { useAppDispatch } from "front/store/hook";
+import { setName } from "front/store/player.slice";
 import { useNavigate } from "react-router-dom";
 import "./sign.css";
-import { initSocket } from "../../store/socket.slice";
+import { initSocket } from "front/store/socket.slice";
 
 interface FormValues {
 	name: string;

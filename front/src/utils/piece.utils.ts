@@ -10,10 +10,10 @@ import {
 	T_TetrominoShape,
 	TetriminosArray,
 	Z_TetrominoShape,
-} from '../types/tetrominoes.type';
-import { IBoard, ICell, defaultCell } from '../types/board.types';
+} from 'front/types/tetrominoes.type';
+import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { IGameState, PIECES_BUFFER_SIZE } from '../store/game.slice';
+import { IGameState, PIECES_BUFFER_SIZE } from 'front/store/game.slice';
 
 export function getTetrominoClassName(
 	type: CellType,

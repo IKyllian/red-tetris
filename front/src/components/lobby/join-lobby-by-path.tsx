@@ -1,9 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch } from "../../store/hook";
-import { setName } from "../../store/player.slice";
-import { initSocket } from "../../store/socket.slice";
+import { useAppDispatch } from "front/store/hook";
+import { setName } from "front/store/player.slice";
+import { initSocket } from "front/store/socket.slice";
 import { useEffect } from "react";
-import { joinLobby } from "../../store/lobby.slice";
+import { joinLobby } from "front/store/lobby.slice";
 
 export function JoinLobbyByPath() {
 	const params = useParams();

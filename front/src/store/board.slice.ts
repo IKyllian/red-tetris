@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { RootState } from './store';
-import { IBoard, defaultBoardSize } from '../types/board.types';
-import { buildBoard } from '../utils/board.utils';
+import { RootState } from 'front/store/store';
+import { IBoard, defaultBoardSize } from 'front/types/board.types';
+import { buildBoard } from 'front/utils/board.utils'
 
 const defaultBoard: IBoard = buildBoard(defaultBoardSize);
 

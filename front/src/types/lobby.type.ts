@@ -1,5 +1,5 @@
-import { IGame } from './board.types';
-import { IPlayer } from './player.type';
+import { IGame } from 'front/types/board.types';
+import { IPlayer } from 'front/types/player.type';
 
 export interface ILobby {
 	name: string;

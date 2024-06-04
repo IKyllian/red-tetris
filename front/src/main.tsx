@@ -1,11 +1,11 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { store } from "./store/store.ts";
+import { store } from "front/store/store";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./router/router.tsx";
-import "./css/rules.css";
-import { initSocket } from "./store/socket.slice.ts";
+import { router } from "front/router/router";
+import "front/css/rules.css";
+import { initSocket } from "front/store/socket.slice";
 // import { createBrowserHistory } from "history";
 
 store.dispatch(initSocket());

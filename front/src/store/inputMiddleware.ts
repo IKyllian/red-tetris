@@ -1,5 +1,5 @@
 import { Middleware } from '@reduxjs/toolkit';
-import { sendInputs } from './game.slice';
+import { sendInputs } from 'front/store/game.slice';
 
 const inputMiddleware: Middleware = (store) => (next) => (action) => {
 	if ((action as any).type === 'game/updatePlayerGame') {

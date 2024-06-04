@@ -4,9 +4,9 @@ import {
 	IPosition,
 	I_SRS,
 	JLTSZ_SRS,
-} from '../types/tetrominoes.type';
-import { NbOfLinesForNextLevel } from '../types/board.types';
-import { COMMANDS } from '../types/command.types';
+} from 'front/types/tetrominoes.type';
+import { NbOfLinesForNextLevel } from 'front/types/board.types';
+import { COMMANDS } from 'front/types/command.types';
 import {
 	checkCollision,
 	clearDropPreview,

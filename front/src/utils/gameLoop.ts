@@ -1,4 +1,4 @@
-import { updatePlayerGame } from '../store/game.slice';
+import { updatePlayerGame } from 'front/store/game.slice';
 
 export const gameLoop = (fpsRef: React.MutableRefObject<number>, dispatch) => {
 	// const dispatch = useAppDispatch();

@@ -1,5 +1,6 @@
 // import { ISize, defaultCell } from '../../src/types/board.types';
-import { buildBoard } from '../../src/utils/board.utils';
+// import { buildBoard } from 'front/utils/board.utils';
+import { buildBoard } from '../../src/utils/board.utils'
 // import {describe, expect, it} from '@jest/globals';
 import { expect, it } from 'vitest';
 describe('utils/board', () => {

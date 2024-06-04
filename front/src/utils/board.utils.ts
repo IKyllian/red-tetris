@@ -1,7 +1,7 @@
-import { IGameState } from '../store/game.slice';
-import { IBoard, ICell, defaultCell } from '../types/board.types';
-import { CellType, ITetromino } from '../types/tetrominoes.type';
-import { getShape } from './piece.utils';
+import { IGameState } from 'front/store/game.slice';
+import { IBoard, ICell, defaultCell } from 'front/types/board.types';
+import { CellType, ITetromino } from 'front/types/tetrominoes.type';
+import { getShape } from 'front/utils/piece.utils';
 
 export const buildBoard = ({ rows, columns }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>

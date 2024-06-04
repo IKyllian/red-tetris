@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../store/hook';
-import { createLobby, joinLobby } from "../../store/lobby.slice";
+import { useAppDispatch, useAppSelector } from 'front/store/hook';
+import { createLobby, joinLobby } from "front/store/lobby.slice";
 import { useForm } from 'react-hook-form';
 
 interface JoinFormValues {

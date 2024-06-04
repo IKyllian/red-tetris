@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IGame, defaultGame } from '../types/board.types';
+import { IGame, defaultGame } from 'front/types/board.types';
 import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
@@ -7,7 +7,7 @@ import {
 	IPositionUpdate,
 	IServerState,
 	UpdateType,
-} from '../types/packet.types';
+} from 'front/types/packet.types';
 import {
 	getShape,
 	clearOldPosition,
@@ -15,23 +15,23 @@ import {
 	generatePieces,
 	setDropPreview,
 	clearDropPreview,
-} from '../utils/piece.utils';
-import { ITetromino } from '../types/tetrominoes.type';
+} from 'front/utils/piece.utils';
+import { ITetromino } from 'front/types/tetrominoes.type';
 import {
 	handleInput,
 	hardDrop,
 	moveDown,
 	rotate,
-} from '../utils/handle-inputs.utils';
+} from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
-import { COMMANDS } from '../types/command.types';
+import { COMMANDS } from 'front/types/command.types';
 import {
 	addIndestructibleLines,
 	compareCells,
 	getFramesPerGridCell,
-} from '../utils/board.utils';
-import SocketFactory from './socketFactory';
-import { SocketEvent } from './socketMiddleware';
+} from 'front/utils/board.utils';
+import SocketFactory from 'front/store/socketFactory';
+import { SocketEvent } from 'front/store/socketMiddleware';
 import { cloneDeep, isEqual } from 'lodash';
 import { produce } from 'immer';
 

@@ -1,7 +1,7 @@
-import { IGame } from './board.types';
-import { COMMANDS } from './command.types';
-import { IPlayer } from './player.type';
-import { ITetromino } from './tetrominoes.type';
+import { IGame } from 'front/types/board.types';
+import { COMMANDS } from 'front/types/command.types';
+import { IPlayer } from 'front/types/player.type';
+import { ITetromino } from 'front/types/tetrominoes.type';
 
 export interface IPositionUpdate {
 	player: IPlayer;

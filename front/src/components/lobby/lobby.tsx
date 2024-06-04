@@ -1,7 +1,7 @@
-import { useAppDispatch, useAppSelector } from "../../store/hook";
-import { ILobby } from "../../types/lobby.type";
-import { leaveLobby, sendStartGame } from "../../store/lobby.slice";
-import { Game } from "../game/game";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
+import { ILobby } from "front/types/lobby.type";
+import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
+import { Game } from "front/components/game/game";
 
 export function Lobby() {
 	const lobby: ILobby = useAppSelector((state) => state.lobby);
