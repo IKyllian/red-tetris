@@ -372,7 +372,7 @@ export const gameSlice = createSlice({
 				};
 
 				state.tick++;
-				// console.log('one tick');
+				console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},

@@ -6,7 +6,6 @@ import {
 	getShape,
 	getTetrominoClassName,
 	transferPieceToBoard,
-	// transferPieceToBoard,
 } from "front/utils/piece.utils";
 import { useMemo } from "react";
 interface BoardProps {
@@ -48,12 +47,7 @@ export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces 
 
 	return (
 		<>
-		
 		<div className="board-container flex flex-row">
-			<div className="board-box-container">
-				<div className="box-title"> HOLD </div>
-				<PiecePreview tetromino={currentPiece} />
-			</div>
 			<div className="flex flex-col">
 				<div className="board" style={boardStyles} tabIndex={0}>
 					{isGameOver && <span className="gameOver"> Game Over </span>}
@@ -70,8 +64,7 @@ export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces 
 					)}
 				</div>
 				<span style={{ fontSize: "25px", color: "red", textAlign: 'center' }}>
-					{" "}
-					{playerName}{" "}
+					{playerName}
 				</span>
 			</div>
 			<div className="board-box-container">

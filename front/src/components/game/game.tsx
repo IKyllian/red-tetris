@@ -9,29 +9,29 @@ import { isCommandType, COMMANDS } from "front/types/command.types";
 export function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
-	const game = useAppSelector(state => state.game)
+	// const game = useAppSelector(state => state.game)
 	
-	const playerGame = game.playerGame
-	const gameStarted =game.gameStarted;
-	const gameOver = playerGame?.gameOver;
-	const opponentsGames = game.opponentsGames;
-	const playerGameBoard = playerGame?.board;
-	const playerGamePieceIndex = playerGame?.currentPieceIndex;
-	const playerName = playerGame?.player.name;
-	const pieces = game.pieces;
-	// const gameStarted = useAppSelector((state) => state.game.gameStarted);
-	// const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
-	// const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
-	// const playerGameBoard = useAppSelector(
-	// 	(state) => state.game.playerGame?.board
-	// );
-	// const playerGamePieceIndex = useAppSelector(
-	// 	(state) => state.game.playerGame?.currentPieceIndex
-	// );
-	// const playerName = useAppSelector(
-	// 	(state) => state.game.playerGame?.player.name
-	// );
-	// const pieces = useAppSelector((state) => state.game.pieces);
+	// const playerGame = game.playerGame
+	// const gameStarted =game.gameStarted;
+	// const gameOver = playerGame?.gameOver;
+	// const opponentsGames = game.opponentsGames;
+	// const playerGameBoard = playerGame?.board;
+	// const playerGamePieceIndex = playerGame?.currentPieceIndex;
+	// const playerName = playerGame?.player.name;
+	// const pieces = game.pieces;
+	const gameStarted = useAppSelector((state) => state.game.gameStarted);
+	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
+	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
+	const playerGameBoard = useAppSelector(
+		(state) => state.game.playerGame?.board
+	);
+	const playerGamePieceIndex = useAppSelector(
+		(state) => state.game.playerGame?.currentPieceIndex
+	);
+	const playerName = useAppSelector(
+		(state) => state.game.playerGame?.player.name
+	);
+	const pieces = useAppSelector((state) => state.game.pieces);
 	const fpsRef = useRef<number>(0);
 	const dispatch = useAppDispatch();
 
@@ -95,7 +95,7 @@ export function Game() {
 	// const half_length = Math.ceil(opponentsGame.length / 2);
 	// const leftSide = opponentsGame.slice(0, half_length);
 	// const rightSide = opponentsGame.slice(half_length);
-	// console.log("rendering");
+	console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
 	}

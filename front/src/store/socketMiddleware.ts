@@ -5,8 +5,7 @@ import {
 	connectionLost,
 	initSocket,
 } from 'front/store/socket.slice';
-import { setBoard, setBoardListener } from 'front/store/board.slice';
-import { ICell, IGame } from 'front/types/board.types';
+import { IGame } from 'front/types/board.types';
 import {
 	// commandPressed,
 	createLobby,
@@ -19,18 +18,15 @@ import {
 	// sendInputs,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
-import { ITetromino } from 'front/types/tetrominoes.type';
 import { createPlayer, setName } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
 import { IGameUpdatePacketHeader } from 'front/types/packet.types';
-import { setGamesState, setTickAdjustments } from 'front/store/tick.slice';
 import {
 	sendInputs,
 	setGameStartingState,
 	updateGamesBoard,
 	updateIndestructibleLines,
 } from './game.slice';
-import history from 'history/browser';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -157,11 +153,11 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		// Listen for board updates
-		if (setBoardListener.match(action) && socket) {
-			socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
-				store.dispatch(setBoard({ cells }));
-			});
-		}
+		// if (setBoardListener.match(action) && socket) {
+		// 	socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
+		// 		store.dispatch(setBoard({ cells }));
+		// 	});
+		// }
 
 		// Handle the commands action
 		// if (commandPressed.match(action) && socket) {
