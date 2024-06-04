@@ -95,7 +95,7 @@ export function Game() {
 	// const half_length = Math.ceil(opponentsGame.length / 2);
 	// const leftSide = opponentsGame.slice(0, half_length);
 	// const rightSide = opponentsGame.slice(half_length);
-	console.log("rendering");
+	// console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
 	}
@@ -109,7 +109,7 @@ export function Game() {
 				Render average: {renderAverage.current}
 			</div>
 			<div
-				className="boards-container flex flex-row content-center items-center gap8"
+				className="boards-container flex flex-row content-center items-center gap8 flex-wrap"
 				tabIndex={0}
 				onKeyDown={handleKeyDown}
 				onKeyUp={handleKeyRelease}

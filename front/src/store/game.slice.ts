@@ -191,6 +191,7 @@ export const gameSlice = createSlice({
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
+					console.log("POSITION")
 					const newState = gamePacket.state as IPositionUpdate;
 					const piece = state.opponentsGames[index].piece;
 					let shape = getShape(piece.type, piece.rotationState);
@@ -372,7 +373,7 @@ export const gameSlice = createSlice({
 				};
 
 				state.tick++;
-				console.log('one tick');
+				// console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},

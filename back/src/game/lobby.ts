@@ -98,7 +98,7 @@ export class Lobby {
 					this.ranking.push(game.player);
 				}
 				if (game.destructibleLinesToGive > 0) {
-					for (const otherGame of this.games) {
+					for (const otherGame of this.games) { // TODO: Mettre en dehors de la boucle ?
 						if (
 							otherGame.player.id !== game.player.id &&
 							!otherGame.gameOver
@@ -113,6 +113,7 @@ export class Lobby {
 			}
 
 			let gamePackets: IGameUpdatePacket[] = [];
+			console.log("nbOfPlayerAlive = ", this.nbOfPlayerAlive)
 			for (const game of this.games) {
 				if (game.boardChanged) {
 					gamePackets.push({
@@ -120,6 +121,7 @@ export class Lobby {
 						state: game.getDataToSend(),
 					});
 				} else if (game.positionChanged && this.nbOfPlayerAlive <= 4) {
+					console.log("QWEQWEQWEQWEQWEQWE")
 					gamePackets.push({
 						updateType: UpdateType.POSITION,
 						state: {
@@ -132,18 +134,24 @@ export class Lobby {
 			if (gamePackets.length > 0) {
 				for (const game of this.games) {
 					game.lastPacketSendAt = performance.now();
-					let playerPacket = gamePackets.find(
+					const playerPacketIndex = gamePackets.findIndex(
 						(packet) => packet.state.player.id === game.player.id
 					);
-					if (playerPacket) {
-						playerPacket.updateType = UpdateType.GAME;
-						playerPacket.state = game.getDataToSend();
-					} else if (game.positionChanged) {
-						gamePackets.push({
-							updateType: UpdateType.GAME,
-							state: game.getDataToSend(),
-						});
+					let playerPacket: IGameUpdatePacket[] | undefined;
+					if (playerPacketIndex !== -1 && gamePackets[playerPacketIndex].updateType === UpdateType.POSITION) {
+						playerPacket = gamePackets.splice(playerPacketIndex, 1);
+						gamePackets.push({updateType: UpdateType.GAME, state: game.getDataToSend()})
 					}
+					// if (playerPacket && playerPacket.updateType === UpdateType.POSITION) {
+					// 	playerPacket.updateType = UpdateType.GAME;
+					// 	playerPacket.state = game.getDataToSend();
+					// }
+					// else if (game.positionChanged) {
+					// 	gamePackets.push({
+					// 		updateType: UpdateType.GAME,
+					// 		state: game.getDataToSend(),
+					// 	});
+					// }
 					const dataToSend: IGameUpdatePacketHeader = {
 						tick: this.tick,
 						tickAdjustment: game.tickAdjustment,
@@ -153,6 +161,10 @@ export class Lobby {
 					this.server
 						.to(game.player.id)
 						.emit(SocketEvent.GamesUpdate, dataToSend);
+					if (playerPacket?.length > 0) {
+						gamePackets.pop();
+						gamePackets.push(playerPacket[0])
+					}
 					game.boardChanged = false;
 					game.positionChanged = false;
 				}
