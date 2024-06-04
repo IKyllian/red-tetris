@@ -113,7 +113,6 @@ export class Lobby {
 			}
 
 			let gamePackets: IGameUpdatePacket[] = [];
-			console.log("nbOfPlayerAlive = ", this.nbOfPlayerAlive)
 			for (const game of this.games) {
 				if (game.boardChanged) {
 					gamePackets.push({
@@ -121,7 +120,6 @@ export class Lobby {
 						state: game.getDataToSend(),
 					});
 				} else if (game.positionChanged && this.nbOfPlayerAlive <= 4) {
-					console.log("QWEQWEQWEQWEQWEQWE")
 					gamePackets.push({
 						updateType: UpdateType.POSITION,
 						state: {
@@ -223,7 +221,6 @@ export class Lobby {
 		// }, 500);
 		this.lastUpdate = performance.now();
 		this.updateState();
-		console.log('HUH');
 		// setTimeout(
 		// 	this.updateState.bind(this),
 		// 	MIN_TIME_BETWEEN_TICKS

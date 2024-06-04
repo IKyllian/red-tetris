@@ -84,7 +84,6 @@ const socketMiddleware: Middleware = (store) => {
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
 						// if (AZE < 1) {
-						console.log("Game update = ", data);
 						socket.socket.emit('pong');
 						store.dispatch(updateGamesBoard(data));
 						// store.dispatch(
