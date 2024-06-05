@@ -14,7 +14,7 @@ import {
 	setLobby,
 	sendStartGame,
 	setGameStarted,
-	// onAllGamesOver,
+	onAllGamesOver,
 	// sendInputs,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
@@ -99,7 +99,7 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
-					// store.dispatch(onAllGamesOver(data));
+					store.dispatch(onAllGamesOver(data));
 				});
 
 				socket.socket.on(
@@ -145,6 +145,7 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		if (leaveLobby.match(action) && socket) {
+			console.log("LEAVE")
 			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
 		}
 

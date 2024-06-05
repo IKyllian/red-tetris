@@ -1,0 +1,16 @@
+.leaderboard-container {
+
+}
+
+h2 {
+    color: white;
+    margin: 0;
+}
+
+.leaderboard-item {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: white;
+    text-transform: uppercase;
+}

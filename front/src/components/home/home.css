@@ -1,6 +1,7 @@
 .home-container {
-    width: 100vw;
-    height: 100vh;
+    /* width: 100vw;
+    height: 100vh; */
+    height: calc(100vh - 60px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,5 +10,29 @@
 .buttons-container {
     display: flex;
     flex-direction: row;
+    gap: 12px;
+}
+
+.card-container {
+    width: 300px;
+    height: 200px;
+    border: 5px solid #615EFC;
+    background-color: #7E8EF1;
+    border-radius: 10px;
+}
+
+.title {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+}
+
+.home-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
 }

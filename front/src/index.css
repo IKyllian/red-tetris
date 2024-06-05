@@ -5,11 +5,15 @@
   height: 100%;
   width: 100%;
 
-  background-color: #242424;
+  background-color: #8480f5;
 }
 
 body {
   margin: 0;
   min-width: 100vw;
   min-height: 100vh;
+}
+
+* {
+	box-sizing: border-box;
 }

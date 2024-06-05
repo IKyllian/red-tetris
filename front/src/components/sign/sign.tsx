@@ -30,6 +30,7 @@ export function SignIn() {
 			<h4> Chose a name :</h4>
 			<form onSubmit={handleSubmit(onSubmit)} className="">
 				<input
+					className="input"
 					type="text"
 					placeholder="Name"
 					{...register("name", { required: true })}
@@ -37,7 +38,7 @@ export function SignIn() {
 				{errors.name && errors.name.message && (
 					<p className="error-message"> {errors.name.message} </p>
 				)}
-				<button type="submit">Submit</button>
+				<button className="button" type="submit">Submit</button>
 			</form>
 		</div>
 	);

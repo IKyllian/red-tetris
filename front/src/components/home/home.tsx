@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'front/store/hook';
 import { createLobby, joinLobby } from "front/store/lobby.slice";
 import { useForm } from 'react-hook-form';
-
+import './home.css'
+import { useEffect } from 'react';
 interface JoinFormValues {
     lobbyId: string;
 }
@@ -13,7 +14,7 @@ interface CreateFormValues {
 
 export function CreateGameButton({ playerName }: {playerName: string}) {
     const { register, handleSubmit, formState: { errors } } = useForm<CreateFormValues>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const handleCreateLobby = (data: CreateFormValues, e) => {
@@ -22,21 +23,21 @@ export function CreateGameButton({ playerName }: {playerName: string}) {
             name: data.lobbyName,
             playerName: playerName
         }));
-        navigate('/lobby');
+        // navigate('/lobby');
     }
 
     return (
-        <form onSubmit={handleSubmit(handleCreateLobby)} className="">
-            <input type="text" placeholder="Name" {...register("lobbyName", {required: true})} />
+        <form onSubmit={handleSubmit(handleCreateLobby)} className="home-form">
+            <input className='input' type="text" placeholder="Name" {...register("lobbyName", {required: true})} />
             {errors.lobbyName && errors.lobbyName.message && <p className="error-message"> {errors.lobbyName.message} </p>}
-            <button type="submit">Create game</button>
+            <button className='button' type="submit">Create game</button>
         </form>
     )
 }
 
 export function JoinGameButton({ playerName }: {playerName: string}) {
     const { register, handleSubmit, formState: { errors } } = useForm<JoinFormValues>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const handleJoinLobby = (data: JoinFormValues) => {
@@ -44,27 +45,40 @@ export function JoinGameButton({ playerName }: {playerName: string}) {
             lobbyId: data.lobbyId,
             playerName: playerName
         }));
-        navigate('/lobby');
+        // navigate('/lobby');
     }
 
     return (
-        <form onSubmit={handleSubmit(handleJoinLobby)} className="">
-            <input type="text" placeholder="Game Id" {...register("lobbyId", {required: true})} />
+        <form onSubmit={handleSubmit(handleJoinLobby)} className="home-form">
+            <input className='input' type="text" placeholder="Game Id" {...register("lobbyId", {required: true})} />
             {errors.lobbyId && errors.lobbyId.message && <p className="error-message"> {errors.lobbyId.message} </p>}
-            <button type="submit">Join game</button>
+            <button className='button' type="submit">Join game</button>
         </form>
     )
 }
 
 export function Home() {
     const playerName = useAppSelector((state) => state.player.name);
-
+    const lobby = useAppSelector(state => state.lobby);
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (lobby.id || lobby.id !== '') {
+            navigate('/lobby')
+        }
+    }, [lobby])
     return (
         <div className="home-container flex content-center items-center">
             <div className="buttons-container flex flex-row gap8">
                 {/* A refactor les composants correctement plus tard */}
-                <CreateGameButton playerName={playerName} />
-                <JoinGameButton playerName={playerName} />
+                <div className='card-container flex flex-col gap12 content-evenly'>
+                    <span className='title'> Create game</span>
+                    <CreateGameButton playerName={playerName} />
+                </div>
+                <div className='card-container  flex flex-col gap12 content-evenly'>
+                    <span className='title'> Join lobby</span>
+                    <JoinGameButton playerName={playerName} />
+                </div>
+                
             </div>
         </div>
     );
