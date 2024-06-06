@@ -7,6 +7,20 @@ import './lobby.css'
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { IPlayer } from "front/types/player.type";
+
+const LEADERBOAD: IPlayer[] = [
+    {
+        name: 'Player 1',
+        id: '121',
+        isLeader: true
+    },
+    {
+        name: 'Player 2',
+        id: '122',
+        isLeader: false
+    }
+]
 
 export function Lobby() {
 	const lobby: ILobby = useAppSelector((state) => state.lobby);
@@ -16,7 +30,6 @@ export function Lobby() {
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
-
 	useEffect(() => {
 		console.log();
 		if (!lobby.id || lobby.id === '') {

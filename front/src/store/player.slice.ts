@@ -2,11 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 import { RootState } from 'front/store/store';
 import { IPlayer } from 'front/types/player.type';
 
-const defaultPlayer: IPlayer = {
-    name: "",
-    id: "",
-    isLeader: false
-};
+// const defaultPlayer: IPlayer = {
+//     name: null,
+//     id: null,
+//     isLeader: false
+// };
+
+const defaultPlayer = null as IPlayer | null
 
 export const playerSlice = createSlice({
     name: 'player',
@@ -16,8 +18,9 @@ export const playerSlice = createSlice({
         createPlayer: (state, action) => {
             console.log(action.payload)
             const { name, id } = action.payload;
-            Object.assign(state, { name, id });
-            console.log("PLayer = ", state)
+            // Object.assign(state, { name, id });
+            // console.log("PLayer = ", state)
+            return { name, id, isLeader: false }
         }
     }
 })

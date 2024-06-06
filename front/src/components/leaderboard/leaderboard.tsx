@@ -16,7 +16,7 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
                         return (
                             <div key={index} className="leaderboard-item flex flex-row items-center content-between">
                                 <div className="flex flex-row gap8 items-center">
-                                    <span> {index === 0 ? <GiLaurelCrown style={{color: 'yellow'}} /> : `#${index + 1}`} </span>
+                                    <span className="text-position flex"> {index === 0 ? <GiLaurelCrown style={{color: 'yellow'}} /> : `#${index + 1}`} </span>
                                     <span> {player.name} </span>
                                 </div>
                                

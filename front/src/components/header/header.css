@@ -1,14 +1,14 @@
 .header-container {
     width: 100vw;
-    background-color: #615EFC;
-    height: 60px;
+    background-color: var(--main-color);
+    height: var(--main-header-height);
     padding: 0 10px;
 }
 
 .header-logo {
-    font-size: 25px;
+    font-size: 40px;
     text-transform: uppercase;
-    color: white;
+    /* color: white; */
     font-weight: bold;
 }
 

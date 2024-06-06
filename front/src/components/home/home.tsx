@@ -58,7 +58,10 @@ export function JoinGameButton({ playerName }: {playerName: string}) {
 }
 
 export function Home() {
+    const player = useAppSelector((state) => state.player);
+    console.log(player)
     const playerName = useAppSelector((state) => state.player.name);
+    console.log(playerName)
     const lobby = useAppSelector(state => state.lobby);
     const navigate = useNavigate()
     useEffect(() => {
@@ -69,7 +72,6 @@ export function Home() {
     return (
         <div className="home-container flex content-center items-center">
             <div className="buttons-container flex flex-row gap8">
-                {/* A refactor les composants correctement plus tard */}
                 <div className='card-container flex flex-col gap12 content-evenly'>
                     <span className='title'> Create game</span>
                     <CreateGameButton playerName={playerName} />
@@ -78,7 +80,6 @@ export function Home() {
                     <span className='title'> Join lobby</span>
                     <JoinGameButton playerName={playerName} />
                 </div>
-                
             </div>
         </div>
     );
