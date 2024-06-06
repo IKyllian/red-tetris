@@ -34,3 +34,8 @@ export interface IGameUpdatePacketHeader {
 	adjustmentIteration: number;
 	gamePackets: IGameUpdatePacket[];
 }
+
+export interface IIndestructiblePacket {
+	tick: number;
+	nb: number;
+}

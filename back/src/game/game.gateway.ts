@@ -132,8 +132,8 @@ export class GameGateway
 		const lobby = this.lobbyManager.getLobbys();
 		if (lobby.length > 0) {
 			const game = lobby[0].games[0];
-			// game.addDestructibleLines(1);
-			game.destructibleLinesToGive = 1;
+			// game.addIndestructibleLines(1);
+			game.indestructibleToGive = 1;
 		}
 	}
 }

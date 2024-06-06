@@ -3,6 +3,7 @@ import { IGame, defaultGame } from 'front/types/board.types';
 import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
+	IIndestructiblePacket,
 	IInputsPacket,
 	IPositionUpdate,
 	IServerState,
@@ -64,6 +65,7 @@ export interface IGameState {
 	inputQueue: COMMANDS[];
 	pendingInputs: IInputsPacket; //TODO delete
 	skipPieceGeneration: number;
+	indestructibleQueue: IIndestructiblePacket[];
 
 	forceReconcileTimer: number;
 	render: boolean;
@@ -93,6 +95,7 @@ const defaultGameState: IGameState = {
 	inputQueue: [],
 	inputBuffer: new Array<COMMANDS[]>(BUFFER_SIZE),
 	pendingInputs: null,
+	indestructibleQueue: [],
 
 	skipPieceGeneration: 0,
 	forceReconcileTimer: performance.now(),
@@ -176,7 +179,6 @@ export const gameSlice = createSlice({
 
 			for (const gamePacket of gamePackets) {
 				if (gamePacket.state.player.id === state.playerGame.player.id) {
-					// console.log('player updates');
 					state.lastServerState = {
 						tick: packetWhithHeader.tick,
 						packet: gamePacket,
@@ -191,7 +193,6 @@ export const gameSlice = createSlice({
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
-					console.log("POSITION")
 					const newState = gamePacket.state as IPositionUpdate;
 					const piece = state.opponentsGames[index].piece;
 					let shape = getShape(piece.type, piece.rotationState);
@@ -236,6 +237,7 @@ export const gameSlice = createSlice({
 			// server reconciliation
 			if (state.lastProcessedServerState !== state.lastServerState) {
 				const index = state.lastServerState.tick % BUFFER_SIZE;
+				//TODO check if server tick too late, with buffer size
 				if (state.clientStateBuffer[index]) {
 					const serverGameState = state.lastServerState.packet
 						.state as IGame;
@@ -327,8 +329,8 @@ export const gameSlice = createSlice({
 							false
 						);
 					}
-					state.lastProcessedServerState = state.lastServerState;
 				}
+				state.lastProcessedServerState = state.lastServerState;
 			}
 			////--------------------------------------------------------------
 			//------------------------------------------------------------------
@@ -340,6 +342,14 @@ export const gameSlice = createSlice({
 				// 	state.forceReconcileTimer = now;
 				// 	state.render = false;
 				// }
+				for (let i = 0; i < state.indestructibleQueue.length; i++) {
+					const indestructible = state.indestructibleQueue[i];
+					if (indestructible.tick === state.tick) {
+						addIndestructibleLines(state, indestructible.nb);
+						state.indestructibleQueue.splice(i, 1);
+						i--;
+					}
+				}
 				if (state.inputQueue.length > 0) {
 					state.inputQueue.forEach((input) => {
 						handleInput(input, state);
@@ -377,8 +387,12 @@ export const gameSlice = createSlice({
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},
-		updateIndestructibleLines(state, action) {
-			addIndestructibleLines(state, action.payload);
+		updateIndestructibleLines(
+			state,
+			action: { payload: IIndestructiblePacket }
+		) {
+			state.indestructibleQueue.push(action.payload);
+			// state.addIndestructibleLines(state, action.payload);
 		},
 	},
 });

@@ -30,12 +30,13 @@ export class Game {
 	public level: number = 0;
 	public score: number = 0;
 	public totalLinesCleared: number = 0;
-	public destructibleLinesToGive: number = 0;
+	public indestructibleToGive: number = 0;
 	public lastPacketSendAt: number = 0;
 	public positionChanged: boolean = false;
 	public boardChanged: boolean = false;
 	public tickAdjustment = 0;
 	public adjustmentIteration = 0;
+	public indestructibleQueue: { tick: number; nb: number }[] = [];
 
 	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
@@ -85,14 +86,23 @@ export class Game {
 
 	public updateState(tick: number) {
 		//TODO find better way?
+		this.boardChanged = false;
+		this.positionChanged = false;
 		if (this.gameOver) {
 			return;
+		}
+		for (let i = 0; i < this.indestructibleQueue.length; i++) {
+			const indestructible = this.indestructibleQueue[i];
+			if (indestructible.tick === tick) {
+				this.addIndestructibleLines(indestructible.nb);
+				this.indestructibleQueue.splice(i, 1);
+				i--;
+			}
 		}
 
 		this.processInputs(tick);
 		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
 			this.moveDown(true);
-			this.positionChanged = true;
 		} else {
 			this.tickToMoveDown++;
 		}
@@ -109,17 +119,7 @@ export class Game {
 
 	// TODO client server sync, server reconciliation
 	public processInputs(tick: number) {
-		if (this.inputsQueue.length === 1) {
-		}
 		while (this.inputsQueue.length > 0) {
-			// console.log(
-			// 	'inputsQueue: ',
-			// 	this.inputsQueue[0].inputs,
-			// 	' - tick: ',
-			// 	tick,
-			// 	' - client tick: ',
-			// 	this.inputsQueue[0].tick
-			// );
 			const packet = this.inputsQueue[0];
 
 			// this.handleInputs(packet.inputs);
@@ -153,7 +153,7 @@ export class Game {
 		for (const command of commands) {
 			//TODO check if old position is not the same as new position to not emit useless data
 			if (this.gameOver) return;
-			this.positionChanged = true;
+
 			switch (command) {
 				case COMMANDS.KEY_UP:
 					this.rotate();
@@ -193,7 +193,7 @@ export class Game {
 			this.nbOfpieceDown++;
 			const linesCleared = this.board.checkForLines();
 			if (linesCleared > 0) {
-				this.destructibleLinesToGive = linesCleared - 1;
+				this.indestructibleToGive = linesCleared - 1;
 				this.linesCleared += linesCleared;
 				if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
 					this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
@@ -217,6 +217,8 @@ export class Game {
 			// this.board.transferPieceToBoard(this.piece, newShape, false);
 		} else {
 			// this.board.clearOldPosition(this.piece, shape);
+			this.positionChanged = true;
+
 			this.piece.position = newPosition;
 			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
@@ -233,6 +235,7 @@ export class Game {
 
 	public rotate() {
 		this.piece.rotate(this.board);
+		this.positionChanged = true; //TODO check if needed
 	}
 
 	public moveLeft() {
@@ -242,6 +245,7 @@ export class Game {
 		};
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
+			this.positionChanged = true;
 			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
 			// this.board.transferPieceToBoard(this.piece, shape, false);
@@ -255,24 +259,38 @@ export class Game {
 		};
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
+			this.positionChanged = true;
 			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
 			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
-	public addDestructibleLines(nbOfLines: number) {
-		//TODO if game over returm
-		console.log(
-			'addDestructibleLines to ',
-			this.player.name,
-			'-',
-			nbOfLines
-		);
-		this.board.addIndestructibleLines(nbOfLines);
-		//TODO check if game over ?
-		this.piece.position.y -= nbOfLines;
+	private canBePushedBack(pieceY: number, shape: number[][]) {
+		for (let y = 0; y < shape.length; y++) {
+			for (let x = 0; x < shape[y].length; x++) {
+				if (shape[y][x]) {
+					const _y = y + pieceY;
+					if (_y < 0) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 
+	public addIndestructibleLines(nbOfLines: number) {
+		const shape = this.piece.getShape();
+		for (let i = 0; i < nbOfLines; i++) {
+			this.board.addIndestructibleLine();
+			if (this.canBePushedBack(this.piece.position.y - 1, shape)) {
+				this.piece.position.y--;
+			} else if (this.board.checkCollision(this.piece.position, shape)) {
+				this.gameOver = true;
+				break;
+			}
+		}
 		this.boardChanged = true;
 	}
 

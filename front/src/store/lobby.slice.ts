@@ -5,7 +5,9 @@ export const lobbySlice = createSlice({
 	name: 'lobby',
 	initialState: defaultLobby,
 	reducers: {
-		setLobby: (_, action) => action.payload,
+		setLobby: (_, action) => {
+			return { ...action.payload };
+		},
 		createLobby: (_, __) => {},
 		leaveLobby: (_, __) => {},
 		joinLobby: (_, __) => {},

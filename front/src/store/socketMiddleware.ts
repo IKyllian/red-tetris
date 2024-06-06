@@ -20,7 +20,10 @@ import {
 import { ILobby } from 'front/types/lobby.type';
 import { createPlayer, setName } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
-import { IGameUpdatePacketHeader } from 'front/types/packet.types';
+import {
+	IGameUpdatePacketHeader,
+	IIndestructiblePacket,
+} from 'front/types/packet.types';
 import {
 	sendInputs,
 	setGameStartingState,
@@ -120,8 +123,8 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(
 					SocketEvent.IndestructibleLine,
-					(nbOflines: number) => {
-						store.dispatch(updateIndestructibleLines(nbOflines));
+					(packet: IIndestructiblePacket) => {
+						store.dispatch(updateIndestructibleLines(packet));
 					}
 				);
 			}

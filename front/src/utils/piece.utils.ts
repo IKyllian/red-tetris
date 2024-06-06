@@ -103,26 +103,26 @@ export function checkCollision(
 	position: IPosition,
 	shape: number[][]
 ): boolean {
-	let isCollision = false;
-	shape.forEach((row: number[], y: number) => {
-		if (position.y + y < 0) return;
-		row.forEach((cell: number, x: number) => {
-			if (cell) {
+	for (let y = 0; y < shape.length; y++) {
+		if (position.y + y < 0) continue;
+
+		for (let x = 0; x < shape[y].length; x++) {
+			if (shape[y][x]) {
 				const _x = x + position.x;
 				const _y = y + position.y;
+
 				if (
 					_x < 0 ||
 					_x >= board.size.columns ||
-					_y >= board.size.rows
+					_y >= board.size.rows ||
+					board.cells[_y][_x].occupied
 				) {
-					isCollision = true;
-				} else if (board.cells[_y][_x].occupied) {
-					isCollision = true;
+					return true;
 				}
 			}
-		});
-	});
-	return isCollision;
+		}
+	}
+	return false;
 }
 
 export function clearOldPosition(

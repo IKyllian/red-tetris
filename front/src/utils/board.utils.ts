@@ -1,7 +1,7 @@
 import { IGameState } from 'front/store/game.slice';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import { CellType, ITetromino } from 'front/types/tetrominoes.type';
-import { getShape } from 'front/utils/piece.utils';
+import { checkCollision, getShape } from 'front/utils/piece.utils';
 
 export const buildBoard = ({ rows, columns }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>
@@ -87,6 +87,20 @@ export function checkForLines(board: IBoard): number {
 	return lines;
 }
 
+function canBePushedBack(pieceY: number, shape: number[][]) {
+	for (let y = 0; y < shape.length; y++) {
+		for (let x = 0; x < shape[y].length; x++) {
+			if (shape[y][x]) {
+				const _y = y + pieceY;
+				if (_y < 0) {
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
 export function addIndestructibleLines(state: IGameState, nbOfLines: number) {
 	const indestructibleRow: ICell[] = Array.from(
 		{ length: state.playerGame.board.size.columns },
@@ -98,10 +112,25 @@ export function addIndestructibleLines(state: IGameState, nbOfLines: number) {
 			isCurrentPiece: false,
 		})
 	);
-	// console.log('adding indestructible lines');
-	// for (let i = 0; i < nbOfLines; i++) {
-	// 	state.playerGame.board.cells.push(indestructibleRow);
-	// 	state.playerGame.board.cells.shift();
-	// 	state.playerGame.piece.position.y--;
-	// }
+	const shape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
+	for (let i = 0; i < nbOfLines; i++) {
+		state.playerGame.board.cells.push(indestructibleRow);
+		state.playerGame.board.cells.shift();
+		if (canBePushedBack(state.playerGame.piece.position.y - 1, shape)) {
+			state.playerGame.piece.position.y--;
+		} else if (
+			checkCollision(
+				state.playerGame.board,
+				state.playerGame.piece.position,
+				shape
+			)
+		) {
+			//TODO Gameover orrrr?
+			// state.playerGame.gameOver = true;
+			break;
+		}
+	}
 }

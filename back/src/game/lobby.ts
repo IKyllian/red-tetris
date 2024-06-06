@@ -24,6 +24,11 @@ interface IGameUpdatePacket {
 	//TODO send piece Index to compare in client to clear old piece
 	state: IGame | { player: Player; piece: Piece };
 }
+
+export interface IIndestructiblePacket {
+	tick: number;
+	nb: number;
+}
 export class Lobby {
 	public name: string;
 	public id: string;
@@ -97,74 +102,81 @@ export class Lobby {
 					this.nbOfPlayerAlive--;
 					this.ranking.push(game.player);
 				}
-				if (game.destructibleLinesToGive > 0) {
-					for (const otherGame of this.games) { // TODO: Mettre en dehors de la boucle ?
+				if (game.indestructibleToGive > 0) {
+					for (const otherGame of this.games) {
+						// TODO: Mettre en dehors de la boucle ?
+						const maxTickOffset = this.games.reduce(
+							(acc, game) => Math.max(acc, game.tickAdjustment),
+							0
+						);
+						const tickOffset = this.tick + maxTickOffset + 10;
 						if (
-							otherGame.player.id !== game.player.id &&
+							// otherGame.player.id !== game.player.id &&
 							!otherGame.gameOver
 						) {
-							otherGame.addDestructibleLines(
-								game.destructibleLinesToGive
+							const indestructiblePacket: IIndestructiblePacket =
+								{
+									tick: tickOffset,
+									nb: game.indestructibleToGive,
+								};
+							otherGame.indestructibleQueue.push(
+								indestructiblePacket
 							);
+							this.server
+								.to(otherGame.player.id)
+								.emit(
+									SocketEvent.IndestructibleLine,
+									indestructiblePacket
+								);
+							// otherGame.addIndestructibleLines(
+							// 	game.indestructibleToGive
+							// );
 						}
 					}
-					game.destructibleLinesToGive = 0;
+					game.indestructibleToGive = 0;
 				}
 			}
 
-			let gamePackets: IGameUpdatePacket[] = [];
-			for (const game of this.games) {
-				if (game.boardChanged) {
-					gamePackets.push({
-						updateType: UpdateType.GAME,
-						state: game.getDataToSend(),
-					});
-				} else if (game.positionChanged && this.nbOfPlayerAlive <= 4) {
-					gamePackets.push({
-						updateType: UpdateType.POSITION,
-						state: {
-							player: game.player,
-							piece: game.piece,
-						},
-					});
-				}
-			}
-			if (gamePackets.length > 0) {
+			for (const playerGame of this.games) {
+				let gamePackets: IGameUpdatePacket[] = [];
 				for (const game of this.games) {
-					game.lastPacketSendAt = performance.now();
-					const playerPacketIndex = gamePackets.findIndex(
-						(packet) => packet.state.player.id === game.player.id
-					);
-					let playerPacket: IGameUpdatePacket[] | undefined;
-					if (playerPacketIndex !== -1 && gamePackets[playerPacketIndex].updateType === UpdateType.POSITION) {
-						playerPacket = gamePackets.splice(playerPacketIndex, 1);
-						gamePackets.push({updateType: UpdateType.GAME, state: game.getDataToSend()})
+					// Send all game data to player if position changed
+					if (
+						playerGame.player.id === game.player.id &&
+						game.positionChanged
+					) {
+						gamePackets.push({
+							updateType: UpdateType.GAME,
+							state: game.getDataToSend(),
+						});
+					} else if (game.boardChanged) {
+						gamePackets.push({
+							updateType: UpdateType.GAME,
+							state: game.getDataToSend(),
+						});
+					} else if (
+						game.positionChanged &&
+						this.nbOfPlayerAlive <= 4
+					) {
+						gamePackets.push({
+							updateType: UpdateType.POSITION,
+							state: {
+								player: game.player,
+								piece: game.piece,
+							},
+						});
 					}
-					// if (playerPacket && playerPacket.updateType === UpdateType.POSITION) {
-					// 	playerPacket.updateType = UpdateType.GAME;
-					// 	playerPacket.state = game.getDataToSend();
-					// }
-					// else if (game.positionChanged) {
-					// 	gamePackets.push({
-					// 		updateType: UpdateType.GAME,
-					// 		state: game.getDataToSend(),
-					// 	});
-					// }
+				}
+				if (gamePackets.length > 0) {
 					const dataToSend: IGameUpdatePacketHeader = {
 						tick: this.tick,
-						tickAdjustment: game.tickAdjustment,
-						adjustmentIteration: game.adjustmentIteration,
+						tickAdjustment: playerGame.tickAdjustment,
+						adjustmentIteration: playerGame.adjustmentIteration,
 						gamePackets: gamePackets,
 					};
 					this.server
-						.to(game.player.id)
+						.to(playerGame.player.id)
 						.emit(SocketEvent.GamesUpdate, dataToSend);
-					if (playerPacket?.length > 0) {
-						gamePackets.pop();
-						gamePackets.push(playerPacket[0])
-					}
-					game.boardChanged = false;
-					game.positionChanged = false;
 				}
 			}
 			if (
@@ -172,7 +184,11 @@ export class Lobby {
 				(this.games.length > 1 &&
 					this.ranking.length === this.games.length - 1)
 			) {
-				//todo get last player alive
+				//todo what if draw
+				const winner = this.games.find((game) => !game.gameOver);
+				if (winner) {
+					this.ranking.push(winner.player);
+				}
 				this.server.emit(SocketEvent.GameOver, this.ranking);
 				this.stopGames();
 				return;
