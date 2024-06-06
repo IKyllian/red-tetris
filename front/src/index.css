@@ -11,12 +11,12 @@
   --main-header-height: 70px;
   
   color: var(--main-color);
-  /* background-color: #8480f5; */
-  /* background-color: var(--main-bg-color); */
-  /* background-image: linear-gradient(to right top, #ffffff, #c5c4c9, #8c8d96, #575965, #262b39); */
-  /* background-image: radial-gradient(circle, #ffffff, #c5c4c9, #8c8d96, #575965, #262b39); */
-  /* background-image: linear-gradient(to bottom, #ffffff, #c5c4c9, #8c8d96, #575965, #262b39); */
-  /* background-image: linear-gradient(to bottom, #ffffff, #d8d8dc, #b1b2bb, #8b8e9b, #656c7c); */
+  background-color: var(--main-bg-color);
+  /* background: rgb(38,43,57);
+  background: linear-gradient(180deg, rgba(38,43,57,1) 0%, rgba(255,255,255,1) 100%); */
+
+  /* background: rgb(38,43,57);
+  background: linear-gradient(180deg, rgba(38,43,57,0.8813726174063375) 0%, rgba(255,255,255,1) 100%); */
 }
 
 body {

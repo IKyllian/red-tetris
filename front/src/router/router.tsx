@@ -1,11 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
-import { SignIn } from "front/components/sign/sign.tsx";
-import { Home } from "front/components/home/home.tsx";
-import PrivateRoute from "front/router/private-route.tsx";
-import PublicRoute from "front/router/public-route.tsx";
-import { Lobby } from "front/components/lobby/lobby.tsx";
-import { JoinLobbyByPath } from "front/components/lobby/join-lobby-by-path.tsx";
-import { Game } from "front/components/game/game.tsx";
+import { SignIn } from "front/components/sign/sign";
+import { Home } from "front/components/home/home";
+import PrivateRoute from "front/router/private-route";
+import PublicRoute from "front/router/public-route";
+import { Lobby } from "front/components/lobby/lobby";
+import { JoinLobbyByPath } from "front/components/lobby/join-lobby-by-path";
+import { Game } from "front/components/game/game";
+import { RoomsList } from "front/components/rooms-list/rooms-list";
 
 export const router = createBrowserRouter([
 	{
@@ -48,4 +49,12 @@ export const router = createBrowserRouter([
 			</PrivateRoute>
 		),
 	},
+	{
+		path: "room-list",
+		element: (
+            <PrivateRoute>
+				<RoomsList />
+			</PrivateRoute>
+		)
+	}
 ]);

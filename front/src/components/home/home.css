@@ -2,9 +2,11 @@
     /* width: 100vw;
     height: 100vh; */
     height: calc(100vh - var(--main-header-height));
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    position: relative;
+    margin-top: 22px;
 }
 
 .buttons-container {
@@ -42,4 +44,32 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
+}
+
+
+.game-mode-list {
+    position: absolute;
+    right: 0;
+    width: 75%;
+}
+
+.game-mode-item {
+    background-color: var(--main-color);
+    color: var(--main-bg-color);
+    padding: 20px 10px;
+    border-radius: 5px 0 0 5px;
+    transition-duration: 0.5s;
+}
+
+.game-mode-item:hover {
+    transform: scaleX(1.1);
+}
+
+.game-mode-title {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 40px;
+}
+.game-mode-description {
+    font-size: 20px;
 }

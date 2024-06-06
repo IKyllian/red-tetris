@@ -27,7 +27,4 @@ export const playerSlice = createSlice({
 
 export const { setName, createPlayer } = playerSlice.actions
 
-// Other code such as selectors can use the imported `RootState` type
-export const selectPlayerName = (state: RootState) => state.player.name;
-
 export default playerSlice.reducer
