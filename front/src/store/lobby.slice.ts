@@ -6,7 +6,7 @@ export const lobbySlice = createSlice({
 	initialState: defaultLobby,
 	reducers: {
 		setLobby: (state, action) => {
-			return {...action.payload, leaderboard: state.leaderboard}
+			return {...state, ...action.payload}
 		},
 		createLobby: (_, __) => {},
 		leaveLobby: (_, __) => defaultLobby,

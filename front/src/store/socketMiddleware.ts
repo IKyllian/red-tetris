@@ -18,7 +18,7 @@ import {
 	// sendInputs,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
-import { createPlayer, setName } from 'front/store/player.slice';
+import { createPlayer, sign } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
 import { IGameUpdatePacketHeader } from 'front/types/packet.types';
 import {
@@ -127,7 +127,7 @@ const socketMiddleware: Middleware = (store) => {
 			}
 		}
 
-		if (setName.match(action) && socket) {
+		if (sign.match(action) && socket) {
 			store.dispatch(
 				createPlayer({ name: action.payload, id: socket.socket.id })
 			);

@@ -20,6 +20,8 @@ export default defineConfig({
   },
   test: {
     include: [`${pwd}/__tests__/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`],
-    globals: true
+    globals: true,
+    environment: 'jsdom', // Use jsdom for DOM testing,
+    setupFiles: './setupTest.js',
   },
 })

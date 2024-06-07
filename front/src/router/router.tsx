@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { SignIn } from "front/components/sign/sign";
+import { Register } from "front/components/sign/sign";
 import { Home } from "front/components/home/home";
 import PrivateRoute from "front/router/private-route";
 import PublicRoute from "front/router/public-route";
@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
 		path: "/",
 		element: (
 			<PublicRoute>
-				<SignIn />
+				<Register />
 			</PublicRoute>
 		),
 	},

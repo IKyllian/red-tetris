@@ -14,8 +14,8 @@ export const playerSlice = createSlice({
     name: 'player',
     initialState: defaultPlayer,
     reducers: {
-        setName: (_, __) => { },
-        createPlayer: (state, action) => {
+        sign: (_, __) => {},
+        createPlayer: (_, action) => {
             console.log(action.payload)
             const { name, id } = action.payload;
             // Object.assign(state, { name, id });
@@ -25,6 +25,6 @@ export const playerSlice = createSlice({
     }
 })
 
-export const { setName, createPlayer } = playerSlice.actions
+export const { sign, createPlayer } = playerSlice.actions
 
 export default playerSlice.reducer

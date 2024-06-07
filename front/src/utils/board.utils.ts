@@ -3,9 +3,9 @@ import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import { CellType, ITetromino } from 'front/types/tetrominoes.type';
 import { getShape } from 'front/utils/piece.utils';
 
-export const buildBoard = ({ rows, columns }): IBoard => {
+export const buildBoard = ({ rows, columns, boardCells = defaultCell }): IBoard => {
 	const builtRows = Array.from({ length: rows }, () =>
-		Array.from({ length: columns }, () => ({ ...defaultCell }))
+		Array.from({ length: columns }, () => ({ ...boardCells }))
 	);
 	// console.log('builtRows = ', builtRows)
 	return {
