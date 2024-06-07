@@ -64,17 +64,17 @@ const GAME_MODE = [
         color: '#34222d',
         textColor: '#f1bcdb'
     },
-    {
-        title: "multijoueur",
-        description: "Creez ou rejoignez un lobby pour jouer en multijoueur",
-        color: "#1e1d2d",
-        textColor: '#bab8df'
-    },
+    // {
+    //     title: "multijoueur",
+    //     description: "Creez ou rejoignez un lobby pour jouer en multijoueur",
+    //     color: "#1e1d2d",
+    //     textColor: '#bab8df'
+    // },
     {
         title: "liste des lobby",
         description: "Liste de tous les lobby",
-        color: '#1c263e',
-        textColor: '#88afff',
+        color: '#1e1d2d',
+        textColor: '#bab8df',
         path: '/room-list'
     }
 ]
@@ -99,31 +99,24 @@ export function Home() {
         <div className="home-container">
             <div className='game-mode-list flex flex-col gap12'>
                 {
-                    GAME_MODE.map((gameMode, index) => {
-                        if (index === 1) { //TODO Surement a modifier plus tard
-                            return (
-                                <div key={index} className='game-mode-item flex flex-row content-evenly' style={{backgroundColor: '#1e1d2d', color: '#bab8df'}}>
-                                    <div className='flex flex-col'>
-                                        <span className='game-mode-title'> Creer un lobby </span>
-                                        <CreateGameButton playerName={playerName} />
-                                    </div>
-
-                                    <div className='flex flex-col'>
-                                        <span className='game-mode-title'> Rejoindre un lobby </span>
-                                        <JoinGameButton playerName={playerName} />
-                                    </div>                    
-                                </div>
-                            )
-                        } else {
-                            return (
-                                <div onClick={() => navigateTo(gameMode.path)} key={index} className='game-mode-item flex flex-col' style={{backgroundColor: gameMode.color, color: gameMode.textColor}}>
-                                    <span className='game-mode-title'> {gameMode.title} </span>
-                                    <span className='game-mode-description'> {gameMode.description} </span>
-                                </div>
-                            )
-                        }
-                    })
+                    GAME_MODE.map((gameMode, index) => 
+                        <div onClick={() => navigateTo(gameMode.path)} key={index} className='game-mode-item flex flex-col' style={{backgroundColor: gameMode.color, color: gameMode.textColor}}>
+                            <span className='game-mode-title'> {gameMode.title} </span>
+                            <span className='game-mode-description'> {gameMode.description} </span>
+                        </div>
+                    )
                 }
+                <div className='game-mode-item flex flex-row content-evenly' style={{backgroundColor: '#1c263e', color: '#88afff'}}>
+                    <div className='flex flex-col'>
+                        <span className='game-mode-title'> Creer un lobby </span>
+                        <CreateGameButton playerName={playerName} />
+                    </div>
+
+                    <div className='flex flex-col'>
+                        <span className='game-mode-title'> Rejoindre un lobby </span>
+                        <JoinGameButton playerName={playerName} />
+                    </div>                    
+                </div>
                 
             </div>
         </div>
