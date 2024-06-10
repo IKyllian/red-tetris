@@ -55,6 +55,10 @@ export function handleServerReconciliation(state: IGameState) {
 			console.log(
 				'-----------------------------------------------------'
 			);
+			const clientState = { ...state.clientStateBuffer[index] };
+			const serverState = { ...serverGameState };
+			console.log('clientState', clientState);
+			console.log('serverGameState', serverState);
 
 			state.clientStateBuffer[index] = { ...serverGameState };
 			state.tickToMoveDown = serverGameState.tickToMoveDown;

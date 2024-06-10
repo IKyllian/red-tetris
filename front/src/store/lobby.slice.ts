@@ -9,16 +9,17 @@ export const lobbySlice = createSlice({
 			return { ...action.payload };
 		},
 		createLobby: (_, __) => {},
-		leaveLobby: (_, __) => {},
+		leaveLobby: (_, __) => defaultLobby,
 		joinLobby: (_, __) => {},
 		sendStartGame: (_, __) => {},
 		setGameStarted: (state, action: { payload: boolean }) => {
 			state.gameStarted = action.payload;
+			state.leaderboard = null;
 		},
-		// onAllGamesOver: (state, action) => {
-		// 	state.gamesOver = true;
-		// 	state.leaderboard = action.payload;
-		// },
+		onAllGamesOver: (state, action) => {
+			state.gameStarted = false;
+			state.leaderboard = action.payload;
+		},
 	},
 });
 
@@ -29,7 +30,7 @@ export const {
 	joinLobby,
 	setGameStarted,
 	sendStartGame,
-	// onAllGamesOver,
+	onAllGamesOver,
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

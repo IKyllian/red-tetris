@@ -14,11 +14,11 @@ import {
 	setLobby,
 	sendStartGame,
 	setGameStarted,
-	// onAllGamesOver,
+	onAllGamesOver,
 	// sendInputs,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
-import { createPlayer, setName } from 'front/store/player.slice';
+import { createPlayer, sign } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
 import {
 	GameMode,
@@ -113,7 +113,10 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
-					// store.dispatch(onAllGamesOver(data));
+					//TODO
+					setTimeout(() => {
+						store.dispatch(onAllGamesOver(data));
+					}, 5000);
 				});
 
 				socket.socket.on(
@@ -142,7 +145,7 @@ const socketMiddleware: Middleware = (store) => {
 			}
 		}
 
-		if (setName.match(action) && socket) {
+		if (sign.match(action) && socket) {
 			store.dispatch(
 				createPlayer({ name: action.payload, id: socket.socket.id })
 			);
@@ -160,6 +163,7 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		if (leaveLobby.match(action) && socket) {
+			console.log('LEAVE');
 			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
 		}
 

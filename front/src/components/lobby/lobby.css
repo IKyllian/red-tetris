@@ -1,0 +1,45 @@
+.lobby-container {
+    padding: 0 24px;
+}
+
+.lobby-id {
+    font-size: 18px;
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+    /* color: white; */
+    text-transform: uppercase;
+}
+
+.player-list-title {
+    font-size: 25px;
+    /* color: white; */
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.player-list-item {
+    width: 300px;
+    border: 2px solid white;
+    padding: 5px 10px;
+    font-size: 20px;
+    color: white;
+    border-radius: 2px;
+    /* background-color: #615EB3; */
+    background-color: var(--main-color);
+    text-transform: uppercase;
+}
+
+.player-list-item > svg {
+    color: rgb(251, 255, 0);
+}
+
+.player-list-container {
+    width: 50%;
+}
+
+.player-list {
+    
+}

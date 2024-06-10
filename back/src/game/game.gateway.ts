@@ -58,7 +58,9 @@ export class GameGateway
 		@MessageBody('data') data: { name: string; playerName: string }
 	) {
 		console.log('Data = ', data);
-		this.lobbyManager.createLobby(socket, data.playerName, data.name);
+		if (!this.lobbyManager.getLobby(socket.id)) {
+			this.lobbyManager.createLobby(socket, data.playerName, data.name);
+		}
 	}
 
 	@SubscribeMessage(SocketEvent.JoinLobby)
@@ -67,6 +69,7 @@ export class GameGateway
 		@MessageBody('data') data: { playerName: string; lobbyId: string }
 	) {
 		// console.log('Join lobby = ', data);
+		// console.log('Lobby manager = ', this.lobbyManager.getLobbys());
 		this.lobbyManager.joinLobby(
 			socket,
 			data.playerName,

@@ -1,10 +1,20 @@
 .board {
     display: grid;
     /* gap: 2px; */
-    border: 3px solid white;
+    /* border: 5px solid var(--main-color); */
     width: 450px;
     height: 800px;
     position: relative;
+}
+
+.board-border {
+    border: 5px solid var(--main-color);
+}
+
+.box-border {
+    border-bottom: 5px solid var(--main-color);
+    border-right: 5px solid var(--main-color);
+    padding: 5px;
 }
 
 .board-piece-preview {
@@ -50,8 +60,11 @@
 
 .box-title {
     font-weight: bold;
-    background-color: white;
+    background-color: var(--main-color);
     font-size: 20px;
+    padding: 5px;
+    color: var(--main-bg-color);
+    border-right: 5px solid var(--main-color);
 }
 
 .cell {

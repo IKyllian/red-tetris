@@ -1,15 +1,30 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
   line-height: 1.5;
   font-weight: 400;
   height: 100%;
   width: 100%;
+  /* font-family: "Nunito Sans", sans-serif; */
+  font-family: "Kanit", sans-serif;
+  --main-bg-color: #EFF0F4;
+  --main-color: #262B39;
+  --main-header-height: 70px;
+  
+  color: var(--main-color);
+  background-color: var(--main-bg-color);
+  /* background: rgb(38,43,57);
+  background: linear-gradient(180deg, rgba(38,43,57,1) 0%, rgba(255,255,255,1) 100%); */
 
-  background-color: #242424;
+  /* background: rgb(38,43,57);
+  background: linear-gradient(180deg, rgba(38,43,57,0.8813726174063375) 0%, rgba(255,255,255,1) 100%); */
 }
 
 body {
   margin: 0;
   min-width: 100vw;
   min-height: 100vh;
+}
+
+* {
+	box-sizing: border-box;
 }

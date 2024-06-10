@@ -30,13 +30,7 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces }: BoardProps) => {
-	// console.log("GAME OVER", gameOver);
-	// const { fps } = useTick(game, gameOver, seed);
-	// const boardStyles = {
-	// 	gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
-	// 	gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-	// };
+export const Board = ({ board, playerName, isGameOver, nextPieces }: BoardProps) => {
 	const boardStyles = useMemo(
 		() => ({
 			gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
@@ -49,7 +43,7 @@ export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces 
 		<>
 		<div className="board-container flex flex-row">
 			<div className="flex flex-col">
-				<div className="board" style={boardStyles} tabIndex={0}>
+				<div className="board board-border" style={boardStyles} tabIndex={0}>
 					{isGameOver && <span className="gameOver"> Game Over </span>}
 					{board.cells.map((row) =>
 						row.map((cell, cellIndex) => (
@@ -69,7 +63,7 @@ export const Board = ({ board, playerName, isGameOver, currentPiece, nextPieces 
 			</div>
 			<div className="board-box-container">
 				<div className="box-title"> NEXT </div>
-				<div className="flex flex-col">
+				<div className="flex flex-col box-border">
 					{
 						nextPieces.map((piece, index) => (
 							<PiecePreview key={index} tetromino={piece} />
@@ -99,9 +93,8 @@ export function BoardPreview({
 	// console.info("Game Over = ", isGameOver);
 	return (
 		<div className="board-preview-container flex flex-col items-center gap8">
-			<span> {playerName} </span>
 			<div
-				className="board board-preview"
+				className="board board-border board-preview"
 				style={boardStyles}
 				tabIndex={0}
 			>
@@ -118,6 +111,7 @@ export function BoardPreview({
 					))
 				)}
 			</div>
+			<span> {playerName} </span>
 		</div>
 	);
 }
@@ -142,13 +136,6 @@ export function PiecePreview({ tetromino }: { tetromino: ITetromino }) {
 		<div className="board" style={boardStyles}>
 			{rows.map((row) =>
 				row.map((cell: ICell, cellIndex: number) => (
-					// <Cell
-					// 	key={cellIndex}
-					// 	cellClassname={getTetrominoClassName(
-					// 		cell.type,
-					// 		cell.isPreview
-					// 	)}
-					// />
 					<div key={cellIndex} className="cell-piece-preview">
 						<div className={getTetrominoClassName(
 							cell.type,

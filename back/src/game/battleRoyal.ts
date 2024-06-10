@@ -33,6 +33,7 @@ export class BattleRoyal {
 		for (const player of this.lobby.players) {
 			this.games.push(new Game(player, this.seed, GameMode.BATTLEROYAL));
 		}
+		this.nbOfPlayerAlive = this.games.length;
 	}
 
 	private createRandomSeed(length: number = 20) {

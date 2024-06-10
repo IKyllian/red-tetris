@@ -28,7 +28,9 @@ export class Lobby {
 	}
 
 	public addPlayer(playerName: string, playerId: string) {
-		this.players.push(new Player(playerName, playerId));
+		if (!this.players.find((player) => player.id === playerId)) {
+			this.players.push(new Player(playerName, playerId));
+		}
 	}
 
 	public deletePlayer(playerId: string) {

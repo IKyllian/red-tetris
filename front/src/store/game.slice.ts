@@ -129,6 +129,20 @@ export const gameSlice = createSlice({
 				};
 			}
 		) => {
+			state.gamesOver = false;
+			state.adjustmentIteration = 0;
+			state.serverAdjustmentIteration = 0;
+			state.lastProcessedServerState = null;
+			state.lastServerState = null;
+			state.inputQueue = [];
+			state.indestructibleQueue = [];
+			state.clientStateBuffer = new Array<IGame>(BUFFER_SIZE);
+			state.inputBuffer = new Array<COMMANDS[]>(BUFFER_SIZE);
+			state.tick = 0;
+			state.timer = 0;
+			state.tickAdjustment = 0;
+			state.tickToMoveDown = 0;
+			state.gravity = 0.04;
 			state.playerGame = action.payload.playerGame;
 			state.gameMode = action.payload.gameMode;
 			if (state.gameMode === GameMode.BATTLEROYAL) {
@@ -184,8 +198,9 @@ export const gameSlice = createSlice({
 				const index = state.opponentsGames.findIndex(
 					(g) => g.player.id === gamePacket.state.player.id
 				);
+
 				if (
-					index === -1 &&
+					index !== -1 &&
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
@@ -204,6 +219,7 @@ export const gameSlice = createSlice({
 							newState.piece.rotationState
 						);
 					}
+					console.log('transfer piece to board');
 					transferPieceToBoard(
 						state.opponentsGames[index].board,
 						newState.piece,
