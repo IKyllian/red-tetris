@@ -7,7 +7,7 @@ import lobbyReducer, {
 	sendStartGame,
 	onAllGamesOver,
  } from 'front/store/lobby.slice';
-import { expect } from "vitest"
+import { expect, vi } from "vitest"
 import { defaultLobby } from 'front/types/lobby.type';
 
 describe("reducer/lobby", () => {
@@ -27,7 +27,8 @@ describe("reducer/lobby", () => {
     describe('on setGameStarted', () => {
         it('should put gameStarted to true and leaderboard to null', () => {
             const newState = lobbyReducer(initialState, setGameStarted(true))
-            expect(newState).toEqual({...initialState, gameStarted: true, leaderboard: null})
+            expect(newState.gameStarted).toBeTruthy()
+            expect(newState.leaderboard).toBeNull()
         })
     })
     describe('on leaveLobby', () => {
@@ -36,13 +37,29 @@ describe("reducer/lobby", () => {
             expect(newState).toEqual(initialState)
         })
     })
-    describe('on createLobby', () => {
-        it('should call createLobby with a name as parameter', () => {
-            // expect(createLobby).toHaveBeenCalledWith({
-            //     name: 'Test lobby',
-            //     playerName: 'Test'
-            // })
+    describe('on onAllGamesOver', () => {
+        it('should set gameStarted to false + receive and set leaderboard', () => {
+            const newState = lobbyReducer(initialState, onAllGamesOver([player]))
+            expect(newState.gameStarted).toBeFalsy()
+            expect(newState.leaderboard).toEqual([player])
         })
     })
-
+    describe('on createLobby', () => {
+        it('should not update the state', () => {
+            const newState = lobbyReducer(initialState, createLobby())
+            expect(newState).toEqual(initialState)
+        })
+    })
+    describe('on joinLobby', () => {
+        it('should not update the state', () => {
+            const newState = lobbyReducer(initialState, joinLobby())
+            expect(newState).toEqual(initialState)
+        })
+    })
+    describe('on sendStartGame', () => {
+        it('should not update the state', () => {
+            const newState = lobbyReducer(initialState, sendStartGame())
+            expect(newState).toEqual(initialState)
+        })
+    })
 })

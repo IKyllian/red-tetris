@@ -354,7 +354,7 @@ export const gameSlice = createSlice({
 						adjustmentIteration: state.adjustmentIteration,
 						inputs: [...state.inputQueue],
 					};
-					instance.socket.emit(SocketEvent.CommandPressed, {
+					instance.emit(SocketEvent.CommandPressed, {
 						data: data,
 					});
 					state.inputQueue.length = 0;
