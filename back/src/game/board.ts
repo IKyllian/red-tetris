@@ -55,7 +55,6 @@ export class Board {
 					this.cells[_y][_x] = {
 						type: tetromino.type,
 						occupied: fixOnBoard,
-						isDestructible: true,
 					};
 				}
 			});
@@ -66,7 +65,12 @@ export class Board {
 		let lines = 0;
 		for (let i = this.size.rows - 1; i >= 0; i--) {
 			const row = this.cells[i];
-			if (row.every((cell) => cell.occupied && cell.isDestructible)) {
+			if (
+				row.every(
+					(cell) =>
+						cell.occupied && cell.type !== CellType.INDESTRUCTIBLE
+				)
+			) {
 				lines++;
 				this.cells.splice(i, 1);
 				this.cells.unshift(
@@ -91,21 +95,6 @@ export class Board {
 		);
 		this.cells.push(indestructibleRow);
 		this.cells.shift();
-		// for (let i = 0; i < nbOfLines; i++) {
-		// }
-		//TODO push back current piece if in collision ?
-
-		// for (let i = this.size.rows - 1; i >= 0 && nbOfLines > 0; i--) {
-		// 	const row = this.cells[i];
-		// 	if (row[0].isDestructible) {
-		// 		row.forEach((cell) => {
-		// 			cell.occupied = true;
-		// 			cell.isDestructible = false;
-		// 			cell.className = indestructibleCell;
-		// 		});
-		// 		--nbOfLines;
-		// 	}
-		// }
 	}
 
 	public checkCollision(position: IPosition, shape: number[][]): boolean {

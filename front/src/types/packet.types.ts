@@ -35,7 +35,17 @@ export interface IGameUpdatePacketHeader {
 	gamePackets: IGameUpdatePacket[];
 }
 
+export interface ITickAdjustmentPacket {
+	tickAdjustment: number;
+	adjustmentIteration: number;
+}
+
 export interface IIndestructiblePacket {
 	tick: number;
 	nb: number;
+}
+
+export enum GameMode {
+	SOLO,
+	BATTLEROYAL,
 }

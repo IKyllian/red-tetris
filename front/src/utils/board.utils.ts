@@ -58,9 +58,7 @@ export function compareCells(
 			}
 			if (
 				clientBoard[i][j].occupied !== serverBoard[i][j].occupied ||
-				clientBoard[i][j].type !== serverBoard[i][j].type ||
-				clientBoard[i][j].isDestructible !==
-					serverBoard[i][j].isDestructible
+				clientBoard[i][j].type !== serverBoard[i][j].type
 			) {
 				return false;
 			}
@@ -73,7 +71,11 @@ export function checkForLines(board: IBoard): number {
 	let lines = 0;
 	for (let i = board.size.rows - 1; i >= 0; i--) {
 		const row = board.cells[i];
-		if (row.every((cell) => cell.occupied && cell.isDestructible)) {
+		if (
+			row.every(
+				(cell) => cell.occupied && cell.type !== CellType.INDESTRUCTIBLE
+			)
+		) {
 			lines++;
 			board.cells.splice(i, 1);
 			board.cells.unshift(
@@ -106,7 +108,6 @@ export function addIndestructibleLines(state: IGameState, nbOfLines: number) {
 		{ length: state.playerGame.board.size.columns },
 		() => ({
 			occupied: true,
-			isDestructible: false,
 			type: CellType.INDESTRUCTIBLE,
 			isPreview: false,
 			isCurrentPiece: false,

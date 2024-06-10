@@ -21,14 +21,16 @@ import { ILobby } from 'front/types/lobby.type';
 import { createPlayer, setName } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
 import {
+	GameMode,
 	IGameUpdatePacketHeader,
 	IIndestructiblePacket,
+	ITickAdjustmentPacket,
 } from 'front/types/packet.types';
 import {
-	sendInputs,
 	setGameStartingState,
 	updateGamesBoard,
 	updateIndestructibleLines,
+	updateTickAdjustments,
 } from './game.slice';
 
 export enum SocketEvent {
@@ -47,6 +49,7 @@ export enum SocketEvent {
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
+	SyncWithServer = 'sync',
 	// On events
 	Error = 'error',
 	SetName = 'set-name',
@@ -100,6 +103,14 @@ const socketMiddleware: Middleware = (store) => {
 					}
 				);
 
+				socket.socket.on(
+					SocketEvent.SyncWithServer,
+					(packet: ITickAdjustmentPacket) => {
+						console.log('SyncWithServer = ', packet);
+						store.dispatch(updateTickAdjustments(packet));
+					}
+				);
+
 				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
 					// store.dispatch(onAllGamesOver(data));
@@ -109,8 +120,9 @@ const socketMiddleware: Middleware = (store) => {
 					SocketEvent.StartingGame,
 					(data: {
 						playerGame: IGame;
-						opponentsGames: IGame[];
+						gameMode: GameMode;
 						seed: string;
+						opponentsGames?: IGame[];
 					}) => {
 						console.log('StartingGame = ', data);
 						store.dispatch(setGameStarted(true));
@@ -167,12 +179,6 @@ const socketMiddleware: Middleware = (store) => {
 		// 	let command = { data: { ...action.payload } };
 		// 	socket.socket.emit(SocketEvent.CommandPressed, command);
 		// }
-
-		if (sendInputs.match(action) && socket) {
-			console.log('emit sendInputs');
-			let command = { data: { ...action.payload } };
-			socket.socket.emit(SocketEvent.CommandPressed, command);
-		}
 		next(action);
 	};
 };

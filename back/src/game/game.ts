@@ -7,7 +7,8 @@ import { COMMANDS } from 'src/type/command.types';
 import { Scoring } from 'src/type/scoring.enum';
 import { IInputsPacket } from 'src/type/event.enum';
 import seedrandom from 'seedrandom';
-import { TetriminosArray } from 'src/type/tetromino.interface';
+import { IPosition, TetriminosArray } from 'src/type/tetromino.interface';
+import { GameMode } from 'src/type/game.type';
 
 export interface IGame {
 	player: Player;
@@ -24,9 +25,7 @@ export class Game {
 	public player: Player;
 	public piece: Piece;
 	public nbOfpieceDown: number = 0;
-	public newPieceNeeded: boolean = false;
 	public gameOver: boolean = false;
-	public downInterval: NodeJS.Timeout | null = null;
 	public level: number = 0;
 	public score: number = 0;
 	public totalLinesCleared: number = 0;
@@ -37,7 +36,9 @@ export class Game {
 	public tickAdjustment = 0;
 	public adjustmentIteration = 0;
 	public indestructibleQueue: { tick: number; nb: number }[] = [];
+	public hasQuit: boolean = false;
 
+	private gameMode: GameMode;
 	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
 	public board: Board; //todo private
@@ -51,25 +52,13 @@ export class Game {
 		Scoring.FourLines,
 	];
 
-	constructor(player: Player, level: number, seed: string) {
-		this.level = level;
+	constructor(player: Player, seed: string, gameMode: GameMode) {
+		this.gameMode = gameMode;
 		this.rng = seedrandom(seed);
-		// for (let i = 0; i < 4; i++) {
-		// 	this.pieces.push(this.getNextPiece());
-		// }
-		// this.currentPiece = this.pieces[0];
 		this.piece = this.getNextPiece();
 		this.board = new Board(defaultBoardSize);
 		this.player = player;
-		const shape = this.piece.getShape();
-		// this.board.transferPieceToBoard(this.piece, shape, false);
 	}
-
-	// public addPiece(piece: Piece) {
-	// 	this.pieces = this.pieces.slice(1);
-	// 	this.pieces.push(cloneDeep(piece));
-	// 	this.newPieceNeeded = false;
-	// }
 
 	private getNextPiece() {
 		const index = Math.floor(this.rng() * TetriminosArray.length);
@@ -77,23 +66,33 @@ export class Game {
 		return piece;
 	}
 
-	// private shiftPieces() {
-	// 	this.pieces.shift();
-	// 	const piece = this.getNextPiece();
-	// 	this.pieces.push(piece);
-	// 	this.currentPiece = this.getNextPiece();;
-	// }
+	private getPosDown(position: IPosition): IPosition {
+		return { ...position, y: position.y + 1 };
+	}
 
-	public updateState(tick: number) {
+	private getPosRight(position: IPosition): IPosition {
+		return { ...position, x: position.x + 1 };
+	}
+
+	private getPosLeft(position: IPosition): IPosition {
+		return { ...position, x: position.x - 1 };
+	}
+
+	public updateState(tick: number, gravity?: number) {
 		//TODO find better way?
 		this.boardChanged = false;
 		this.positionChanged = false;
 		if (this.gameOver) {
 			return;
+		} else if (this.hasQuit) {
+			this.gameOver = true;
+			this.boardChanged = true;
+			return;
 		}
 		for (let i = 0; i < this.indestructibleQueue.length; i++) {
 			const indestructible = this.indestructibleQueue[i];
 			if (indestructible.tick === tick) {
+				console.log('add indestructible lines at tick: ', tick);
 				this.addIndestructibleLines(indestructible.nb);
 				this.indestructibleQueue.splice(i, 1);
 				i--;
@@ -101,30 +100,39 @@ export class Game {
 		}
 
 		this.processInputs(tick);
-		if (this.tickToMoveDown >= this.getFramesPerGridCell(this.level)) {
-			this.moveDown(true);
-		} else {
-			this.tickToMoveDown++;
+		switch (this.gameMode) {
+			case GameMode.BATTLEROYAL:
+				if (this.tickToMoveDown >= 1) {
+					this.moveDown(true);
+				} else {
+					this.tickToMoveDown += gravity;
+				}
+				break;
+			default:
+				if (
+					this.tickToMoveDown >= this.getFramesPerGridCell(this.level)
+				) {
+					this.moveDown(true);
+				} else {
+					this.tickToMoveDown++;
+				}
+				break;
 		}
+
 		if (this.gameOver) {
-			// this.gameOver = true;
-			//TODO game over update type
 			this.boardChanged = true;
 		}
 	}
 
 	public pushInputsInQueue(inputs: IInputsPacket) {
-		this.inputsQueue.push(inputs);
+		if (!this.gameOver) {
+			this.inputsQueue.push(inputs);
+		}
 	}
 
-	// TODO client server sync, server reconciliation
 	public processInputs(tick: number) {
 		while (this.inputsQueue.length > 0) {
 			const packet = this.inputsQueue[0];
-
-			// this.handleInputs(packet.inputs);
-			// this.inputsQueue.shift();
-
 			if (packet.tick > tick) {
 				break;
 			} else if (packet.tick === tick) {
@@ -159,10 +167,10 @@ export class Game {
 					this.rotate();
 					break;
 				case COMMANDS.KEY_LEFT:
-					this.moveLeft();
+					this.moveSideway(this.getPosLeft(this.piece.position));
 					break;
 				case COMMANDS.KEY_RIGHT:
-					this.moveRight();
+					this.moveSideway(this.getPosRight(this.piece.position));
 					break;
 				case COMMANDS.KEY_DOWN:
 					this.moveDown();
@@ -174,63 +182,75 @@ export class Game {
 		}
 	}
 
+	private handleLineCleared() {
+		const linesCleared = this.board.checkForLines();
+		if (linesCleared > 0) {
+			switch (this.gameMode) {
+				case GameMode.BATTLEROYAL:
+					this.indestructibleToGive = linesCleared - 1;
+					break;
+				default:
+					this.linesCleared += linesCleared;
+					if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
+						this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
+						this.level++;
+						this.linesCleared = 0;
+					}
+					let lineScore = 0;
+					if (linesCleared <= this.lineScores.length) {
+						lineScore =
+							this.lineScores[linesCleared - 1] *
+							(this.level + 1);
+					}
+					this.score += lineScore;
+					this.totalLinesCleared += linesCleared;
+					break;
+			}
+		}
+	}
+
+	private handlePieceDown(shape: number[][]) {
+		this.board.transferPieceToBoard(this.piece, shape, true);
+		this.boardChanged = true;
+		this.nbOfpieceDown++;
+
+		this.handleLineCleared();
+		// add new piece to the board
+		this.piece = this.getNextPiece();
+		const newShape = this.piece.getShape();
+		if (this.board.checkCollision(this.piece.position, newShape)) {
+			//Todo: Transfer piece to board?
+			this.gameOver = true;
+		}
+	}
+
 	public moveDown(fromInterval: boolean = false) {
 		if (!fromInterval) {
 			this.score += 1;
 		}
 		this.tickToMoveDown = 0;
-		const newPosition = {
-			...this.piece.position,
-			y: this.piece.position.y + 1,
-		};
+		const newPosition = this.getPosDown(this.piece.position);
 		const shape = this.piece.getShape();
 		if (this.board.checkCollision(newPosition, shape)) {
-			this.board.transferPieceToBoard(this.piece, shape, true);
-			// this.shiftPieces();
-			// this.board.printBoard();
-			this.piece = this.getNextPiece();
-			this.boardChanged = true;
-			this.nbOfpieceDown++;
-			const linesCleared = this.board.checkForLines();
-			if (linesCleared > 0) {
-				this.indestructibleToGive = linesCleared - 1;
-				this.linesCleared += linesCleared;
-				if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
-					this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
-					this.level++;
-					this.linesCleared = 0;
-				}
-				let lineScore = 0;
-				if (linesCleared <= this.lineScores.length) {
-					lineScore =
-						this.lineScores[linesCleared - 1] * (this.level + 1);
-				}
-				this.score += lineScore;
-				this.totalLinesCleared += linesCleared;
-			}
-			// add new piece to the board
-			const newShape = this.piece.getShape();
-			//TODO check colision here and get rid of gameover in board?
-			if (this.board.checkCollision(this.piece.position, newShape)) {
-				this.gameOver = true;
-			}
-			// this.board.transferPieceToBoard(this.piece, newShape, false);
+			this.handlePieceDown(shape);
 		} else {
-			// this.board.clearOldPosition(this.piece, shape);
 			this.positionChanged = true;
-
 			this.piece.position = newPosition;
-			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 
 	public hardDrop() {
 		//TODO get drop position and add score
-		const nb = this.nbOfpieceDown;
-		while (this.nbOfpieceDown === nb) {
-			this.score += 1;
-			this.moveDown();
+		this.tickToMoveDown = 0;
+		let newPos = { ...this.piece.position };
+		let nextPos = this.getPosDown(newPos);
+		const shape = this.piece.getShape();
+		while (!this.board.checkCollision(nextPos, shape)) {
+			newPos = nextPos;
+			nextPos = this.getPosDown(newPos);
 		}
+		this.piece.position = newPos;
+		this.handlePieceDown(shape);
 	}
 
 	public rotate() {
@@ -238,25 +258,7 @@ export class Game {
 		this.positionChanged = true; //TODO check if needed
 	}
 
-	public moveLeft() {
-		const newPosition = {
-			...this.piece.position,
-			x: this.piece.position.x - 1,
-		};
-		const shape = this.piece.getShape();
-		if (!this.board.checkCollision(newPosition, shape)) {
-			this.positionChanged = true;
-			// this.board.clearOldPosition(this.piece, shape);
-			this.piece.position = newPosition;
-			// this.board.transferPieceToBoard(this.piece, shape, false);
-		}
-	}
-
-	public moveRight() {
-		const newPosition = {
-			...this.piece.position,
-			x: this.piece.position.x + 1,
-		};
+	public moveSideway(newPosition: IPosition) {
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
 			this.positionChanged = true;

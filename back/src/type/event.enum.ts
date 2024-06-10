@@ -17,6 +17,7 @@ export enum SocketEvent {
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
+	SyncWithServer = 'sync',
 	// On events
 	Error = 'error',
 }
@@ -25,4 +26,9 @@ export interface IInputsPacket {
 	tick: number;
 	adjustmentIteration: number;
 	inputs: COMMANDS[];
+}
+
+export interface ITickAdjustmentPacket {
+	tickAdjustment: number;
+	adjustmentIteration: number;
 }

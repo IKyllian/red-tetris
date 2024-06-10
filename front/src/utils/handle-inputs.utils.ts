@@ -25,18 +25,17 @@ import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 
 export function moveDown(state: IGameState): void {
-	// let tetromino = state.playerGame.piece;
 	const newPosition = {
 		...state.playerGame.piece.position,
 		y: state.playerGame.piece.position.y + 1,
 	};
 	state.tickToMoveDown = 0;
+	// state.tickToMoveDown -= 1;
 
 	const shape = getShape(
 		state.playerGame.piece.type,
 		state.playerGame.piece.rotationState
 	);
-	// clearDropPreview(game.board, state.playerGame.piece, shape);
 	if (checkCollision(state.playerGame.board, newPosition, shape)) {
 		state.playerGame.board.cells = transferPieceToBoard(
 			state.playerGame.board,

@@ -13,7 +13,8 @@ import {
 } from 'front/types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { IGameState, PIECES_BUFFER_SIZE } from 'front/store/game.slice';
+import { IGameState } from 'front/store/game.slice';
+import { PIECES_BUFFER_SIZE } from './game.utils';
 
 export function getTetrominoClassName(
 	type: CellType,
@@ -163,7 +164,6 @@ export function transferPieceToBoard(
 				newCells[_y][_x] = {
 					type: tetromino.type,
 					occupied: fixOnBoard,
-					isDestructible: true,
 					isPreview: false,
 				};
 			}
@@ -176,8 +176,7 @@ function getDropPosition(
 	board: IBoard,
 	piece: ITetromino,
 	shape: number[][]
-): IPosition | null {
-	if (checkCollision(board, piece.position, shape)) return null;
+): IPosition {
 	let newPos = piece.position;
 	let nextPos = getPosDown(newPos);
 	while (!checkCollision(board, nextPos, shape)) {
@@ -222,7 +221,6 @@ export function transferPreviewToBoard(
 					newCells[_y][_x] = {
 						type: tetromino.type,
 						occupied: false,
-						isDestructible: true,
 						isPreview: true,
 					};
 				}
@@ -235,25 +233,17 @@ export function transferPreviewToBoard(
 export function clearDropPreview(board: IBoard, piece: ITetromino): void {
 	const shape = getShape(piece.type, piece.rotationState);
 	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		clearOldDropPosition(
-			{ ...piece, position: dropPosition },
-			shape,
-			board
-		);
-	}
+	clearOldDropPosition({ ...piece, position: dropPosition }, shape, board);
 }
 
 export function setDropPreview(board: IBoard, piece: ITetromino): void {
 	const shape = getShape(piece.type, piece.rotationState);
 	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		board.cells = transferPreviewToBoard(
-			board,
-			{ ...piece, position: dropPosition },
-			shape
-		);
-	}
+	board.cells = transferPreviewToBoard(
+		board,
+		{ ...piece, position: dropPosition },
+		shape
+	);
 }
 
 export function getPieceIndex(currentPieceIndex: number) {
