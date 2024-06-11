@@ -79,7 +79,7 @@ const GAME_MODE = [
     }
 ]
 
-export function Home() {
+export default function Home() {
     const player = useAppSelector((state) => state.player);
     console.log(player)
     const playerName = useAppSelector((state) => state.player.name);

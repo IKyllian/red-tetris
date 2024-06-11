@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "front/store/hook";
-import { Board, BoardPreview } from "front/components/board/board";
+import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
 import { addInputToQueue } from "front/store/game.slice";
 import { isCommandType, COMMANDS } from "front/types/command.types";
+import BoardPreview from "front/components/board/board-preview";
 
-export function Game() {
+export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
 	// const game = useAppSelector(state => state.game)

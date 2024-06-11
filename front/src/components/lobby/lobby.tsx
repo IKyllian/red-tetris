@@ -1,28 +1,14 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { ILobby } from "front/types/lobby.type";
 import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
-import { Game } from "front/components/game/game";
-import { Leaderboard } from "front/components/leaderboard/leaderboard";
+import Game from "front/components/game/game";
+import Leaderboard from "front/components/leaderboard/leaderboard";
 import './lobby.css'
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IPlayer } from "front/types/player.type";
 
-const LEADERBOAD: IPlayer[] = [
-    {
-        name: 'Player 1',
-        id: '121',
-        isLeader: true
-    },
-    {
-        name: 'Player 2',
-        id: '122',
-        isLeader: false
-    }
-]
-
-export function Lobby() {
+export default function Lobby() {
 	const lobby: ILobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);

@@ -6,7 +6,7 @@ interface LeaderboardProps {
     leaderboard: IPlayer[];
 }
 
-export function Leaderboard({ leaderboard }: LeaderboardProps) {
+export default function Leaderboard({ leaderboard }: LeaderboardProps) {
 	return (
 		<div className="leaderboard-container flex flex-col gap8">
             <h2> Last game leaderboard </h2>

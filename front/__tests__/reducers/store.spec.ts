@@ -45,7 +45,6 @@ describe("Redux Store", () => {
   
     it('should include custom middleware', () => {
       const middlewares = testStore.middleware;
-      console.log('middlewares = ', middlewares)
       expect(middlewares).toContain(socketMiddleware);
       expect(middlewares).toContain(inputMiddleware);
     });

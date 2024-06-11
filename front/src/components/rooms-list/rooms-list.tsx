@@ -23,7 +23,7 @@ const lobbys = [
     }
 ]
 
-export function RoomsList() {
+export default function RoomsList() {
     // const dispatch = useAppDispatch();
     // const joinLobby = () => {
     //     dispatch(joinLobby({
