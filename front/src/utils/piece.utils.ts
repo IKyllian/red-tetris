@@ -13,7 +13,8 @@ import {
 } from 'front/types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { IGameState, PIECES_BUFFER_SIZE } from 'front/store/game.slice';
+import { IGameState } from 'front/store/game.slice';
+import { PIECES_BUFFER_SIZE } from './game.utils';
 
 export function getTetrominoClassName(
 	type: CellType,
@@ -103,26 +104,26 @@ export function checkCollision(
 	position: IPosition,
 	shape: number[][]
 ): boolean {
-	let isCollision = false;
-	shape.forEach((row: number[], y: number) => {
-		if (position.y + y < 0) return;
-		row.forEach((cell: number, x: number) => {
-			if (cell) {
+	for (let y = 0; y < shape.length; y++) {
+		if (position.y + y < 0) continue;
+
+		for (let x = 0; x < shape[y].length; x++) {
+			if (shape[y][x]) {
 				const _x = x + position.x;
 				const _y = y + position.y;
+
 				if (
 					_x < 0 ||
 					_x >= board.size.columns ||
-					_y >= board.size.rows
+					_y >= board.size.rows ||
+					board.cells[_y][_x].occupied
 				) {
-					isCollision = true;
-				} else if (board.cells[_y][_x].occupied) {
-					isCollision = true;
+					return true;
 				}
 			}
-		});
-	});
-	return isCollision;
+		}
+	}
+	return false;
 }
 
 export function clearOldPosition(
@@ -163,7 +164,6 @@ export function transferPieceToBoard(
 				newCells[_y][_x] = {
 					type: tetromino.type,
 					occupied: fixOnBoard,
-					isDestructible: true,
 					isPreview: false,
 				};
 			}
@@ -174,11 +174,10 @@ export function transferPieceToBoard(
 
 function getDropPosition(
 	board: IBoard,
-	piece: ITetromino,
+	position: IPosition,
 	shape: number[][]
-): IPosition | null {
-	if (checkCollision(board, piece.position, shape)) return null;
-	let newPos = piece.position;
+): IPosition {
+	let newPos = { ...position };
 	let nextPos = getPosDown(newPos);
 	while (!checkCollision(board, nextPos, shape)) {
 		newPos = nextPos;
@@ -188,16 +187,16 @@ function getDropPosition(
 }
 
 export function clearOldDropPosition(
-	tetromino: ITetromino,
+	position: IPosition,
 	shape: number[][],
 	board: IBoard
 ): ICell[][] {
 	let cells = board.cells;
 	shape.forEach((row: number[], y: number) => {
-		if (tetromino.position.y + y < 0) return;
+		if (position.y + y < 0) return;
 		row.forEach((cell: number, x: number) => {
-			const _x = x + tetromino.position.x;
-			const _y = y + tetromino.position.y;
+			const _x = x + position.x;
+			const _y = y + position.y;
 			if (cell && cells[_y][_x].isPreview) {
 				cells[_y][_x] = { ...defaultCell };
 			}
@@ -222,7 +221,6 @@ export function transferPreviewToBoard(
 					newCells[_y][_x] = {
 						type: tetromino.type,
 						occupied: false,
-						isDestructible: true,
 						isPreview: true,
 					};
 				}
@@ -232,28 +230,26 @@ export function transferPreviewToBoard(
 	return newCells;
 }
 
-export function clearDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		clearOldDropPosition(
-			{ ...piece, position: dropPosition },
-			shape,
-			board
-		);
-	}
+export function clearDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
+	clearOldDropPosition(dropPosition, shape, board);
 }
 
-export function setDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		board.cells = transferPreviewToBoard(
-			board,
-			{ ...piece, position: dropPosition },
-			shape
-		);
-	}
+export function setDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
+	board.cells = transferPreviewToBoard(
+		board,
+		{ ...piece, position: dropPosition },
+		shape
+	);
 }
 
 export function getPieceIndex(currentPieceIndex: number) {

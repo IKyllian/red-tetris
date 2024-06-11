@@ -6,7 +6,7 @@ export const lobbySlice = createSlice({
 	initialState: defaultLobby,
 	reducers: {
 		setLobby: (state, action) => {
-			return {...state, ...action.payload}
+			return { ...state, ...action.payload };
 		},
 		createLobby: (_, __) => {},
 		leaveLobby: (_, __) => defaultLobby,
@@ -14,7 +14,7 @@ export const lobbySlice = createSlice({
 		sendStartGame: (_, __) => {},
 		setGameStarted: (state, action: { payload: boolean }) => {
 			state.gameStarted = action.payload;
-			state.leaderboard = null
+			state.leaderboard = null;
 		},
 		onAllGamesOver: (state, action) => {
 			state.gameStarted = false;

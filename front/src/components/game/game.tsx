@@ -11,7 +11,7 @@ export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
 	// const game = useAppSelector(state => state.game)
-	
+
 	// const playerGame = game.playerGame
 	// const gameStarted =game.gameStarted;
 	// const gameOver = playerGame?.gameOver;
@@ -33,6 +33,7 @@ export default function Game() {
 		(state) => state.game.playerGame?.player.name
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
+	// const tick = useAppSelector((state) => state.game.tick);
 	const fpsRef = useRef<number>(0);
 	const dispatch = useAppDispatch();
 
@@ -55,7 +56,13 @@ export default function Game() {
 	} else {
 		renderCountRef.current++;
 	}
-
+	// Disable scrolling when the component mounts and enable it when it unmounts
+	useEffect(() => {
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = "auto";
+		};
+	}, []);
 	//TODO: stop using useEffect
 	useEffect(() => {
 		if (gameOver) {
@@ -103,18 +110,19 @@ export default function Game() {
 
 	return (
 		<div>
+			{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
 			<div style={{ fontSize: "25px", color: "red" }}>
 				FPS: {fpsRef.current.toFixed(2)}
 			</div>
-			<div style={{ fontSize: "25px", color: "blue" }}>
+			{/* <div style={{ fontSize: "25px", color: "blue" }}>
 				Render average: {renderAverage.current}
-			</div>
+			</div> */}
 			<div
 				className="boards-container flex flex-row content-center items-center gap8 flex-wrap"
 				tabIndex={0}
 				onKeyDown={handleKeyDown}
 				onKeyUp={handleKeyRelease}
-				style={{ outline: "none"}}
+				style={{ outline: "none" }}
 			>
 				{/* {leftSide.map((game, index) => (
 					<BoardPreview
@@ -131,7 +139,10 @@ export default function Game() {
 							playerName={playerName}
 							isGameOver={gameOver}
 							currentPiece={pieces[playerGamePieceIndex]}
-							nextPieces={pieces.slice(getPieceIndex(playerGamePieceIndex + 1),getPieceIndex(playerGamePieceIndex + 4))}
+							nextPieces={pieces.slice(
+								getPieceIndex(playerGamePieceIndex + 1),
+								getPieceIndex(playerGamePieceIndex + 4)
+							)}
 						/>
 						{/* <div className="flex flex-col gap4">
 							{pieces

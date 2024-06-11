@@ -20,12 +20,17 @@ import {
 import { ILobby } from 'front/types/lobby.type';
 import { createPlayer, sign } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
-import { IGameUpdatePacketHeader } from 'front/types/packet.types';
 import {
-	sendInputs,
+	GameMode,
+	IGameUpdatePacketHeader,
+	IIndestructiblePacket,
+	ITickAdjustmentPacket,
+} from 'front/types/packet.types';
+import {
 	setGameStartingState,
 	updateGamesBoard,
 	updateIndestructibleLines,
+	updateTickAdjustments,
 } from './game.slice';
 import { Socket, io } from 'socket.io-client';
 
@@ -45,6 +50,7 @@ export enum SocketEvent {
 	StartingGame = 'starting-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
+	SyncWithServer = 'sync',
 	// On events
 	Error = 'error',
 	SetName = 'set-name',
@@ -82,6 +88,7 @@ const socketMiddleware: Middleware = (store) => {
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
 						socket.emit('pong');
+						console.log("data = ", data)
 						store.dispatch(updateGamesBoard(data));
 						// store.dispatch(
 						// 	setTickAdjustments({
@@ -92,17 +99,29 @@ const socketMiddleware: Middleware = (store) => {
 					}
 				);
 
+				socket.on(
+					SocketEvent.SyncWithServer,
+					(packet: ITickAdjustmentPacket) => {
+						console.log('SyncWithServer = ', packet);
+						store.dispatch(updateTickAdjustments(packet));
+					}
+				);
+
 				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
-					store.dispatch(onAllGamesOver(data));
+					//TODO
+					setTimeout(() => {
+						store.dispatch(onAllGamesOver(data));
+					}, 5000);
 				});
 
 				socket.on(
 					SocketEvent.StartingGame,
 					(data: {
 						playerGame: IGame;
-						opponentsGames: IGame[];
+						gameMode: GameMode;
 						seed: string;
+						opponentsGames?: IGame[];
 					}) => {
 						console.log('StartingGame = ', data);
 						store.dispatch(setGameStarted(true));
@@ -112,8 +131,8 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.on(
 					SocketEvent.IndestructibleLine,
-					(nbOflines: number) => {
-						store.dispatch(updateIndestructibleLines(nbOflines));
+					(packet: IIndestructiblePacket) => {
+						store.dispatch(updateIndestructibleLines(packet));
 					}
 				);
 			}
@@ -141,12 +160,7 @@ const socketMiddleware: Middleware = (store) => {
 			}
 	
 			if (sendStartGame.match(action)) {
-				socket.emit(SocketEvent.StartGame);
-			}
-
-			if (sendInputs.match(action)) {
-				let command = { data: { ...action.payload } };
-				socket.emit(SocketEvent.CommandPressed, command);
+				socket.emit(SocketEvent.StartGame, {data: action.payload});
 			}
 		}
 		

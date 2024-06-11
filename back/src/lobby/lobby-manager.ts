@@ -1,7 +1,7 @@
 import { SocketEvent } from 'src/type/event.enum';
-import { Lobby } from './lobby';
 import { Socket, Server } from 'socket.io';
 import { ILobby } from 'src/type/lobby.interface';
+import { Lobby } from './lobby';
 
 export class LobbyManager {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
@@ -38,15 +38,11 @@ export class LobbyManager {
 			this.socketRoomMap.delete(socket.id);
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
-				if (lobby.gameStarted) {
-					lobby.getPlayerGame(socket.id).gameOver = true;
-				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
 				if (lobby.players.length === 0) {
 					this.lobbys.delete(lobby.id);
 				} else {
-					//TODO check if in game it cause problems
 					lobby.players[0].isLeader = true;
 					socket
 						.to(lobby.id)
@@ -64,12 +60,7 @@ export class LobbyManager {
 	public getLobbys(): ILobby[] {
 		const lobbys: ILobby[] = [];
 		for (const lobby of this.lobbys.values()) {
-			lobbys.push({
-				id: lobby.id,
-				name: lobby.name,
-				players: lobby.players,
-				games: lobby.games,
-			});
+			lobbys.push(lobby.getInfo());
 		}
 		return lobbys;
 	}

@@ -25,7 +25,7 @@ vi.mock('front/components/header/header', () => ({
 
 const mockStore = configureStore([])
 
-describe('Public Route', () => {
+describe('Private Route', () => {
     let store;
 
     beforeEach(() => {

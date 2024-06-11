@@ -4,7 +4,6 @@ import { CellType, ITetromino } from 'front/types/tetrominoes.type';
 export interface ICell {
 	occupied: boolean;
 	type: CellType;
-	isDestructible: boolean;
 	isPreview: boolean;
 }
 
@@ -27,7 +26,6 @@ export interface IBoard {
 export const defaultCell: ICell = {
 	occupied: false,
 	type: CellType.EMPTY,
-	isDestructible: true,
 	isPreview: false,
 };
 

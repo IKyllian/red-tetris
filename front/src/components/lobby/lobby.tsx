@@ -16,14 +16,18 @@ export default function Lobby() {
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
-	useEffect(() => {
-		console.log();
-		if (!lobby.id || lobby.id === '') {
-			navigate('/home')
-		}
-	}, [lobby])
+	// useEffect(() => {
+	// 	console.log();
+	// 	// if (lobby?.gameStarted && !lobby.id || lobby.id === '') {
+	// 	// 	navigate('/home')
+	// 	// }
+
+	// 	// return(() => {
+	// 	// 	dispatch(leaveLobby(lobby.id));
+	// 	// })
+	// }, [lobby])
 	const handleClick = () => {
-		dispatch(sendStartGame(null));
+		dispatch(sendStartGame({}));
 		// navigate("/game");
 	};
 
@@ -35,6 +39,7 @@ export default function Lobby() {
 
 	// console.log('LOBBY RE RENDER = ', lobby);
 
+	console.log('lobby = ', lobby)
 	if (!lobby.gameStarted) {
 		return (
 			<div className="lobby-container flex flex-col gap16">

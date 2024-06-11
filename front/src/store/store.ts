@@ -4,7 +4,6 @@ import SocketReducer from 'front/store/socket.slice';
 import socketMiddleware from 'front/store/socketMiddleware';
 import LobbyReducer from 'front/store/lobby.slice';
 import GameReducer from 'front/store/game.slice';
-import inputMiddleware from 'front/store/inputMiddleware';
 import logger from 'redux-logger';
 
 export const store = configureStore({
@@ -16,8 +15,7 @@ export const store = configureStore({
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({ serializableCheck: false }).concat(
-			socketMiddleware,
-			inputMiddleware
+			socketMiddleware
 			// logger
 		),
 	devTools: true,

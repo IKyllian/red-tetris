@@ -58,6 +58,7 @@ describe('socket middleware', () => {
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GamesUpdate, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GameOver, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.StartingGame, expect.any(Function));
+        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.SyncWithServer, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.IndestructibleLine, expect.any(Function));
     });
 
@@ -98,17 +99,5 @@ describe('socket middleware', () => {
         store.dispatch(sendStartGame());
 
         expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.StartGame);
-    });
-
-    it('should handle sendInputs action and emit CommandPressed', () => {
-        const payload = {
-            tick: '32',
-            adjustmentIteration: '0',
-            inputs: []
-        }
-        store.dispatch(initSocket());
-        store.dispatch(sendInputs(payload));
-
-        expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.CommandPressed, { data: payload });
     });
 })
