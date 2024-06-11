@@ -55,7 +55,13 @@ export function Game() {
 	} else {
 		renderCountRef.current++;
 	}
-
+	// Disable scrolling when the component mounts and enable it when it unmounts
+	useEffect(() => {
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = "auto";
+		};
+	}, []);
 	//TODO: stop using useEffect
 	useEffect(() => {
 		if (gameOver) {

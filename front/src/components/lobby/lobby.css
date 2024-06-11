@@ -41,5 +41,8 @@ h1 {
 }
 
 .player-list {
-    
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto;
+    border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+    padding: 8px; /* Optional: Add padding inside the scrollable area */
 }

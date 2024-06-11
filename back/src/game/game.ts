@@ -136,6 +136,14 @@ export class Game {
 			if (packet.tick > tick) {
 				break;
 			} else if (packet.tick === tick) {
+				if (this.player.isLeader) {
+					console.log(
+						'tick: ',
+						tick,
+						'input processed: ',
+						packet.inputs.length
+					);
+				}
 				this.handleInputs(packet.inputs);
 				// console.log(
 				// 	'inputs processed: ',

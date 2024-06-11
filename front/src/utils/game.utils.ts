@@ -1,6 +1,6 @@
 import { IGameState } from 'front/store/game.slice';
 import { IGame } from 'front/types/board.types';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { compareCells, getFramesPerGridCell } from './board.utils';
 import { handleInput, moveDown } from './handle-inputs.utils';
 import {
@@ -18,25 +18,28 @@ export const BUFFER_SIZE = 1024;
 export function handleServerReconciliation(state: IGameState) {
 	const index = state.lastServerState.tick % BUFFER_SIZE;
 	//TODO check if server tick too late, with buffer size
-	if (state.clientStateBuffer[index]) {
+	if (
+		state.clientStateBuffer[index] &&
+		state.clientStateBuffer[index].tick === state.lastServerState.tick
+	) {
 		const serverGameState = state.lastServerState.packet.state as IGame;
 		if (
 			!compareCells(
-				state.clientStateBuffer[index].board.cells,
+				state.clientStateBuffer[index].game.board.cells,
 				serverGameState.board.cells,
-				state.clientStateBuffer[index].piece
+				state.clientStateBuffer[index].game.piece
 			) ||
 			serverGameState.gameOver ||
 			!isEqual(
-				state.clientStateBuffer[index].piece,
+				state.clientStateBuffer[index].game.piece,
 				serverGameState.piece
 			)
 		) {
 			if (
 				!compareCells(
-					state.clientStateBuffer[index].board.cells,
+					state.clientStateBuffer[index].game.board.cells,
 					serverGameState.board.cells,
-					state.clientStateBuffer[index].piece
+					state.clientStateBuffer[index].game.piece
 				)
 			) {
 				console.log('board different');
@@ -46,7 +49,7 @@ export function handleServerReconciliation(state: IGameState) {
 			}
 			if (
 				!isEqual(
-					state.clientStateBuffer[index].piece,
+					state.clientStateBuffer[index].game.piece,
 					serverGameState.piece
 				)
 			) {
@@ -55,12 +58,39 @@ export function handleServerReconciliation(state: IGameState) {
 			console.log(
 				'-----------------------------------------------------'
 			);
-			const clientState = { ...state.clientStateBuffer[index] };
+			const clientState = { ...state.clientStateBuffer[index].game };
+			const clientTick = state.clientStateBuffer[index].tick;
+			clientState.piece = { ...clientState.piece };
+			clientState.piece.position = { ...clientState.piece.position };
+			clientState.board = { ...clientState.board };
+			clientState.board.cells = clientState.board.cells.map((row) =>
+				row.map((cell) => ({ ...cell }))
+			);
 			const serverState = { ...serverGameState };
-			console.log('clientState', clientState);
-			console.log('serverGameState', serverState);
+			serverState.piece = { ...serverState.piece };
+			serverState.piece.position = { ...serverState.piece.position };
+			serverState.board = { ...serverState.board };
+			serverState.board.cells = serverState.board.cells.map((row) =>
+				row.map((cell) => ({ ...cell }))
+			);
+			console.log(
+				'client tick: ',
+				clientTick,
+				'clientState',
+				clientState
+			);
+			console.log(
+				'server tick: ',
+				state.lastServerState.tick,
+				'serverGameState',
+				serverState
+			);
 
-			state.clientStateBuffer[index] = { ...serverGameState };
+			// state.clientStateBuffer[index] = { ...serverGameState };
+			state.clientStateBuffer[index] = {
+				tick: state.lastServerState.tick,
+				game: cloneDeep(serverGameState),
+			};
 			state.tickToMoveDown = serverGameState.tickToMoveDown;
 			let tickToProcess = state.lastServerState.tick + 1;
 			const pieceDiff =
@@ -83,8 +113,12 @@ export function handleServerReconciliation(state: IGameState) {
 					});
 				}
 				softDrop(state);
+				// state.clientStateBuffer[tickToProcess % BUFFER_SIZE] = {
+				// 	...state.playerGame,
+				// };
 				state.clientStateBuffer[tickToProcess % BUFFER_SIZE] = {
-					...state.playerGame,
+					tick: tickToProcess,
+					game: cloneDeep(state.playerGame),
 				};
 				tickToProcess++;
 			}
@@ -92,7 +126,11 @@ export function handleServerReconciliation(state: IGameState) {
 				state.playerGame.piece.type,
 				state.playerGame.piece.rotationState
 			);
-			setDropPreview(state.playerGame.board, state.playerGame.piece);
+			setDropPreview(
+				state.playerGame.board,
+				shape,
+				state.playerGame.piece
+			);
 			transferPieceToBoard(
 				state.playerGame.board,
 				state.playerGame.piece,

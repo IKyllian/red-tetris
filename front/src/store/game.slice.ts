@@ -61,7 +61,7 @@ export interface IGameState {
 	tickToMoveDown: number;
 	timer: number;
 	rng: seedrandom.PRNG;
-	clientStateBuffer: Array<IGame>;
+	clientStateBuffer: Array<{ tick: number; game: IGame }>;
 	inputBuffer: Array<COMMANDS[]>;
 	lastServerState: IServerState;
 	lastProcessedServerState: IServerState;
@@ -91,7 +91,7 @@ const defaultGameState: IGameState = {
 	tickToMoveDown: 0,
 	timer: 0,
 	rng: null,
-	clientStateBuffer: new Array<IGame>(BUFFER_SIZE),
+	clientStateBuffer: new Array<{ tick: number; game: IGame }>(BUFFER_SIZE),
 	lastServerState: null,
 	lastProcessedServerState: null,
 	tickAdjustment: 0,
@@ -136,7 +136,9 @@ export const gameSlice = createSlice({
 			state.lastServerState = null;
 			state.inputQueue = [];
 			state.indestructibleQueue = [];
-			state.clientStateBuffer = new Array<IGame>(BUFFER_SIZE);
+			state.clientStateBuffer = new Array<{ tick: number; game: IGame }>(
+				BUFFER_SIZE
+			);
 			state.inputBuffer = new Array<COMMANDS[]>(BUFFER_SIZE);
 			state.tick = 0;
 			state.timer = 0;
@@ -152,10 +154,14 @@ export const gameSlice = createSlice({
 			state.seed = action.payload.seed;
 			state.rng = seedrandom(state.seed);
 			generatePieces(state, 4);
-			setDropPreview(state.playerGame.board, state.playerGame.piece);
 			const shape = getShape(
 				state.playerGame.piece.type,
 				state.playerGame.piece.rotationState
+			);
+			setDropPreview(
+				state.playerGame.board,
+				shape,
+				state.playerGame.piece
 			);
 			transferPieceToBoard(
 				state.playerGame.board,
@@ -176,10 +182,6 @@ export const gameSlice = createSlice({
 				state.serverAdjustmentIteration !=
 				packetWhithHeader.adjustmentIteration
 			) {
-				console.log(
-					'tick adjustement: ',
-					packetWhithHeader.tickAdjustment
-				);
 				state.tickAdjustment = packetWhithHeader.tickAdjustment;
 				state.serverAdjustmentIteration =
 					packetWhithHeader.adjustmentIteration;
@@ -219,7 +221,6 @@ export const gameSlice = createSlice({
 							newState.piece.rotationState
 						);
 					}
-					console.log('transfer piece to board');
 					transferPieceToBoard(
 						state.opponentsGames[index].board,
 						newState.piece,
@@ -241,15 +242,17 @@ export const gameSlice = createSlice({
 			if (state.adjustmentIteration != state.serverAdjustmentIteration) {
 				state.adjustmentIteration = state.serverAdjustmentIteration;
 				state.inputQueue.length = 0;
+				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
 				console.log('adjusting tick');
-				const tickToCatchUp = state.tick + state.tickAdjustment;
-				while (state.tick < tickToCatchUp) {
-					softDrop(state);
-					state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
-						...state.playerGame,
-					};
-					state.tick++;
-				}
+				// const tickToCatchUp = state.tick + state.tickAdjustment;
+				// while (state.tick < tickToCatchUp) {
+				// 	softDrop(state);
+				// 	state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
+				// 		tick: state.tick,
+				// 		game: cloneDeep(state.playerGame),
+				// 	};
+				// 	state.tick++;
+				// }
 			}
 
 			if (state.tick < 90) {
@@ -268,7 +271,10 @@ export const gameSlice = createSlice({
 			}
 
 			// server reconciliation
-			if (state.lastProcessedServerState !== state.lastServerState) {
+			if (
+				state.lastProcessedServerState?.tick !==
+				state.lastServerState?.tick
+			) {
 				handleServerReconciliation(state);
 			}
 			//------------------------------------------------------------------
@@ -290,6 +296,12 @@ export const gameSlice = createSlice({
 					}
 				}
 				if (state.inputQueue.length > 0) {
+					console.log(
+						'tick: ',
+						state.tick,
+						'input processed: ',
+						state.inputQueue.length
+					);
 					state.inputQueue.forEach((input) => {
 						handleInput(input, state);
 					});
@@ -303,16 +315,21 @@ export const gameSlice = createSlice({
 						adjustmentIteration: state.adjustmentIteration,
 						inputs: [...state.inputQueue],
 					};
-					instance.socket.emit(SocketEvent.CommandPressed, {
-						data: data,
-					});
+					if (state.tick <= 100 || state.tick > 110) {
+						instance.socket.emit(SocketEvent.CommandPressed, {
+							data: data,
+						});
+					}
 					state.inputQueue.length = 0;
 				}
 				softDrop(state);
-
 				state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
-					...state.playerGame,
+					tick: state.tick,
+					game: cloneDeep(state.playerGame),
 				};
+				// state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
+				// 	...state.playerGame,
+				// };
 
 				if (state.tick && state.tick % 1800 === 0) {
 					state.gravity += 0.005;

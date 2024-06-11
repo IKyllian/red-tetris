@@ -10,7 +10,6 @@ import { COMMANDS } from 'front/types/command.types';
 import {
 	checkCollision,
 	clearDropPreview,
-	// clearDropPreview,
 	clearOldPosition,
 	generatePieces,
 	getPieceIndex,
@@ -18,7 +17,6 @@ import {
 	getPosRight,
 	getShape,
 	setDropPreview,
-	// setDropPreview,
 	transferPieceToBoard,
 } from './piece.utils';
 import { checkForLines } from './board.utils';
@@ -59,8 +57,11 @@ export function moveDown(state: IGameState): void {
 		);
 		const linesCleared = checkForLines(state.playerGame.board);
 
-		//TODO give shape to the setDropPreview ?
-		setDropPreview(state.playerGame.board, state.playerGame.piece);
+		setDropPreview(
+			state.playerGame.board,
+			newShape,
+			state.playerGame.piece
+		);
 		if (linesCleared > 0) {
 			state.playerGame.linesCleared += linesCleared;
 			if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
@@ -121,10 +122,10 @@ export function changeStatePiecePosition(
 	);
 
 	if (!checkCollision(board, newPos, shape)) {
-		clearDropPreview(board, state.playerGame.piece);
+		clearDropPreview(board, shape, state.playerGame.piece);
 		clearOldPosition(state.playerGame.piece, shape, board);
 		state.playerGame.piece.position = newPos;
-		setDropPreview(board, state.playerGame.piece);
+		setDropPreview(board, shape, state.playerGame.piece);
 		board.cells = transferPieceToBoard(
 			board,
 			state.playerGame.piece,
@@ -151,11 +152,11 @@ export function rotate(state: IGameState): void {
 			y: state.playerGame.piece.position.y + position.y,
 		};
 		if (!checkCollision(board, newPosition, newShape)) {
-			clearDropPreview(board, state.playerGame.piece);
+			clearDropPreview(board, currentShape, state.playerGame.piece);
 			clearOldPosition(state.playerGame.piece, currentShape, board);
 			state.playerGame.piece.position = newPosition;
 			state.playerGame.piece.rotationState = newRotation;
-			setDropPreview(board, state.playerGame.piece);
+			setDropPreview(board, newShape, state.playerGame.piece);
 			board.cells = transferPieceToBoard(
 				board,
 				state.playerGame.piece,

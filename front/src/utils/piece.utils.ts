@@ -174,10 +174,10 @@ export function transferPieceToBoard(
 
 function getDropPosition(
 	board: IBoard,
-	piece: ITetromino,
+	position: IPosition,
 	shape: number[][]
 ): IPosition {
-	let newPos = piece.position;
+	let newPos = { ...position };
 	let nextPos = getPosDown(newPos);
 	while (!checkCollision(board, nextPos, shape)) {
 		newPos = nextPos;
@@ -187,16 +187,16 @@ function getDropPosition(
 }
 
 export function clearOldDropPosition(
-	tetromino: ITetromino,
+	position: IPosition,
 	shape: number[][],
 	board: IBoard
 ): ICell[][] {
 	let cells = board.cells;
 	shape.forEach((row: number[], y: number) => {
-		if (tetromino.position.y + y < 0) return;
+		if (position.y + y < 0) return;
 		row.forEach((cell: number, x: number) => {
-			const _x = x + tetromino.position.x;
-			const _y = y + tetromino.position.y;
+			const _x = x + position.x;
+			const _y = y + position.y;
 			if (cell && cells[_y][_x].isPreview) {
 				cells[_y][_x] = { ...defaultCell };
 			}
@@ -230,15 +230,21 @@ export function transferPreviewToBoard(
 	return newCells;
 }
 
-export function clearDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
-	clearOldDropPosition({ ...piece, position: dropPosition }, shape, board);
+export function clearDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
+	clearOldDropPosition(dropPosition, shape, board);
 }
 
-export function setDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
+export function setDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
 	board.cells = transferPreviewToBoard(
 		board,
 		{ ...piece, position: dropPosition },
