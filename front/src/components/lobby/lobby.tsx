@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Lobby() {
-	const lobby: ILobby = useAppSelector((state) => state.lobby);
+	const lobby: ILobby = useAppSelector((state) => state.lobby.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
 	const lobbyOwner = lobby.players.find((player) => player.isLeader);
@@ -32,12 +32,21 @@ export default function Lobby() {
 	};
 
 	const handleLeave = () => {
-		dispatch(leaveLobby(lobby.id));
+		
+		dispatch(leaveLobby(lobby?.id));
 	};
 
 	//TODO on start, server emit tick several times, client respond with tick to get in sync
 
 	// console.log('LOBBY RE RENDER = ', lobby);
+
+	if (!lobby) {
+		return (
+			<div>
+				Loading ...
+			</div>
+		)
+	}
 
 	console.log('lobby = ', lobby)
 	if (!lobby.gameStarted) {

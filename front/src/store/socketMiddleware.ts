@@ -1,4 +1,4 @@
-import { Middleware } from '@reduxjs/toolkit';
+import { Action, Middleware } from '@reduxjs/toolkit';
 import SocketFactory from 'front/store/socketFactory';
 import {
 	connectionEstablished,
@@ -57,7 +57,7 @@ export enum SocketEvent {
 }
 
 const socketMiddleware: Middleware = (store) => {
-	let socket: Socket;
+	let socket: Socket = SocketFactory.Instance();
 	return (next) => (action) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
@@ -81,7 +81,8 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
 					console.log('Updated Lobby = ', lobby);
-					store.dispatch(setLobby(lobby));
+					// store.dispatch(setLobby(lobby));
+					store.dispatch(createLobby.fulfilled(lobby, undefined, undefined))
 				});
 
 				socket.on(
@@ -145,7 +146,15 @@ const socketMiddleware: Middleware = (store) => {
 				);
 			}
 	
-			if (createLobby.match(action)) {
+			// if (createLobby.match(action)) {
+			// 	socket.emit(SocketEvent.CreateLobby, {
+			// 		data: action.payload,
+			// 	});
+			// }
+
+			if (createLobby.pending.match(action)) {
+				console.log("EMIT CREATE LOBBY", action)
+				console.log("EMIT CREATE LOBBY", action.payload)
 				socket.emit(SocketEvent.CreateLobby, {
 					data: action.payload,
 				});
@@ -155,9 +164,9 @@ const socketMiddleware: Middleware = (store) => {
 				socket.emit(SocketEvent.JoinLobby, { data: action.payload });
 			}
 	
-			if (leaveLobby.match(action)) {
-				socket.emit(SocketEvent.LeaveLobby, action.payload);
-			}
+			// if (leaveLobby.match(action)) {
+			// 	socket.emit(SocketEvent.LeaveLobby, action.payload);
+			// }
 	
 			if (sendStartGame.match(action)) {
 				socket.emit(SocketEvent.StartGame, {data: action.payload});

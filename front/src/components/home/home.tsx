@@ -116,12 +116,12 @@ export default function Home() {
     console.log(player)
     const playerName = useAppSelector((state) => state.player.name);
     console.log(playerName)
-    const lobby = useAppSelector(state => state.lobby);
+    const lobby = useAppSelector(state => state.lobby.lobby);
     const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (lobby.id || lobby.id !== '' || lobby.gameStarted) {
+        if (lobby) {
             navigate('/lobby')
         }
     }, [lobby])

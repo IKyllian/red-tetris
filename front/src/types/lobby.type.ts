@@ -26,3 +26,9 @@ export const defaultLobby: ILobby = {
 	// gamesOver: false,
 	leaderboard: null,
 };
+
+export const defaultLobbyState: {lobby?: ILobby, loading: boolean, error?: string} = {
+	lobby: null,
+	loading: false,
+	error: null
+}
