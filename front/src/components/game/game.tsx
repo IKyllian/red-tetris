@@ -6,23 +6,42 @@ import { getPieceIndex } from "front/utils/piece.utils";
 import { addInputToQueue } from "front/store/game.slice";
 import { isCommandType, COMMANDS } from "front/types/command.types";
 import BoardPreview from "front/components/board/board-preview";
+import { leaveLobby } from "front/store/lobby.slice";
+import { useNavigate } from "react-router-dom";
+import GameModal from "./game-modal";
+import './game.css'
+
+const Countdown = () => {
+	const [count, setCount] = useState<number>(3);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCount(prev => prev - 1);
+		}, 900);
+		
+		if (count < -1) {
+			clearInterval(interval);
+		}
+		return () => clearInterval(interval);
+	}, [count])
+	return (
+		<div className="countdown-container">
+			{ count > -1 && <span> {count > 0 ? count : 'GO'} </span> }
+		</div>
+	)
+}
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
-	// const game = useAppSelector(state => state.game)
-
-	// const playerGame = game.playerGame
-	// const gameStarted =game.gameStarted;
-	// const gameOver = playerGame?.gameOver;
-	// const opponentsGames = game.opponentsGames;
-	// const playerGameBoard = playerGame?.board;
-	// const playerGamePieceIndex = playerGame?.currentPieceIndex;
-	// const playerName = playerGame?.player.name;
-	// const pieces = game.pieces;
+	const navigate = useNavigate()
+	const dispatch = useAppDispatch();
+	const lobby = useAppSelector(state => state.lobby)
+	console.log("Lobby = ", lobby)
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
 	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
+	const gameMode = useAppSelector((state) => state.game.gameMode);
 	const playerGameBoard = useAppSelector(
 		(state) => state.game.playerGame?.board
 	);
@@ -35,7 +54,6 @@ export default function Game() {
 	const pieces = useAppSelector((state) => state.game.pieces);
 	// const tick = useAppSelector((state) => state.game.tick);
 	const fpsRef = useRef<number>(0);
-	const dispatch = useAppDispatch();
 
 	const lastRenderTimeRef = useRef(null);
 	const renderCountRef = useRef<number>(0);
@@ -57,23 +75,40 @@ export default function Game() {
 		renderCountRef.current++;
 	}
 	// Disable scrolling when the component mounts and enable it when it unmounts
-	useEffect(() => {
-		document.body.style.overflow = "hidden";
-		return () => {
-			document.body.style.overflow = "auto";
-		};
-	}, []);
+	// useEffect(() => {
+	// 	if (!lobby) navigate('/home')
+	// 	document.body.style.overflow = "hidden";
+	// 	return () => {
+	// 		document.body.style.overflow = "auto";
+	// 		if (lobby) {
+	// 			dispatch(leaveLobby(lobby.id));
+	// 		}
+	// 	};
+	// }, []);
 	//TODO: stop using useEffect
+
+	// useEffect(() => {
+	// 	return (() => {
+	// 		if (lobby) {
+	// 			dispatch(leaveLobby(lobby.id));
+	// 		}
+	// 	})
+	// }, [])
+
 	useEffect(() => {
+		if (!lobby) navigate('/home')
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
 		}
-		const cleanup = gameLoop(fpsRef, dispatch);
+		let cleanup;
+		if (lobby) {
+			cleanup = gameLoop(fpsRef, dispatch);
+		}
 		return () => {
-			cleanup();
+			if (cleanup) cleanup();
 		};
-	}, [gameStarted, dispatch, gameOver]);
+	}, [gameStarted, dispatch, gameOver, lobby]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (isCommandType(event.code)) {
@@ -109,7 +144,9 @@ export default function Game() {
 	}
 
 	return (
-		<div>
+		<div className="game-container">
+			
+			{ !lobby.gameStarted  && <GameModal lobby={lobby} gameMode={gameMode} />}
 			{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
 			<div style={{ fontSize: "25px", color: "red" }}>
 				FPS: {fpsRef.current.toFixed(2)}
@@ -118,12 +155,13 @@ export default function Game() {
 				Render average: {renderAverage.current}
 			</div> */}
 			<div
-				className="boards-container flex flex-row content-center items-center gap8 flex-wrap"
+				className="flex flex-row content-center items-center gap8 flex-wrap"
 				tabIndex={0}
 				onKeyDown={handleKeyDown}
 				onKeyUp={handleKeyRelease}
-				style={{ outline: "none" }}
+				style={{ outline: "none", position: 'relative' }}
 			>
+				<Countdown />
 				{/* {leftSide.map((game, index) => (
 					<BoardPreview
 						key={index}

@@ -9,7 +9,7 @@ interface LeaderboardProps {
 export default function Leaderboard({ leaderboard }: LeaderboardProps) {
 	return (
 		<div className="leaderboard-container flex flex-col gap8">
-            <h2> Last game leaderboard </h2>
+            <h2> Leaderboard </h2>
 			<div className="leaderboard-wrapper flex flex-col gap8">
                 {
                     leaderboard.map((player, index) => {

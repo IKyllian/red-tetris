@@ -121,7 +121,9 @@ export default function Home() {
 	const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (lobby.id || lobby.id !== '' || lobby.gameStarted) {
+		if (lobby && lobby.gameStarted) {
+			navigate('/game')
+		} else if (lobby) {
             navigate('/lobby')
         }
     }, [lobby])

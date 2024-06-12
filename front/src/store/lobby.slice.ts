@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { defaultLobby } from 'front/types/lobby.type';
+import { ILobby } from 'front/types/lobby.type';
 
+const defaultLobby = null as ILobby | null
 export const lobbySlice = createSlice({
 	name: 'lobby',
 	initialState: defaultLobby,
@@ -13,12 +14,18 @@ export const lobbySlice = createSlice({
 		joinLobby: (_, __) => {},
 		sendStartGame: (_, __) => {},
 		setGameStarted: (state, action: { payload: boolean }) => {
-			state.gameStarted = action.payload;
-			state.leaderboard = null;
+			return {
+				...state,
+                gameStarted: action.payload,
+                leaderboard: null,
+			}
 		},
 		onAllGamesOver: (state, action) => {
-			state.gameStarted = false;
-			state.leaderboard = action.payload;
+			return {
+				...state,
+                gameStarted: null,
+                leaderboard: action.payload
+			}
 		},
 	},
 });

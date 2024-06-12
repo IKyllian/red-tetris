@@ -1,7 +1,5 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
-import { ILobby } from "front/types/lobby.type";
 import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
-import Game from "front/components/game/game";
 import Leaderboard from "front/components/leaderboard/leaderboard";
 import './lobby.css'
 import { LuCrown } from "react-icons/lu";
@@ -9,10 +7,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Lobby() {
-	const lobby: ILobby = useAppSelector((state) => state.lobby);
+	const lobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby.players.find((player) => player.isLeader);
+	const lobbyOwner = lobby?.players.find((player) => player.isLeader);
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
@@ -26,9 +24,17 @@ export default function Lobby() {
 	// 	// 	dispatch(leaveLobby(lobby.id));
 	// 	// })
 	// }, [lobby])
+	useEffect(() => {
+		if (!lobby) {
+			navigate("/home");
+		}
+		if (lobby?.gameStarted) {
+			navigate("/game");
+		}
+	}, [lobby])
+
 	const handleClick = () => {
 		dispatch(sendStartGame({}));
-		// navigate("/game");
 	};
 
 	const handleLeave = () => {
@@ -39,10 +45,10 @@ export default function Lobby() {
 
 	// console.log('LOBBY RE RENDER = ', lobby);
 
-	console.log('lobby = ', lobby)
-	if (!lobby.gameStarted) {
+	if (lobby) {
 		return (
 			<div className="lobby-container flex flex-col gap16">
+				{/* <GameModal lobby={lobby} gameMode={GameMode.SOLO}/> */}
 				<h1> {lobby.name} <span className="lobby-id">(#{lobby.id})</span></h1>
 				<div className="flex flex-row">
 					<div className="player-list-container flex flex-col gap16">
@@ -72,7 +78,5 @@ export default function Lobby() {
 				</div>
 			</div>
 		);
-	} else {
-		return <Game />;
 	}
 }
