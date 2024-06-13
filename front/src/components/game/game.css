@@ -27,6 +27,10 @@
     height: calc(100vh - var(--main-header-height));
 }
 
+.game-wrapper {
+    height: 100%;
+    position: relative;
+}
 .countdown-container > span {
     position: absolute;
     top: 0;
@@ -39,4 +43,19 @@
     align-items: center;
     font-size: 70px;
     font-weight: bolder;
+}
+
+.opponents-game-container {
+    position: absolute;
+    right: 0;
+    /* top: 0;
+    bottom: 0; */
+    width: calc((100vw / 2) - 250px);
+}
+
+.game-player-container {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
 }

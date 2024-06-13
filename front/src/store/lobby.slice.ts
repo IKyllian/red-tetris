@@ -11,6 +11,7 @@ export const lobbySlice = createSlice({
 		},
 		createLobby: (_, __) => {},
 		leaveLobby: (_, __) => defaultLobby,
+		resetLobby: () => defaultLobby,
 		joinLobby: (_, __) => {},
 		sendStartGame: (_, __) => {},
 		setGameStarted: (state, action: { payload: boolean }) => {
@@ -38,6 +39,7 @@ export const {
 	setGameStarted,
 	sendStartGame,
 	onAllGamesOver,
+	resetLobby
 } = lobbySlice.actions;
 
 export default lobbySlice.reducer;

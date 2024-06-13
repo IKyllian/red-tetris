@@ -5,12 +5,13 @@ import './lobby.css'
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ILobby } from "front/types/lobby.type";
 
 export default function Lobby() {
-	const lobby = useAppSelector((state) => state.lobby);
+	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby?.players.find((player) => player.isLeader);
+	const lobbyOwner = lobby?.players?.find((player) => player.isLeader)?.id === playerConnected.id;
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
@@ -64,7 +65,7 @@ export default function Lobby() {
 							</div>
 						</div>
 						<div className="flex flex-row gap8">
-							{lobbyOwner && lobbyOwner.id === playerConnected.id && (
+							{lobbyOwner && (
 								<button className="button" type="button" onClick={handleClick}>
 									Start Game
 								</button>

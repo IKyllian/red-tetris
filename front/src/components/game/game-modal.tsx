@@ -4,7 +4,7 @@ import { IPlayer } from 'front/types/player.type'
 import { GameMode } from 'front/types/packet.types'
 import { useNavigate } from 'react-router-dom'
 import { ILobby } from 'front/types/lobby.type'
-import { sendStartGame } from 'front/store/lobby.slice'
+import { resetLobby, sendStartGame } from 'front/store/lobby.slice'
 import { useAppDispatch, useAppSelector } from 'front/store/hook'
 
 // const LEADERBOARD: IPlayer[] = [
@@ -34,11 +34,13 @@ export default function GameModal({gameMode, lobby}: GameModeProps) {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby?.players.find((player) => player.isLeader);
+	const lobbyOwner = lobby && !lobby.id ? true : lobby?.players.find((player) => player.isLeader)?.id === playerConnected.id;
     const isSolo = gameMode === GameMode.SOLO;
+    console.log('isSolo', isSolo);
     const leaveGame = () => {
         if (isSolo) {
             navigate('/home')
+            dispatch(resetLobby());
         } else {
             navigate('/lobby')
         }
@@ -55,8 +57,8 @@ export default function GameModal({gameMode, lobby}: GameModeProps) {
             }
             <div className='flex flex-row items-center content-center gap8'>
                 <button className='button' onClick={leaveGame}> Retour au lobby </button>
-                {lobbyOwner && lobbyOwner.id === playerConnected.id && <button className='button' onClick={() => dispatch(sendStartGame({}))}> Rejouer </button>}
-                {lobbyOwner && lobbyOwner.id !== playerConnected.id && <span> En attente du leader pour relancer </span>}
+                {lobbyOwner && <button className='button' onClick={() => dispatch(sendStartGame({}))}> Rejouer </button>}
+                {!lobbyOwner && <span> En attente du leader pour relancer </span>}
             </div>
         </div>
     )
