@@ -113,8 +113,8 @@ export class GameGateway
 				new Player(data.playerName, socket.id, true),
 				this.server
 			);
-			soloGame.start();
 			this.gameManager.setGameToSocket(socket.id, soloGame);
+			soloGame.start();
 		}
 	}
 
@@ -141,9 +141,7 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data')
 		data: TickAdjustmentPacketDto
-		// data:
 	) {
-		const lobby: Lobby = this.lobbyManager.getLobby(socket.id);
 		const gameLobby = this.gameManager.getGameFromSocket(socket.id);
 		const game = gameLobby?.getPlayerGame(socket.id);
 		const { tick, adjustmentIteration } = data;
@@ -165,7 +163,7 @@ export class GameGateway
 			// );
 			game.adjustmentIteration++;
 			const packet: ITickAdjustmentPacket = {
-				tickAdjustment: lobby.game.tick - tick + 5,
+				tickAdjustment: gameLobby.tick - tick + 5,
 				adjustmentIteration: game.adjustmentIteration,
 			};
 			socket.emit(SocketEvent.SyncWithServer, packet);
