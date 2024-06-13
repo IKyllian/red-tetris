@@ -104,14 +104,14 @@ export function handleServerReconciliation(state: IGameState) {
 			state.playerGame = { ...serverGameState };
 			while (tickToProcess < state.tick) {
 				const index = tickToProcess % BUFFER_SIZE;
-				if (state.inputBuffer[index]?.length > 0) {
-					//TODO problem here
-					console.log('reprocess inputs');
-					state.inputBuffer[index].forEach((input) => {
-						console.log('input', input);
-						handleInput(input, state);
-					});
-				}
+				// if (state.inputBuffer[index]?.length > 0) {
+				// 	//TODO problem
+				// 	console.log('reprocess inputs from tick: ', tickToProcess);
+				// 	state.inputBuffer[index].forEach((input) => {
+				// 		console.log('input', input);
+				// 		handleInput(input, state);
+				// 	});
+				// }
 				softDrop(state);
 				// state.clientStateBuffer[tickToProcess % BUFFER_SIZE] = {
 				// 	...state.playerGame,

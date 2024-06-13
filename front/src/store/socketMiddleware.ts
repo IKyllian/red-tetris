@@ -168,7 +168,7 @@ const socketMiddleware: Middleware = (store) => {
 		}
 
 		if (sendStartGame.match(action) && socket) {
-			socket.socket.emit(SocketEvent.StartGame);
+			socket.socket.emit(SocketEvent.StartGame, { data: action.payload });
 		}
 
 		// Listen for board updates

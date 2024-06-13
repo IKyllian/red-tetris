@@ -125,7 +125,7 @@ export class BattleRoyal {
 			//todo what if draw
 			const winner = this.games.find((game) => !game.gameOver);
 			if (winner) {
-				this.ranking.push(winner.player);
+				this.ranking.unshift(winner.player);
 			}
 			this.server.emit(SocketEvent.GameOver, this.ranking);
 			this.lobby.gameStarted = false;
@@ -158,7 +158,7 @@ export class BattleRoyal {
 				game.updateState(this.tick, this.gravity);
 				if (game.gameOver && game.boardChanged) {
 					this.nbOfPlayerAlive--;
-					this.ranking.push(game.player);
+					this.ranking.unshift(game.player);
 				}
 				if (game.indestructibleToGive > 0) {
 					this.handleIndestructibleLine(game);
