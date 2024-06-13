@@ -263,7 +263,7 @@ export const gameSlice = createSlice({
 						adjustmentIteration: state.adjustmentIteration,
 					};
 					// console.log('sync with server', data);
-					instance.socket.emit(SocketEvent.SyncWithServer, { data });
+					instance.emit(SocketEvent.SyncWithServer, { data });
 					state.tick++;
 					state.timer -= MIN_TIME_BETWEEN_TICKS;
 				}
@@ -316,9 +316,9 @@ export const gameSlice = createSlice({
 						inputs: [...state.inputQueue],
 					};
 					// if (state.tick % 100 !== 0 || state.tick % 150 === 0) {
-					instance.socket.emit(SocketEvent.CommandPressed, {
-						data: data,
-					});
+						instance.emit(SocketEvent.CommandPressed, {
+							data: data,
+						});
 					// }
 					state.inputQueue.length = 0;
 				}

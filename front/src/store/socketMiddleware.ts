@@ -1,5 +1,5 @@
 import { Middleware } from '@reduxjs/toolkit';
-import SocketFactory, { SocketInterface } from 'front/store/socketFactory';
+import SocketFactory from 'front/store/socketFactory';
 import {
 	connectionEstablished,
 	connectionLost,
@@ -32,6 +32,7 @@ import {
 	updateIndestructibleLines,
 	updateTickAdjustments,
 } from './game.slice';
+import { Socket, io } from 'socket.io-client';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -55,55 +56,50 @@ export enum SocketEvent {
 	SetName = 'set-name',
 }
 
-let AZE = 0;
 const socketMiddleware: Middleware = (store) => {
-	let socket: SocketInterface;
-
+	let socket: Socket;
 	return (next) => (action) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
 			if (!socket) {
 				// Create Socket
 				socket = SocketFactory.Instance();
-
-				socket.socket.on(SocketEvent.Connect, () => {
+				socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());
 				});
 
 				// handle all Error events
-				socket.socket.on(SocketEvent.Error, (message) => {
+				socket.on(SocketEvent.Error, (message) => {
 					console.error(message);
 				});
 
 				// Handle disconnect event
-				socket.socket.on(SocketEvent.Disconnect, (reason) => {
+				socket.on(SocketEvent.Disconnect, (reason) => {
 					console.error(reason);
 					store.dispatch(connectionLost());
 				});
 
-				socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
+				socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
 					console.log('Updated Lobby = ', lobby);
 					store.dispatch(setLobby(lobby));
 				});
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
-						// if (AZE < 1) {
-						socket.socket.emit('pong');
+						socket.emit('pong');
+						console.log("data = ", data)
 						store.dispatch(updateGamesBoard(data));
 						// store.dispatch(
 						// 	setTickAdjustments({
 						// 		packet: data,
-						// 		playerId: socket.socket.id,
+						// 		playerId: socket.id,
 						// 	})
 						// );
-						// AZE++
-						// }
 					}
 				);
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.SyncWithServer,
 					(packet: ITickAdjustmentPacket) => {
 						console.log('SyncWithServer = ', packet);
@@ -111,7 +107,7 @@ const socketMiddleware: Middleware = (store) => {
 					}
 				);
 
-				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
+				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
 					//TODO
 					setTimeout(() => {
@@ -119,7 +115,7 @@ const socketMiddleware: Middleware = (store) => {
 					}, 5000);
 				});
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.StartingGame,
 					(data: {
 						playerGame: IGame;
@@ -130,13 +126,10 @@ const socketMiddleware: Middleware = (store) => {
 						console.log('StartingGame = ', data);
 						store.dispatch(setGameStarted(true));
 						store.dispatch(setGameStartingState(data));
-						// if (history.location.pathname !== '/game') {
-						// 	history.push('/game');
-						// }
 					}
 				);
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.IndestructibleLine,
 					(packet: IIndestructiblePacket) => {
 						store.dispatch(updateIndestructibleLines(packet));
@@ -145,44 +138,32 @@ const socketMiddleware: Middleware = (store) => {
 			}
 		}
 
-		if (sign.match(action) && socket) {
-			store.dispatch(
-				createPlayer({ name: action.payload, id: socket.socket.id })
-			);
+		if (socket) {
+			if (sign.match(action)) {
+				store.dispatch(
+					createPlayer({ name: action.payload, id: socket.id })
+				);
+			}
+	
+			if (createLobby.match(action)) {
+				socket.emit(SocketEvent.CreateLobby, {
+					data: action.payload,
+				});
+			}
+	
+			if (joinLobby.match(action)) {
+				socket.emit(SocketEvent.JoinLobby, { data: action.payload });
+			}
+	
+			if (leaveLobby.match(action)) {
+				socket.emit(SocketEvent.LeaveLobby, action.payload);
+			}
+	
+			if (sendStartGame.match(action)) {
+				console.log("action payload = ", action.payload)
+				socket.emit(SocketEvent.StartGame, action.payload);
+			}
 		}
-
-		if (createLobby.match(action) && socket) {
-			console.log('CreateLobby', action.payload);
-			socket.socket.emit(SocketEvent.CreateLobby, {
-				data: action.payload,
-			});
-		}
-
-		if (joinLobby.match(action) && socket) {
-			socket.socket.emit(SocketEvent.JoinLobby, { data: action.payload });
-		}
-
-		if (leaveLobby.match(action) && socket) {
-			console.log('LEAVE');
-			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
-		}
-
-		if (sendStartGame.match(action) && socket) {
-			socket.socket.emit(SocketEvent.StartGame, { data: action.payload });
-		}
-
-		// Listen for board updates
-		// if (setBoardListener.match(action) && socket) {
-		// 	socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
-		// 		store.dispatch(setBoard({ cells }));
-		// 	});
-		// }
-
-		// Handle the commands action
-		// if (commandPressed.match(action) && socket) {
-		// 	let command = { data: { ...action.payload } };
-		// 	socket.socket.emit(SocketEvent.CommandPressed, command);
-		// }
 		next(action);
 	};
 };

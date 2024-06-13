@@ -13,16 +13,3 @@ export interface ILobby {
 	// gamesOver: boolean;
 	leaderboard: IPlayer[] | null;
 }
-
-export const defaultLobby: ILobby = {
-	name: '',
-	id: '',
-	players: [],
-	// games: [],
-	// seed: '',
-	gameStarted: false,
-	// opponentsGames: [],
-	// playerGame: null,
-	// gamesOver: false,
-	leaderboard: null,
-};

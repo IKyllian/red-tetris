@@ -28,7 +28,7 @@ const TETRIS = [
     },
 ]
 
-export function Header() {
+export default function Header() {
     const player = useAppSelector(state => state.player)
     const lobby = useAppSelector(state => state.lobby)
     return (
@@ -45,7 +45,7 @@ export function Header() {
             {/* <span className="header-logo"> tetris</span> */}
             <div className="flex flex-row items-center gap12">
                 {
-                    lobby.gameStarted &&
+                    lobby?.gameStarted &&
                     <button className="button"> Leave </button>
                 }
                 {/* {

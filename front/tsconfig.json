@@ -46,5 +46,5 @@
     "noEmit": true,
     "rootDir": "./"
   },
-  "include": ["src"]
+  "include": ["src", "__tests__/vitest.setup.ts"]
 }

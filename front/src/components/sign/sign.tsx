@@ -9,7 +9,7 @@ interface FormValues {
 	name: string;
 }
 
-export function Register() {
+export default function Register() {
 	const {
 		register,
 		handleSubmit,

@@ -1,6 +1,6 @@
 import { describe, expect, afterEach, test } from "vitest";
 import { render, cleanup, screen } from '@testing-library/react';
-import { Register } from "front/components/sign/sign";
+// import { Register } from "front/components/sign/sign";
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 const mockStore = configureStore([]);

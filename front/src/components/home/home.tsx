@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "front/store/hook";
-import { createLobby, joinLobby } from "front/store/lobby.slice";
+import { createLobby, joinLobby, sendStartGame } from "front/store/lobby.slice";
 import { useForm } from "react-hook-form";
 import "./home.css";
 import { useEffect } from "react";
@@ -111,28 +111,40 @@ const GAME_MODE = [
 	},
 ];
 
-export function Home() {
-	const player = useAppSelector((state) => state.player);
-	console.log(player);
-	const playerName = useAppSelector((state) => state.player.name);
-	console.log(playerName);
-	const lobby = useAppSelector((state) => state.lobby);
-	const navigate = useNavigate();
-	useEffect(() => {
-		if (lobby.id || lobby.id !== "") {
-			navigate("/lobby");
-		}
-	}, [lobby]);
+export default function Home() {
+    const player = useAppSelector((state) => state.player);
+    console.log(player)
+    const playerName = useAppSelector((state) => state.player.name);
+    console.log(playerName)
+    const lobby = useAppSelector(state => state.lobby);
+    const navigate = useNavigate();
+	const dispatch = useAppDispatch();
+
+    useEffect(() => {
+		if (lobby && lobby.gameStarted) {
+			navigate('/game')
+		} else if (lobby) {
+            navigate('/lobby')
+        }
+    }, [lobby])
 
 	const navigateTo = (path?: string) => {
 		if (path) navigate(path);
 	};
+
+	const handleClick = (path: string | undefined) => {
+		if (path) {
+			navigateTo(path)
+		} else {
+			dispatch(sendStartGame({playerName}));
+		}
+	}
 	return (
 		<div className="home-container">
 			<div className="game-mode-list flex flex-col gap12">
 				{GAME_MODE.map((gameMode, index) => (
 					<div
-						onClick={() => navigateTo(gameMode.path)}
+						onClick={() => handleClick(gameMode.path)}
 						key={index}
 						className="game-mode-item flex flex-col"
 						style={{
@@ -141,12 +153,10 @@ export function Home() {
 						}}
 					>
 						<span className="game-mode-title">
-							{" "}
-							{gameMode.title}{" "}
+							{gameMode.title}
 						</span>
 						<span className="game-mode-description">
-							{" "}
-							{gameMode.description}{" "}
+							{gameMode.description}
 						</span>
 					</div>
 				))}
@@ -156,16 +166,14 @@ export function Home() {
 				>
 					<div className="flex flex-col">
 						<span className="game-mode-title">
-							{" "}
-							Creer un lobby{" "}
+							Creer un lobby
 						</span>
 						<CreateGameButton playerName={playerName} />
 					</div>
 
 					<div className="flex flex-col">
 						<span className="game-mode-title">
-							{" "}
-							Rejoindre un lobby{" "}
+							Rejoindre un lobby
 						</span>
 						<JoinGameButton playerName={playerName} />
 					</div>

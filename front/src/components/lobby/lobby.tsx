@@ -1,44 +1,40 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
-import { ILobby } from "front/types/lobby.type";
 import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
-import { Game } from "front/components/game/game";
-import { Leaderboard } from "front/components/leaderboard/leaderboard";
-import "./lobby.css";
+import './lobby.css'
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IPlayer } from "front/types/player.type";
+import { ILobby } from "front/types/lobby.type";
 
-const LEADERBOAD: IPlayer[] = [
-	{
-		name: "Player 1",
-		id: "121",
-		isLeader: true,
-	},
-	{
-		name: "Player 2",
-		id: "122",
-		isLeader: false,
-	},
-];
-
-export function Lobby() {
-	const lobby: ILobby = useAppSelector((state) => state.lobby);
+export default function Lobby() {
+	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby.players.find((player) => player.isLeader);
+	const lobbyOwner = lobby?.players?.find((player) => player.isLeader)?.id === playerConnected.id;
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
+	// useEffect(() => {
+	// 	console.log();
+	// 	// if (lobby?.gameStarted && !lobby.id || lobby.id === '') {
+	// 	// 	navigate('/home')
+	// 	// }
+
+	// 	// return(() => {
+	// 	// 	dispatch(leaveLobby(lobby.id));
+	// 	// })
+	// }, [lobby])
 	useEffect(() => {
-		console.log();
-		if (!lobby.id || lobby.id === "") {
+		if (!lobby) {
 			navigate("/home");
 		}
-	}, [lobby]);
+		if (lobby?.gameStarted) {
+			navigate("/game");
+		}
+	}, [lobby])
+
 	const handleClick = () => {
-		dispatch(sendStartGame(null));
-		// navigate("/game");
+		dispatch(sendStartGame({playerName: playerConnected.name}));
 	};
 
 	const handleLeave = () => {
@@ -49,11 +45,10 @@ export function Lobby() {
 
 	// console.log('LOBBY RE RENDER = ', lobby);
 
-	if (!lobby.gameStarted) {
+	if (lobby) {
 		return (
 			<div className="lobby-container flex flex-col gap16">
 				<h1>
-					{" "}
 					{lobby.name} <span className="lobby-id">(#{lobby.id})</span>
 				</h1>
 				<div className="flex flex-row">
@@ -73,32 +68,18 @@ export function Lobby() {
 							</div>
 						</div>
 						<div className="flex flex-row gap8">
-							{lobbyOwner &&
-								lobbyOwner.id === playerConnected.id && (
-									<button
-										className="button"
-										type="button"
-										onClick={handleClick}
-									>
-										Start Game
-									</button>
-								)}
-							<button
-								className="button"
-								type="button"
-								onClick={handleLeave}
-							>
+							{lobbyOwner && (
+								<button className="button" type="button" onClick={handleClick}>
+									Start Game
+								</button>
+							)}
+							<button className="button" type="button" onClick={handleLeave}>
 								Leave lobby
 							</button>
 						</div>
 					</div>
-					{lobby.leaderboard && (
-						<Leaderboard leaderboard={lobby.leaderboard} />
-					)}
 				</div>
 			</div>
 		);
-	} else {
-		return <Game />;
 	}
 }

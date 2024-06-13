@@ -1,25 +1,19 @@
 import "./board.css";
 import { ITetromino } from "front/types/tetrominoes.type";
-import { IBoard, ICell } from "front/types/board.types";
-import { buildBoard } from "front/utils/board.utils";
+import { IBoard } from "front/types/board.types";
 import {
-	getShape,
 	getTetrominoClassName,
-	transferPieceToBoard,
 } from "front/utils/piece.utils";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import PiecePreview from "./piece-preview";
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
 	isGameOver: boolean;
-	currentPiece: ITetromino;
 	nextPieces: Array<ITetromino>;
-}
-
-interface BoardPreviewProps {
-	board: IBoard;
-	playerName: string;
-	isGameOver: boolean;
+	piecePreviewWidth?: string;
+	piecePreviewHeight?: string;
+	isOpponentBoards: boolean
 }
 
 const Cell = ({ cellClassname }) => {
@@ -30,18 +24,66 @@ const Cell = ({ cellClassname }) => {
 	);
 };
 
-export const Board = ({ board, playerName, isGameOver, nextPieces }: BoardProps) => {
-	const boardStyles = useMemo(
-		() => ({
-			gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
-			gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-		}),
-		[board.size]
-	);
+const getBoardSize = (isOpponentBoards: boolean) => {
+	const { innerWidth: width, innerHeight: height } = window;
+	const size = isOpponentBoards ? {
+		widthRatio: 0.1,
+        heightRatio: 0.2,
+		width: (width / 2),
+		height: (width / 2)
+	} : {
+		widthRatio: 0.3,
+        heightRatio: 0.5,
+		width,
+		height
+	}
+	const ret = {
+	  width: Math.min(size.width * size.widthRatio, size.height * size.widthRatio),
+	  height: Math.min(size.width * size.heightRatio, size.height * size.heightRatio)
+	};
+	return ret;
+};
+
+const Board = ({
+	board,
+	playerName,
+	isGameOver,
+	nextPieces,
+	// width = 'calc((100vw * 0.8)',
+	isOpponentBoards,
+	piecePreviewWidth = '170px',
+	piecePreviewHeight = '170px'
+}: BoardProps) => {
+	// const boardStyles = useMemo(
+	// 	() => ({
+	// 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
+	// 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
+	// 		width,
+	// 		height
+	// 	}),
+	// 	[board.size]
+	// );
+	const [boardSize, setBoardSize] = useState(getBoardSize(isOpponentBoards));
+	  useEffect(() => {
+		const handleResize = () => {
+		  setBoardSize(getBoardSize(isOpponentBoards));
+		};
+	
+		window.addEventListener('resize', handleResize);
+		return () => {
+		  window.removeEventListener('resize', handleResize);
+		};
+	}, []);
+
+	const boardStyles = {
+		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
+		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
+		width: boardSize.width,
+		height: boardSize.height,
+	}
 
 	return (
-		<>
-		<div className="board-container flex flex-row">
+		<div className="inline-flex">
 			<div className="flex flex-col">
 				<div className="board board-border" style={boardStyles} tabIndex={0}>
 					{isGameOver && <span className="gameOver"> Game Over </span>}
@@ -66,85 +108,18 @@ export const Board = ({ board, playerName, isGameOver, nextPieces }: BoardProps)
 				<div className="flex flex-col box-border">
 					{
 						nextPieces.map((piece, index) => (
-							<PiecePreview key={index} tetromino={piece} />
+							<PiecePreview
+								key={index}
+								tetromino={piece}
+								piecePreviewWidth={piecePreviewWidth}
+								piecePreviewHeight={piecePreviewHeight}
+							/>
 						))
 					}
 				</div>
 			</div>
 		</div>
-			
-			
-		</>
 	);
 };
 
-export function BoardPreview({
-	board,
-	playerName,
-	isGameOver,
-}: BoardPreviewProps) {
-	const boardStyles = {
-		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
-		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-		height: "300px",
-		width: "200px",
-	};
-
-	// console.info("Game Over = ", isGameOver);
-	return (
-		<div className="board-preview-container flex flex-col items-center gap8">
-			<div
-				className="board board-border board-preview"
-				style={boardStyles}
-				tabIndex={0}
-			>
-				{isGameOver && <span className="gameOver"> Game Over </span>}
-				{board.cells.map((row) =>
-					row.map((cell, cellIndex) => (
-						<Cell
-							key={cellIndex}
-							cellClassname={getTetrominoClassName(
-								cell.type,
-								cell.isPreview
-							)}
-						/>
-					))
-				)}
-			</div>
-			<span> {playerName} </span>
-		</div>
-	);
-}
-
-export function PiecePreview({ tetromino }: { tetromino: ITetromino }) {
-	const board = buildBoard({ rows: 4, columns: 4 });
-	const boardStyles = {
-		gridTemplateRows: `repeat(4, 1fr)`,
-		gridTemplateColumns: `repeat(4, 1fr)`,
-		height: "170px",
-		width: "170px",
-	};
-
-	const shape = getShape(tetromino.type, tetromino.rotationState);
-	const rows = transferPieceToBoard(
-		board,
-		{ ...tetromino, position: { x: 0, y: 0 } },
-		shape,
-		false
-	);
-	return (
-		<div className="board" style={boardStyles}>
-			{rows.map((row) =>
-				row.map((cell: ICell, cellIndex: number) => (
-					<div key={cellIndex} className="cell-piece-preview">
-						<div className={getTetrominoClassName(
-							cell.type,
-							cell.isPreview
-						)}>
-						</div>
-					</div>
-				))
-			)}
-		</div>
-	);
-}
+export default Board

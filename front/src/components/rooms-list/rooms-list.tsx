@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ILobby } from "front/types/lobby.type";
 import { IoMdRefresh } from "react-icons/io";
 
-export function RoomsList() {
+export default function RoomsList() {
 	const [lobbies, setLobbies] = useState<ILobby[]>([]);
 	const [refresh, setRefresh] = useState<boolean>(true);
 	useEffect(() => {

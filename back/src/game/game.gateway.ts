@@ -103,6 +103,7 @@ export class GameGateway
 		@MessageBody() data: StartGameDto
 	) {
 		//TODO check if game is already started
+		console.log("TEST")
 		const lobby = this.lobbyManager.getLobby(socket.id);
 		if (lobby) {
 			if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {

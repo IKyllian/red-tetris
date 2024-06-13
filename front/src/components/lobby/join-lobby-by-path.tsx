@@ -5,7 +5,7 @@ import { initSocket } from "front/store/socket.slice";
 import { useEffect } from "react";
 import { joinLobby } from "front/store/lobby.slice";
 
-export function JoinLobbyByPath() {
+export default function JoinLobbyByPath() {
 	const params = useParams();
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
