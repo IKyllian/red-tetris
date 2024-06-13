@@ -16,14 +16,6 @@ interface BoardProps {
 	isOpponentBoards: boolean
 }
 
-const Cell = ({ cellClassname }) => {
-	return (
-		<div className="cell">
-			<div className={cellClassname}></div>
-		</div>
-	);
-};
-
 const getBoardSize = (isOpponentBoards: boolean) => {
 	const { innerWidth: width, innerHeight: height } = window;
 	const size = isOpponentBoards ? {
@@ -89,13 +81,14 @@ const Board = ({
 					{isGameOver && <span className="gameOver"> Game Over </span>}
 					{board.cells.map((row) =>
 						row.map((cell, cellIndex) => (
-							<Cell
-								key={cellIndex}
-								cellClassname={getTetrominoClassName(
-									cell.type,
-									cell.isPreview
-								)}
-							/>
+							<div key={cellIndex} className="cell">
+								<div
+									className={getTetrominoClassName(
+										cell.type,
+										cell.isPreview
+									)}
+								> </div>
+							</div>
 						))
 					)}
 				</div>

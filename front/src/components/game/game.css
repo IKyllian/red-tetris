@@ -51,6 +51,9 @@
     /* top: 0;
     bottom: 0; */
     width: calc((100vw / 2) - 250px);
+    top: 50%;
+    right: 22%;
+    transform: translate(50%, -50%);
 }
 
 .game-player-container {
