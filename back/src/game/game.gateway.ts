@@ -22,7 +22,18 @@ import { Lobby } from '../lobby/lobby';
 import { GameSocketManager } from './game-socket-manager';
 import { SoloGame } from './solo-game';
 import { Player } from './player';
+import {
+	CreateLobbyDto,
+	InputsPacketDto,
+	JoinLobbyDto,
+	StartGameDto,
+	TickAdjustmentPacketDto,
+} from 'src/utils/dto/gateway.dto';
+import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { WsExceptionFilter } from 'src/utils/exceptionFilter';
 
+@UseFilters(WsExceptionFilter)
+@UsePipes(new ValidationPipe())
 @WebSocketGateway({
 	cors: {
 		origin: '*',
@@ -33,8 +44,10 @@ export class GameGateway
 {
 	@WebSocketServer() server: Server;
 
-	private lobbyManager = new LobbyManager();
+	// private lobbyManager = new LobbyManager();
 	private gameManager = new GameSocketManager();
+
+	constructor(private lobbyManager: LobbyManager) {}
 
 	afterInit(_server: Server) {}
 
@@ -55,7 +68,7 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.CreateLobby)
 	createLobby(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody('data') data: { name: string; playerName: string }
+		@MessageBody('data') data: CreateLobbyDto
 	) {
 		console.log('Data = ', data);
 		if (!this.lobbyManager.getLobby(socket.id)) {
@@ -66,7 +79,7 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.JoinLobby)
 	joinLobby(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody('data') data: { playerName: string; lobbyId: string }
+		@MessageBody('data') data: JoinLobbyDto
 	) {
 		// console.log('Join lobby = ', data);
 		// console.log('Lobby manager = ', this.lobbyManager.getLobbys());
@@ -87,9 +100,10 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.StartGame)
 	startGame(
 		@ConnectedSocket() socket: Socket,
-		@MessageBody() data: { playerName: string }
+		@MessageBody() data: StartGameDto
 	) {
 		//TODO check if game is already started
+		console.log("TEST")
 		const lobby = this.lobbyManager.getLobby(socket.id);
 		if (lobby) {
 			if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
@@ -113,8 +127,7 @@ export class GameGateway
 	@SubscribeMessage(SocketEvent.CommandPressed)
 	commandPressed(
 		@ConnectedSocket() socket: Socket,
-		// @MessageBody('command') command: COMMANDS
-		@MessageBody('data') data: IInputsPacket
+		@MessageBody('data') data: InputsPacketDto
 	) {
 		// console.log('command pressed: ', data);
 		//TODO check if command is valid
@@ -128,7 +141,7 @@ export class GameGateway
 	syncWithServer(
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data')
-		data: { tick: number; adjustmentIteration: number }
+		data: TickAdjustmentPacketDto
 		// data:
 	) {
 		const lobby: Lobby = this.lobbyManager.getLobby(socket.id);

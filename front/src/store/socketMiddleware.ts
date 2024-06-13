@@ -160,10 +160,10 @@ const socketMiddleware: Middleware = (store) => {
 			}
 	
 			if (sendStartGame.match(action)) {
-				socket.emit(SocketEvent.StartGame, {data: action.payload});
+				console.log("action payload = ", action.payload)
+				socket.emit(SocketEvent.StartGame, action.payload);
 			}
 		}
-		
 		next(action);
 	};
 };

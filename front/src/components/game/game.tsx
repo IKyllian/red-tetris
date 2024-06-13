@@ -144,192 +144,89 @@ export default function Game() {
 		return <div>Game not started</div>;
 	}
 
-	return (
-		<div className="game-container">
-			
-			{ !lobby.gameStarted  && <GameModal lobby={lobby} gameMode={gameMode} />}
-			{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
-			
-			{/* <div style={{ fontSize: "25px", color: "blue" }}>
-				Render average: {renderAverage.current}
-			</div> */}
-			<div
-				// className="game-wrapper flex flex-row items-center content-center gap8"
-				className="game-wrapper"
-				tabIndex={0}
-				onKeyDown={handleKeyDown}
-				onKeyUp={handleKeyRelease}
-				style={{ outline: "none", position: 'relative' }}
-			>
-				<div style={{ fontSize: "25px", color: "red" }}>
-					FPS: {fpsRef.current.toFixed(2)}
-				</div>
-				<Countdown />
-				<div className="game-player-container">
-					{playerGameBoard && (
-						<>
-							<Board
-								board={playerGameBoard}
-								playerName={playerName}
-								isGameOver={gameOver}
-								nextPieces={pieces.slice(
-									getPieceIndex(playerGamePieceIndex + 1),
-									getPieceIndex(playerGamePieceIndex + 4)
-								)}
-								isOpponentBoards={false}
-							/>
-							{/* <div className="flex flex-col gap4">
-								{pieces
-									.slice(
-										getPieceIndex(playerGamePieceIndex + 1),
-										getPieceIndex(playerGamePieceIndex + 4)
-									)
-									.map((piece, pieceIndex) => (
-										<PiecePreview
-											key={pieceIndex}
-											tetromino={piece}
-										/>
-									))}
-							</div> */}
-						</>
-					)}
-				</div>
-				{
-					opponentsGame.length > 0 &&
-					<div className="opponents-game-container flex flex-row gap16 flex-wrap">
-						{opponentsGame.map((game, index) => (
-							// <BoardPreview
-							// 	key={index}
-							// 	currentPieceIndex={game.currentPieceIndex}
-							// 	// pieces={pieces}
-							// 	board={game.board}
-							// 	playerName={game.player.name}
-							// 	isGameOver={game.gameOver}
-							// />
+	if (lobby) {
+		return (
+			<div className="game-container">
+				{ !lobby.gameStarted && <GameModal lobby={lobby} gameMode={gameMode} />}
+				{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
+				
+				{/* <div style={{ fontSize: "25px", color: "blue" }}>
+					Render average: {renderAverage.current}
+				</div> */}
+				<div
+					// className="game-wrapper flex flex-row items-center content-center gap8"
+					className="game-wrapper"
+					tabIndex={0}
+					onKeyDown={handleKeyDown}
+					onKeyUp={handleKeyRelease}
+					style={{ outline: "none", position: 'relative' }}
+				>
+					<div style={{ fontSize: "25px", color: "red" }}>
+						FPS: {fpsRef.current.toFixed(2)}
+					</div>
+					<Countdown />
+					<div className="game-player-container">
+						{playerGameBoard && (
 							<>
 								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
+									board={playerGameBoard}
+									playerName={playerName}
+									isGameOver={gameOver}
+									nextPieces={pieces.slice(
+										getPieceIndex(playerGamePieceIndex + 1),
+										getPieceIndex(playerGamePieceIndex + 4)
+									)}
+									isOpponentBoards={false}
 								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
-								<Board
-									key={index}
-									board={game.board}
-									playerName={game.player.name}
-									isGameOver={game.gameOver}
-									nextPieces={game.currentPieceIndex ? pieces.slice(
-										getPieceIndex(game.currentPieceIndex + 1),
-										getPieceIndex(game.currentPieceIndex + 4)
-									) : []}
-									piecePreviewWidth="50px"
-									piecePreviewHeight="50px"
-									isOpponentBoards={true}
-								/>
+								{/* <div className="flex flex-col gap4">
+									{pieces
+										.slice(
+											getPieceIndex(playerGamePieceIndex + 1),
+											getPieceIndex(playerGamePieceIndex + 4)
+										)
+										.map((piece, pieceIndex) => (
+											<PiecePreview
+												key={pieceIndex}
+												tetromino={piece}
+											/>
+										))}
+								</div> */}
 							</>
-							
-						))}
+						)}
 					</div>
-				}
+					{
+						opponentsGame.length > 0 &&
+						<div className="opponents-game-container flex flex-row gap16 flex-wrap">
+							{opponentsGame.map((game, index) => (
+								// <BoardPreview
+								// 	key={index}
+								// 	currentPieceIndex={game.currentPieceIndex}
+								// 	// pieces={pieces}
+								// 	board={game.board}
+								// 	playerName={game.player.name}
+								// 	isGameOver={game.gameOver}
+								// />
+								<>
+									<Board
+										key={index}
+										board={game.board}
+										playerName={game.player.name}
+										isGameOver={game.gameOver}
+										nextPieces={game.currentPieceIndex ? pieces.slice(
+											getPieceIndex(game.currentPieceIndex + 1),
+											getPieceIndex(game.currentPieceIndex + 4)
+										) : []}
+										piecePreviewWidth="50px"
+										piecePreviewHeight="50px"
+										isOpponentBoards={true}
+									/>
+								</>
+								
+							))}
+						</div>
+					}
+				</div>
 			</div>
-		</div>
-	);
+		);
+	}
 }

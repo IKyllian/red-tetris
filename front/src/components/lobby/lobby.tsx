@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
-import Leaderboard from "front/components/leaderboard/leaderboard";
 import './lobby.css'
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
@@ -35,7 +34,7 @@ export default function Lobby() {
 	}, [lobby])
 
 	const handleClick = () => {
-		dispatch(sendStartGame({}));
+		dispatch(sendStartGame({playerName: playerConnected.name}));
 	};
 
 	const handleLeave = () => {
@@ -49,19 +48,23 @@ export default function Lobby() {
 	if (lobby) {
 		return (
 			<div className="lobby-container flex flex-col gap16">
-				{/* <GameModal lobby={lobby} gameMode={GameMode.SOLO}/> */}
-				<h1> {lobby.name} <span className="lobby-id">(#{lobby.id})</span></h1>
+				<h1>
+					{lobby.name} <span className="lobby-id">(#{lobby.id})</span>
+				</h1>
 				<div className="flex flex-row">
 					<div className="player-list-container flex flex-col gap16">
 						<div className="flex flex-col gap16">
 							<span className="player-list-title"> Players </span>
 							<div className="player-list flex flex-col gap8">
-								{lobby.players.map((player, index) =>
-									<div className="player-list-item flex flex-row items-center content-between" key={index}>
+								{lobby.players.map((player, index) => (
+									<div
+										className="player-list-item flex flex-row items-center content-between"
+										key={index}
+									>
 										{player.name}
-										{player.isLeader && <LuCrown />}	
+										{player.isLeader && <LuCrown />}
 									</div>
-								)}
+								))}
 							</div>
 						</div>
 						<div className="flex flex-row gap8">
@@ -75,7 +78,6 @@ export default function Lobby() {
 							</button>
 						</div>
 					</div>
-					{ lobby.leaderboard && <Leaderboard leaderboard={lobby.leaderboard} /> }
 				</div>
 			</div>
 		);

@@ -14,3 +14,10 @@
 .lobby-info {
     font-size: 15px;
 }
+
+.no-lobbies-message {
+  text-align: center;
+  color: var(--main-color);;
+  font-size: 30px;
+  margin-top: 20px;
+}

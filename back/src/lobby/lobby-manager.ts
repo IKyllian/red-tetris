@@ -2,12 +2,19 @@ import { SocketEvent } from 'src/type/event.enum';
 import { Socket, Server } from 'socket.io';
 import { ILobby } from 'src/type/lobby.interface';
 import { Lobby } from './lobby';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LobbyManager {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
 	private lobbys: Map<string, Lobby> = new Map();
 
 	public createLobby(socket: Socket, playerName: string, lobbyName: string) {
+		if (lobbyName.length === 0) {
+			lobbyName = 'Lobby';
+		} else if (lobbyName.length > 20) {
+			lobbyName = lobbyName.substring(0, 20);
+		}
 		const lobby = new Lobby(lobbyName, playerName, socket.id);
 		this.lobbys.set(lobby.id, lobby);
 		socket.join(lobby.id);
@@ -57,7 +64,7 @@ export class LobbyManager {
 		return this.lobbys.get(lobbyId);
 	}
 
-	public getLobbys(): ILobby[] {
+	public getLobbies(): ILobby[] {
 		const lobbys: ILobby[] = [];
 		for (const lobby of this.lobbys.values()) {
 			lobbys.push(lobby.getInfo());

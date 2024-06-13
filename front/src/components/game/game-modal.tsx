@@ -57,7 +57,7 @@ export default function GameModal({gameMode, lobby}: GameModeProps) {
             }
             <div className='flex flex-row items-center content-center gap8'>
                 <button className='button' onClick={leaveGame}> Retour au lobby </button>
-                {lobbyOwner && <button className='button' onClick={() => dispatch(sendStartGame({}))}> Rejouer </button>}
+                {lobbyOwner && <button className='button' onClick={() => dispatch(sendStartGame({playerName: playerConnected.name}))}> Rejouer </button>}
                 {!lobbyOwner && <span> En attente du leader pour relancer </span>}
             </div>
         </div>

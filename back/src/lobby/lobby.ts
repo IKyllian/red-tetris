@@ -67,6 +67,7 @@ export class Lobby {
 			id: this.id,
 			name: this.name,
 			players: this.players,
+			gameStarted: this.gameStarted,
 		};
 	}
 }
