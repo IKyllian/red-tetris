@@ -1,13 +1,19 @@
-import { useAppDispatch } from "front/store/hook";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
 import "./rooms-list.css";
 import { FaUsers } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { ILobby } from "front/types/lobby.type";
 import { IoMdRefresh } from "react-icons/io";
+import { joinLobby } from 'front/store/lobby.slice';
+import { useNavigate } from "react-router-dom";
 
 export default function RoomsList() {
 	const [lobbies, setLobbies] = useState<ILobby[]>([]);
 	const [refresh, setRefresh] = useState<boolean>(true);
+	const playerName = useAppSelector(state => state.player.name);
+	const lobby = useAppSelector(state => state.lobby);
+	const navigate = useNavigate()
+	const dispatch = useAppDispatch();
 	useEffect(() => {
 		if (refresh) {
 			fetch("http://localhost:3000/lobby", { method: "GET" })
@@ -24,25 +30,37 @@ export default function RoomsList() {
 				.finally(() => setRefresh(false));
 		}
 	}, [refresh]);
-	// const dispatch = useAppDispatch();
-	// const joinLobby = () => {
-	//     dispatch(joinLobby({
-	//         lobbyId: data.lobbyId,
-	//         playerName: playerName
-	//     }));
-	//     // navigate('/lobby');
-	// }
+
+	useEffect(() => {
+		if (lobby) {
+			navigate('/lobby')
+		}
+	}, [lobby])
+
+	const handleJoinLobby = (lobbyId: string) => {
+	    dispatch(joinLobby({
+	        lobbyId,
+	        playerName
+	    }));
+	}
+
 	return (
-		<div className="page-wrapper flex flex-col content-center items-center">
-			<h2>
-				Lobby List
-				<button
+		<div className="page-wrapper flex flex-col content-center items-center gap16">
+			<div className="flex flex-row items-center gap16">
+				<h2>
+					Lobby List
+				</h2>
+				<IoMdRefresh
 					onClick={() => setRefresh(true)}
-					style={{ marginLeft: "10px" }}
-				>
-					<IoMdRefresh />
-				</button>
-			</h2>
+					style={{
+						fontSize: '30px',
+						cursor: 'pointer',
+						border: '1px solid white',
+						borderRadius: '50%',
+                        padding: '5px'
+					}}
+				/>
+			</div>
 			<div className="rooms-list-container flex flex-col gap8">
 				{lobbies.length === 0 ? (
 					<div className="no-lobbies-message">
@@ -57,6 +75,7 @@ export default function RoomsList() {
 							<div
 								key={index}
 								className="room-list-item flex flex-row content-between items-center"
+								onClick={() => handleJoinLobby(lobby.id)}
 							>
 								<div className="flex flex-col">
 									<span className="lobby-name">

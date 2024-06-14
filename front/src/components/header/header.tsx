@@ -1,6 +1,8 @@
-import { useAppSelector } from "front/store/hook"
+import { useAppDispatch, useAppSelector } from "front/store/hook"
 import './header.css'
-
+import { FaUser } from "react-icons/fa";
+import { leaveLobby } from "front/store/lobby.slice";
+import { resetGame } from "front/store/game.slice";
 const TETRIS = [
     {
         letter: 'T',
@@ -31,6 +33,13 @@ const TETRIS = [
 export default function Header() {
     const player = useAppSelector(state => state.player)
     const lobby = useAppSelector(state => state.lobby)
+    const dispatch = useAppDispatch();
+    const handleLeave = () => {
+        if (lobby) {
+            dispatch(leaveLobby(lobby.id));
+            dispatch(resetGame())
+        } 
+	};
     return (
         <div className="header-container flex flex-row items-center content-between">
             <div className="flex flex-row items-center">
@@ -42,17 +51,17 @@ export default function Header() {
                     })
                 }
             </div>
-            {/* <span className="header-logo"> tetris</span> */}
             <div className="flex flex-row items-center gap12">
                 {
                     lobby?.gameStarted &&
-                    <button className="button"> Leave </button>
+                    <button onClick={handleLeave} className="button"> Leave </button>
                 }
-                {/* {
-                    !lobby.gameStarted &&
-                    <button className="button"> rooms list </button>
-                }    */}
-                { player && <span className="player-name"> {player.name} </span> }
+                { player &&
+                    <div className="flex flex-row items-center gap16">
+                        <FaUser />
+                        <span className="player-name"> {player.name} </span>    
+                    </div>
+                }
             </div>
         </div>
     )

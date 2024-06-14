@@ -4,21 +4,40 @@ import { IBoard } from "front/types/board.types";
 import {
 	getTetrominoClassName,
 } from "front/utils/piece.utils";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import PiecePreview from "./piece-preview";
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
 	isGameOver: boolean;
 	nextPieces: Array<ITetromino>;
-	piecePreviewWidth?: string;
-	piecePreviewHeight?: string;
 	isOpponentBoards: boolean
+	opponentsLength?: number;
 }
 
-const getBoardSize = (isOpponentBoards: boolean) => {
+const Countdown = () => {
+	const [count, setCount] = useState<number>(3);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCount(prev => prev - 1);
+		}, 900);
+		
+		if (count < -1) {
+			clearInterval(interval);
+		}
+		return () => clearInterval(interval);
+	}, [count])
+	return (
+		<div className="countdown-container">
+			{ count > -1 && <span> {count > 0 ? count : 'GO'} </span> }
+		</div>
+	)
+}
+
+const getBoardStyleSize = (isOpponentBoards: boolean, numberOfOpponents: number) => {
 	const { innerWidth: width, innerHeight: height } = window;
-	const size = isOpponentBoards ? {
+	const size = isOpponentBoards && numberOfOpponents > 1 ? {
 		widthRatio: 0.1,
         heightRatio: 0.2,
 		width: (width / 2),
@@ -36,29 +55,29 @@ const getBoardSize = (isOpponentBoards: boolean) => {
 	return ret;
 };
 
+const getPiecePreviewSize = (boardSize: {width: number, height: number}) => {
+	return {
+		width: boardSize.width * 0.4,
+        height: boardSize.height * 0.2,
+	}
+};
+
 const Board = ({
 	board,
 	playerName,
 	isGameOver,
 	nextPieces,
-	// width = 'calc((100vw * 0.8)',
 	isOpponentBoards,
-	piecePreviewWidth = '170px',
-	piecePreviewHeight = '170px'
+	opponentsLength = 0
 }: BoardProps) => {
-	// const boardStyles = useMemo(
-	// 	() => ({
-	// 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
-	// 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-	// 		width,
-	// 		height
-	// 	}),
-	// 	[board.size]
-	// );
-	const [boardSize, setBoardSize] = useState(getBoardSize(isOpponentBoards));
+	const [boardSize, setBoardSize] = useState(getBoardStyleSize(isOpponentBoards, opponentsLength));
+	const [piecePreviewSize, setPiecePreviewSize] = useState(getPiecePreviewSize(boardSize))
+
 	  useEffect(() => {
 		const handleResize = () => {
-		  setBoardSize(getBoardSize(isOpponentBoards));
+			const newSize = getBoardStyleSize(isOpponentBoards, opponentsLength);
+			setBoardSize(newSize);
+			setPiecePreviewSize(getPiecePreviewSize(newSize))
 		};
 	
 		window.addEventListener('resize', handleResize);
@@ -70,12 +89,15 @@ const Board = ({
 	const boardStyles = {
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-		width: boardSize.width,
-		height: boardSize.height,
+		width: `${boardSize.width}px`,
+		height: `${boardSize.height}px`,
+		minWidth: '73px',
+		minHeight: '156px'
 	}
 
 	return (
-		<div className="inline-flex">
+		<div className="inline-flex" style={{position: 'relative'}}>
+			{!isOpponentBoards && <Countdown /> }
 			<div className="flex flex-col">
 				<div className="board board-border" style={boardStyles} tabIndex={0}>
 					{isGameOver && <span className="gameOver"> Game Over </span>}
@@ -92,25 +114,27 @@ const Board = ({
 						))
 					)}
 				</div>
-				<span style={{ fontSize: "25px", color: "red", textAlign: 'center' }}>
+				<span style={{ fontSize: "1em", color: "red", textAlign: 'center' }}>
 					{playerName}
 				</span>
 			</div>
-			<div className="board-box-container">
-				<div className="box-title"> NEXT </div>
-				<div className="flex flex-col box-border">
-					{
-						nextPieces.map((piece, index) => (
-							<PiecePreview
-								key={index}
-								tetromino={piece}
-								piecePreviewWidth={piecePreviewWidth}
-								piecePreviewHeight={piecePreviewHeight}
-							/>
-						))
-					}
+			{
+				((!isOpponentBoards && nextPieces.length > 0) || (isOpponentBoards && nextPieces.length > 0 && opponentsLength <= 4)) && 
+				<div className="board-box-container">
+					<div className="box-title"> NEXT </div>
+					<div className="flex flex-col box-border">
+						{
+							nextPieces.map((piece, index) => (
+								<PiecePreview
+									key={index}
+									tetromino={piece}
+									piecePreviewSize={piecePreviewSize}
+								/>
+							))
+						}
+					</div>
 				</div>
-			</div>
+			}
 		</div>
 	);
 };

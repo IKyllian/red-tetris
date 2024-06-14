@@ -15,10 +15,11 @@ h2 {
 }
 
 .leaderboard-item {
-    background-color: var(--main-color);
+    /* background-color: var(--main-color); */
     border-radius: 5px;
     padding: 5px 15px;
     font-size: 20px;
+    border: 2px solid white;
     /* color: white; */
     color: white;
     text-transform: uppercase;

@@ -26,10 +26,11 @@ h1 {
     border: 2px solid white;
     padding: 5px 10px;
     font-size: 20px;
-    color: white;
-    border-radius: 2px;
+    border-radius: 10px;
+    /* color: white; */
+    /* border-radius: 2px; */
     /* background-color: #615EB3; */
-    background-color: var(--main-color);
+    /* background-color: var(--main-color); */
     text-transform: uppercase;
 }
 

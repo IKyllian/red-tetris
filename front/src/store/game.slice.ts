@@ -117,7 +117,7 @@ export const gameSlice = createSlice({
 				state.inputQueue.push(action.payload);
 			}
 		},
-
+		resetGame: () => defaultGameState ,
 		setGameStartingState: (
 			state,
 			action: {
@@ -369,6 +369,7 @@ export const {
 	addInputToQueue,
 	updateIndestructibleLines,
 	updateTickAdjustments,
+	resetGame
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
