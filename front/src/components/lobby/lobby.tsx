@@ -5,12 +5,13 @@ import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ILobby } from "front/types/lobby.type";
+import { resetGame } from "front/store/game.slice";
 
 export default function Lobby() {
 	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby?.players?.find((player) => player.isLeader)?.id === playerConnected.id;
+	const lobbyOwner = lobby && !lobby.id ? true : lobby?.players.find((player) => player.isLeader)?.id === playerConnected.id;
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
@@ -39,6 +40,7 @@ export default function Lobby() {
 
 	const handleLeave = () => {
 		dispatch(leaveLobby(lobby.id));
+		dispatch(resetGame())
 	};
 
 	//TODO on start, server emit tick several times, client respond with tick to get in sync
@@ -56,7 +58,7 @@ export default function Lobby() {
 						<div className="flex flex-col gap16">
 							<span className="player-list-title"> Players </span>
 							<div className="player-list flex flex-col gap8">
-								{lobby.players.map((player, index) => (
+								{lobby?.players?.map((player, index) => (
 									<div
 										className="player-list-item flex flex-row items-center content-between"
 										key={index}

@@ -6,8 +6,8 @@
   width: 100%;
   /* font-family: "Nunito Sans", sans-serif; */
   font-family: "Kanit", sans-serif;
-  --main-bg-color: #EFF0F4;
-  --main-color: #262B39;
+  --main-bg-color: #222831;
+  --main-color: #EEEEEE;
   --main-header-height: 70px;
   
   color: var(--main-color);

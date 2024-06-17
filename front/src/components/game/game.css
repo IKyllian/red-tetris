@@ -11,7 +11,7 @@
     background-color: #344C64;
     border-radius: 10px;
     color: white;
-    z-index: 2;
+    z-index: 5;
 }
 
 .modal-title {
@@ -30,32 +30,29 @@
 .game-wrapper {
     height: 100%;
     position: relative;
-}
-.countdown-container > span {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+
     display: flex;
-    justify-content: center;
+    flex-direction: row;
     align-items: center;
-    font-size: 70px;
-    font-weight: bolder;
+    justify-content: space-between;
+    gap: 16px;
+    /* margin-left: calc(100vw / 4); */
 }
 
 .opponents-game-container {
-    position: absolute;
+    /* position: absolute;
     right: 0;
-    /* top: 0;
-    bottom: 0; */
     width: calc((100vw / 2) - 250px);
+    top: 50%;
+    right: 20%;
+    max-height: calc(100vh - var(--main-header-height));
+    transform: translate(50%, -50%); */
+    max-height: calc(100vh - (var(--main-header-height) * 2));
+    overflow: hidden;
 }
 
 .game-player-container {
-    position: absolute;
+    /* position: absolute;
     top: 50%;
-    left: 40%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); */
 }

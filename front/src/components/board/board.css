@@ -91,6 +91,21 @@
     opacity: 0.2;
 }
 
+.countdown-container > span {
+    position: absolute;
+    top: 0;
+    left: -200px;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 70px;
+    font-weight: bolder;
+    z-index: 4;
+}
+
 .tetromino {
     position: absolute;
     top: 0;

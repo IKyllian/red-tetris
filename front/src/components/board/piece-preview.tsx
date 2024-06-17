@@ -9,18 +9,17 @@ import {
 } from "front/utils/piece.utils";
 
 interface PiecePreviewProps {
-	piecePreviewWidth: string;
-	piecePreviewHeight: string;
+	piecePreviewSize: {width: number, height: number}
 	tetromino: ITetromino
 }
 
-export default function PiecePreview({ tetromino, piecePreviewHeight, piecePreviewWidth }: PiecePreviewProps) {
+export default function PiecePreview({ tetromino, piecePreviewSize }: PiecePreviewProps) {
 	const board = buildBoard({ rows: 4, columns: 4 });
 	const boardStyles = {
 		gridTemplateRows: `repeat(4, 1fr)`,
 		gridTemplateColumns: `repeat(4, 1fr)`,
-		height: piecePreviewHeight,
-		width: piecePreviewWidth,
+		height: `${piecePreviewSize.height}px`,
+		width: `${piecePreviewSize.width}px`,
 	};
 
 	const shape = getShape(tetromino.type, tetromino.rotationState);

@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from "front/store/hook";
 import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
-import { addInputToQueue } from "front/store/game.slice";
+import { addInputToQueue, resetGame } from "front/store/game.slice";
 import { isCommandType, COMMANDS } from "front/types/command.types";
 import BoardPreview from "front/components/board/board-preview";
 import { leaveLobby } from "front/store/lobby.slice";
@@ -27,6 +27,7 @@ const Countdown = () => {
 	}, [count])
 	return (
 		<div className="countdown-container">
+			<span> 555</span>
 			{ count > -1 && <span> {count > 0 ? count : 'GO'} </span> }
 		</div>
 	)
@@ -41,7 +42,8 @@ export default function Game() {
 	console.log("Lobby = ", lobby)
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
-	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
+	const opponentsGames = useAppSelector((state) => state.game.opponentsGames)?.filter(game => !game.gameOver);
+	// const opponentsGames = useAppS elector((state) => state.game.opponentsGames);
 	const gameMode = useAppSelector((state) => state.game.gameMode);
 	const playerGameBoard = useAppSelector(
 		(state) => state.game.playerGame?.board
@@ -96,6 +98,12 @@ export default function Game() {
 	// 	})
 	// }, [])
 
+	// useEffect(() => {
+	// 	return () => {
+	// 		dispatch(resetGame())
+	// 	};
+	// }, [])
+
 	useEffect(() => {
 		if (!lobby) navigate('/home')
 		if (gameOver) {
@@ -135,15 +143,12 @@ export default function Game() {
 		}
 	};
 
-	const opponentsGame = useMemo(() => opponentsGames, [opponentsGames]);
-	// const half_length = Math.ceil(opponentsGame.length / 2);
-	// const leftSide = opponentsGame.slice(0, half_length);
-	// const rightSide = opponentsGame.slice(half_length);
-	// console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
 	}
 
+	const flexClass = 'flex flex-row content-evenly items-center gap8'
+	console.log("opponents = ", opponentsGames)
 	if (lobby) {
 		return (
 			<div className="game-container">
@@ -155,17 +160,20 @@ export default function Game() {
 				</div> */}
 				<div
 					// className="game-wrapper flex flex-row items-center content-center gap8"
-					className="game-wrapper"
+					className={`game-wrapper ${opponentsGames.length <= 1 ? flexClass : ''}`}
 					tabIndex={0}
 					onKeyDown={handleKeyDown}
 					onKeyUp={handleKeyRelease}
-					style={{ outline: "none", position: 'relative' }}
+					style={{ outline: "none", position: 'relative', marginLeft: opponentsGames.length <= 1 ? '0' : 'calc(100vw / 4)' }}
 				>
-					<div style={{ fontSize: "25px", color: "red" }}>
+					{/* <div style={{ fontSize: "25px", color: "red" }}>
 						FPS: {fpsRef.current.toFixed(2)}
-					</div>
-					<Countdown />
-					<div className="game-player-container">
+					</div> */}
+					{/* <Countdown /> */}
+					<div
+						className={`${opponentsGames.length > 1 ? 'game-player-container' : ''}`}
+						style={{left: opponentsGames.length > 0 ? "40%" : "50%"}}
+					>
 						{playerGameBoard && (
 							<>
 								<Board
@@ -178,51 +186,33 @@ export default function Game() {
 									)}
 									isOpponentBoards={false}
 								/>
-								{/* <div className="flex flex-col gap4">
-									{pieces
-										.slice(
-											getPieceIndex(playerGamePieceIndex + 1),
-											getPieceIndex(playerGamePieceIndex + 4)
-										)
-										.map((piece, pieceIndex) => (
-											<PiecePreview
-												key={pieceIndex}
-												tetromino={piece}
-											/>
-										))}
-								</div> */}
 							</>
 						)}
 					</div>
 					{
-						opponentsGame.length > 0 &&
-						<div className="opponents-game-container flex flex-row gap16 flex-wrap">
-							{opponentsGame.map((game, index) => (
-								// <BoardPreview
-								// 	key={index}
-								// 	currentPieceIndex={game.currentPieceIndex}
-								// 	// pieces={pieces}
-								// 	board={game.board}
-								// 	playerName={game.player.name}
-								// 	isGameOver={game.gameOver}
-								// />
-								<>
-									<Board
-										key={index}
-										board={game.board}
-										playerName={game.player.name}
-										isGameOver={game.gameOver}
-										nextPieces={game.currentPieceIndex ? pieces.slice(
-											getPieceIndex(game.currentPieceIndex + 1),
-											getPieceIndex(game.currentPieceIndex + 4)
-										) : []}
-										piecePreviewWidth="50px"
-										piecePreviewHeight="50px"
-										isOpponentBoards={true}
-									/>
-								</>
-								
-							))}
+						opponentsGames.length > 0 &&
+						<div
+							// className="opponents-game-container flex flex-row gap16 flex-wrap"
+							className={`${opponentsGames.length > 1 ? 'opponents-game-container flex flex-row gap16 flex-wrap' : ''}`}
+						>
+							{ opponentsGames.map((game, index) => {
+								if (game) {
+									return (
+										<Board
+											key={index}
+											board={game.board}
+											playerName={game.player.name}
+											isGameOver={game.gameOver}
+											nextPieces={game.currentPieceIndex ? pieces.slice(
+												getPieceIndex(game.currentPieceIndex + 1),
+												getPieceIndex(game.currentPieceIndex + 4)
+											) : []}
+											isOpponentBoards={true}
+											opponentsLength={opponentsGames.length}
+										/>
+									)
+								}		
+							})}
 						</div>
 					}
 				</div>

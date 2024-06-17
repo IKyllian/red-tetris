@@ -1,6 +1,7 @@
 .header-container {
     width: 100vw;
-    background-color: var(--main-color);
+    /* background-color: var(--main-color); */
+    /* background-color: #556680; */
     height: var(--main-header-height);
     padding: 0 10px;
 }

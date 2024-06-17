@@ -39,6 +39,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Name"
+				style={{borderColor: '#88afff'}}
 				{...register("lobbyName", { required: true })}
 			/>
 			{errors.lobbyName && errors.lobbyName.message && (
@@ -77,6 +78,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Game Id"
+				style={{borderColor: '#88afff'}}
 				{...register("lobbyId", { required: true })}
 			/>
 			{errors.lobbyId && errors.lobbyId.message && (
@@ -150,6 +152,7 @@ export default function Home() {
 						style={{
 							backgroundColor: gameMode.color,
 							color: gameMode.textColor,
+							border: '1px solid ' + gameMode.textColor,
 						}}
 					>
 						<span className="game-mode-title">
@@ -162,7 +165,7 @@ export default function Home() {
 				))}
 				<div
 					className="game-mode-item flex flex-row content-evenly"
-					style={{ backgroundColor: "#1c263e", color: "#88afff" }}
+					style={{ backgroundColor: "#1c263e", color: "#88afff", border: "1px solid #88afff" }}
 				>
 					<div className="flex flex-col">
 						<span className="game-mode-title">
