@@ -34,7 +34,6 @@ export class LobbyManager {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
-			//TODO remove unwanted data to emit
 			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
 		}
 	}

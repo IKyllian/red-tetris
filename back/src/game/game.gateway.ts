@@ -9,16 +9,8 @@ import {
 	WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import {
-	IInputsPacket,
-	ITickAdjustmentPacket,
-	SocketEvent,
-} from 'src/type/event.enum';
+import { ITickAdjustmentPacket, SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from '../lobby/lobby-manager';
-import { COMMANDS, isCommandType } from 'src/type/command.types';
-import { Board } from './board';
-import { defaultBoardSize } from 'src/type/board.interface';
-import { Lobby } from '../lobby/lobby';
 import { GameSocketManager } from './game-socket-manager';
 import { SoloGame } from './solo-game';
 import { Player } from './player';
@@ -44,7 +36,6 @@ export class GameGateway
 {
 	@WebSocketServer() server: Server;
 
-	// private lobbyManager = new LobbyManager();
 	private gameManager = new GameSocketManager();
 
 	constructor(private lobbyManager: LobbyManager) {}
@@ -81,8 +72,6 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: JoinLobbyDto
 	) {
-		// console.log('Join lobby = ', data);
-		// console.log('Lobby manager = ', this.lobbyManager.getLobbys());
 		this.lobbyManager.joinLobby(
 			socket,
 			data.playerName,
@@ -103,7 +92,6 @@ export class GameGateway
 		@MessageBody() data: StartGameDto
 	) {
 		//TODO check if game is already started
-		console.log("TEST")
 		const lobby = this.lobbyManager.getLobby(socket.id);
 		if (lobby) {
 			if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
