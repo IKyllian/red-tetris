@@ -27,7 +27,6 @@ import {
 	rotate,
 } from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
-import { COMMANDS } from 'front/types/command.types';
 import {
 	addIndestructibleLines,
 	compareCells,
@@ -44,6 +43,7 @@ import {
 	handleServerReconciliation,
 	softDrop,
 } from 'front/utils/game.utils';
+import { Commands } from 'front/types/command.types';
 
 const TICK_OFFSET = 4;
 
@@ -62,13 +62,13 @@ export interface IGameState {
 	timer: number;
 	rng: seedrandom.PRNG;
 	clientStateBuffer: Array<{ tick: number; game: IGame }>;
-	inputBuffer: Array<COMMANDS[]>;
+	inputBuffer: Array<Commands[]>;
 	lastServerState: IServerState;
 	lastProcessedServerState: IServerState;
 	tickAdjustment: number;
 	adjustmentIteration: number;
 	serverAdjustmentIteration: number;
-	inputQueue: COMMANDS[];
+	inputQueue: Commands[];
 	skipPieceGeneration: number;
 	indestructibleQueue: IIndestructiblePacket[];
 	gravity: number;
@@ -98,7 +98,7 @@ const defaultGameState: IGameState = {
 	adjustmentIteration: 0,
 	serverAdjustmentIteration: 0,
 	inputQueue: [],
-	inputBuffer: new Array<COMMANDS[]>(BUFFER_SIZE),
+	inputBuffer: new Array<Commands[]>(BUFFER_SIZE),
 	indestructibleQueue: [],
 	gravity: 0.04,
 	gameMode: GameMode.SOLO,
@@ -117,7 +117,7 @@ export const gameSlice = createSlice({
 				state.inputQueue.push(action.payload);
 			}
 		},
-		resetGame: () => defaultGameState ,
+		resetGame: () => defaultGameState,
 		setGameStartingState: (
 			state,
 			action: {
@@ -139,7 +139,7 @@ export const gameSlice = createSlice({
 			state.clientStateBuffer = new Array<{ tick: number; game: IGame }>(
 				BUFFER_SIZE
 			);
-			state.inputBuffer = new Array<COMMANDS[]>(BUFFER_SIZE);
+			state.inputBuffer = new Array<Commands[]>(BUFFER_SIZE);
 			state.tick = 0;
 			state.timer = 0;
 			state.tickAdjustment = 0;
@@ -316,9 +316,9 @@ export const gameSlice = createSlice({
 						inputs: [...state.inputQueue],
 					};
 					// if (state.tick % 100 !== 0 || state.tick % 150 === 0) {
-						instance.emit(SocketEvent.CommandPressed, {
-							data: data,
-						});
+					instance.emit(SocketEvent.CommandPressed, {
+						data: data,
+					});
 					// }
 					state.inputQueue.length = 0;
 				}
@@ -369,7 +369,7 @@ export const {
 	addInputToQueue,
 	updateIndestructibleLines,
 	updateTickAdjustments,
-	resetGame
+	resetGame,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

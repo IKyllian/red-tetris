@@ -5,7 +5,7 @@ import {
 	IsOptional,
 	IsString,
 } from 'class-validator';
-import { COMMANDS } from 'src/type/command.types';
+import { Commands } from 'src/type/command.types';
 
 export class CreateLobbyDto {
 	@IsString()
@@ -32,8 +32,8 @@ export class InputsPacketDto {
 	tick: number;
 	@IsNumber()
 	adjustmentIteration: number;
-	@IsEnum(COMMANDS, { each: true })
-	inputs: COMMANDS[];
+	@IsEnum(Commands, { each: true })
+	inputs: Commands[];
 }
 
 export class TickAdjustmentPacketDto {

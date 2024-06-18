@@ -1,4 +1,4 @@
-import { COMMANDS } from './command.types';
+import { Commands } from './command.types';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -25,7 +25,7 @@ export enum SocketEvent {
 export interface IInputsPacket {
 	tick: number;
 	adjustmentIteration: number;
-	inputs: COMMANDS[];
+	inputs: Commands[];
 }
 
 export interface ITickAdjustmentPacket {

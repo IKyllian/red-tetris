@@ -1,7 +1,7 @@
 import { IGame } from 'front/types/board.types';
-import { COMMANDS } from 'front/types/command.types';
 import { IPlayer } from 'front/types/player.type';
 import { ITetromino } from 'front/types/tetrominoes.type';
+import { Commands } from './command.types';
 
 export interface IPositionUpdate {
 	player: IPlayer;
@@ -20,7 +20,7 @@ export interface IServerState {
 export interface IInputsPacket {
 	tick: number;
 	adjustmentIteration: number;
-	inputs: COMMANDS[];
+	inputs: Commands[];
 }
 
 export enum UpdateType {

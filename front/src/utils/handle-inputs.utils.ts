@@ -6,7 +6,6 @@ import {
 	JLTSZ_SRS,
 } from 'front/types/tetrominoes.type';
 import { NbOfLinesForNextLevel } from 'front/types/board.types';
-import { COMMANDS } from 'front/types/command.types';
 import {
 	checkCollision,
 	clearDropPreview,
@@ -21,6 +20,7 @@ import {
 } from './piece.utils';
 import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
+import { Commands } from 'front/types/command.types';
 
 export function moveDown(state: IGameState): void {
 	const newPosition = {
@@ -168,21 +168,21 @@ export function rotate(state: IGameState): void {
 	}
 }
 
-export function handleInput(input: COMMANDS, state: IGameState): void {
+export function handleInput(input: Commands, state: IGameState): void {
 	switch (input) {
-		case COMMANDS.KEY_UP:
+		case Commands.ROTATE:
 			rotate(state);
 			break;
-		case COMMANDS.KEY_DOWN:
+		case Commands.MOVE_DOWN:
 			moveDown(state);
 			break;
-		case COMMANDS.KEY_LEFT:
+		case Commands.MOVE_LEFT:
 			changeStatePiecePosition(state, getPosLeft);
 			break;
-		case COMMANDS.KEY_RIGHT:
+		case Commands.MOVE_RIGHT:
 			changeStatePiecePosition(state, getPosRight);
 			break;
-		case COMMANDS.KEY_SPACE:
+		case Commands.HARD_DROP:
 			hardDrop(state);
 			break;
 		default:

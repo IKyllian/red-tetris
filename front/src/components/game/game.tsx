@@ -4,45 +4,48 @@ import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
 import { addInputToQueue, resetGame } from "front/store/game.slice";
-import { isCommandType, COMMANDS } from "front/types/command.types";
+import { getCommand, Commands } from "front/types/command.types";
 import BoardPreview from "front/components/board/board-preview";
 import { leaveLobby } from "front/store/lobby.slice";
 import { useNavigate } from "react-router-dom";
 import GameModal from "./game-modal";
-import './game.css'
+import "./game.css";
 import { ILobby } from "front/types/lobby.type";
+import { get } from "lodash";
 
 const Countdown = () => {
 	const [count, setCount] = useState<number>(3);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			setCount(prev => prev - 1);
+			setCount((prev) => prev - 1);
 		}, 900);
-		
+
 		if (count < -1) {
 			clearInterval(interval);
 		}
 		return () => clearInterval(interval);
-	}, [count])
+	}, [count]);
 	return (
 		<div className="countdown-container">
 			<span> 555</span>
-			{ count > -1 && <span> {count > 0 ? count : 'GO'} </span> }
+			{count > -1 && <span> {count > 0 ? count : "GO"} </span>}
 		</div>
-	)
-}
+	);
+};
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const lobby: ILobby | null = useAppSelector(state => state.lobby)
-	console.log("Lobby = ", lobby)
+	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
+	console.log("Lobby = ", lobby);
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
-	const opponentsGames = useAppSelector((state) => state.game.opponentsGames)?.filter(game => !game.gameOver);
+	const opponentsGames = useAppSelector(
+		(state) => state.game.opponentsGames
+	)?.filter((game) => !game.gameOver);
 	// const opponentsGames = useAppS elector((state) => state.game.opponentsGames);
 	const gameMode = useAppSelector((state) => state.game.gameMode);
 	const playerGameBoard = useAppSelector(
@@ -105,7 +108,7 @@ export default function Game() {
 	// }, [])
 
 	useEffect(() => {
-		if (!lobby) navigate('/home')
+		if (!lobby) navigate("/home");
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
@@ -120,26 +123,27 @@ export default function Game() {
 	}, [gameStarted, dispatch, gameOver, lobby]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		if (isCommandType(event.code)) {
-			if (event.code === COMMANDS.KEY_UP) {
+		const command: Commands | null = getCommand(event.code);
+		if (command !== null) {
+			if (command === Commands.ROTATE) {
 				if (!isKeyUpReleased) return;
 				setIsKeyUpReleased(false);
-			}
-			if (event.code === COMMANDS.KEY_SPACE) {
+			} else if (command === Commands.HARD_DROP) {
 				if (!isKeySpaceReleased) return;
 				setIsKeySpaceReleased(false);
 			}
-			dispatch(addInputToQueue(event.code as COMMANDS));
+			dispatch(addInputToQueue(command));
 		}
 	};
 
 	const handleKeyRelease = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		const code = event.code;
-		if (code === COMMANDS.KEY_UP) {
-			setIsKeyUpReleased(true);
-		}
-		if (code === COMMANDS.KEY_SPACE) {
-			setIsKeySpaceReleased(true);
+		const command: Commands | null = getCommand(event.code);
+		if (command !== null) {
+			if (command === Commands.ROTATE) {
+				setIsKeyUpReleased(true);
+			} else if (command === Commands.HARD_DROP) {
+				setIsKeySpaceReleased(true);
+			}
 		}
 	};
 
@@ -147,32 +151,49 @@ export default function Game() {
 		return <div>Game not started</div>;
 	}
 
-	const flexClass = 'flex flex-row content-evenly items-center gap8'
-	console.log("opponents = ", opponentsGames)
+	const flexClass = "flex flex-row content-evenly items-center gap8";
+	console.log("opponents = ", opponentsGames);
 	if (lobby) {
 		return (
 			<div className="game-container">
-				{ !lobby.gameStarted && <GameModal lobby={lobby} gameMode={gameMode} />}
+				{!lobby.gameStarted && (
+					<GameModal lobby={lobby} gameMode={gameMode} />
+				)}
 				{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
-				
+
 				{/* <div style={{ fontSize: "25px", color: "blue" }}>
 					Render average: {renderAverage.current}
 				</div> */}
 				<div
 					// className="game-wrapper flex flex-row items-center content-center gap8"
-					className={`game-wrapper ${opponentsGames.length <= 1 ? flexClass : ''}`}
+					className={`game-wrapper ${
+						opponentsGames.length <= 1 ? flexClass : ""
+					}`}
 					tabIndex={0}
 					onKeyDown={handleKeyDown}
 					onKeyUp={handleKeyRelease}
-					style={{ outline: "none", position: 'relative', marginLeft: opponentsGames.length <= 1 ? '0' : 'calc(100vw / 4)' }}
+					style={{
+						outline: "none",
+						position: "relative",
+						marginLeft:
+							opponentsGames.length <= 1
+								? "0"
+								: "calc(100vw / 4)",
+					}}
 				>
 					{/* <div style={{ fontSize: "25px", color: "red" }}>
 						FPS: {fpsRef.current.toFixed(2)}
 					</div> */}
 					{/* <Countdown /> */}
 					<div
-						className={`${opponentsGames.length > 1 ? 'game-player-container' : ''}`}
-						style={{left: opponentsGames.length > 0 ? "40%" : "50%"}}
+						className={`${
+							opponentsGames.length > 1
+								? "game-player-container"
+								: ""
+						}`}
+						style={{
+							left: opponentsGames.length > 0 ? "40%" : "50%",
+						}}
 					>
 						{playerGameBoard && (
 							<>
@@ -189,13 +210,16 @@ export default function Game() {
 							</>
 						)}
 					</div>
-					{
-						opponentsGames.length > 0 &&
+					{opponentsGames.length > 0 && (
 						<div
 							// className="opponents-game-container flex flex-row gap16 flex-wrap"
-							className={`${opponentsGames.length > 1 ? 'opponents-game-container flex flex-row gap16 flex-wrap' : ''}`}
+							className={`${
+								opponentsGames.length > 1
+									? "opponents-game-container flex flex-row gap16 flex-wrap"
+									: ""
+							}`}
 						>
-							{ opponentsGames.map((game, index) => {
+							{opponentsGames.map((game, index) => {
 								if (game) {
 									return (
 										<Board
@@ -203,18 +227,30 @@ export default function Game() {
 											board={game.board}
 											playerName={game.player.name}
 											isGameOver={game.gameOver}
-											nextPieces={game.currentPieceIndex ? pieces.slice(
-												getPieceIndex(game.currentPieceIndex + 1),
-												getPieceIndex(game.currentPieceIndex + 4)
-											) : []}
+											nextPieces={
+												game.currentPieceIndex
+													? pieces.slice(
+															getPieceIndex(
+																game.currentPieceIndex +
+																	1
+															),
+															getPieceIndex(
+																game.currentPieceIndex +
+																	4
+															)
+													  )
+													: []
+											}
 											isOpponentBoards={true}
-											opponentsLength={opponentsGames.length}
+											opponentsLength={
+												opponentsGames.length
+											}
 										/>
-									)
-								}		
+									);
+								}
 							})}
 						</div>
-					}
+					)}
 				</div>
 			</div>
 		);

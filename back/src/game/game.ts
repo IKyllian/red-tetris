@@ -1,14 +1,13 @@
 import { defaultBoardSize } from 'src/type/board.interface';
 import { Board } from './board';
 import { Player } from './player';
-import { cloneDeep } from 'lodash';
 import { Piece } from './piece';
-import { COMMANDS } from 'src/type/command.types';
 import { Scoring } from 'src/type/scoring.enum';
-import { IInputsPacket } from 'src/type/event.enum';
 import seedrandom from 'seedrandom';
 import { IPosition, TetriminosArray } from 'src/type/tetromino.interface';
 import { GameMode } from 'src/type/game.type';
+import { Commands } from 'src/type/command.types';
+import { IInputsPacket } from 'src/type/event.enum';
 
 export interface IGame {
 	player: Player;
@@ -165,22 +164,22 @@ export class Game {
 		}
 	}
 
-	public handleInputs(commands: COMMANDS[]) {
+	public handleInputs(commands: Commands[]) {
 		for (const command of commands) {
 			//TODO check if old position is not the same as new position to not emit useless data
 			if (this.gameOver) return;
 
 			switch (command) {
-				case COMMANDS.KEY_UP:
+				case Commands.ROTATE:
 					this.rotate();
 					break;
-				case COMMANDS.KEY_LEFT:
+				case Commands.MOVE_LEFT:
 					this.moveSideway(this.getPosLeft(this.piece.position));
 					break;
-				case COMMANDS.KEY_RIGHT:
+				case Commands.MOVE_RIGHT:
 					this.moveSideway(this.getPosRight(this.piece.position));
 					break;
-				case COMMANDS.KEY_DOWN:
+				case Commands.MOVE_DOWN:
 					this.moveDown();
 					break;
 				default:
