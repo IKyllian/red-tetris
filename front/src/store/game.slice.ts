@@ -112,6 +112,7 @@ export const gameSlice = createSlice({
 	name: 'game',
 	initialState: defaultGameState,
 	reducers: {
+		leaveGame: () => {},
 		addInputToQueue(state, action) {
 			if (state.tick >= 90) {
 				state.inputQueue.push(action.payload);
@@ -177,6 +178,9 @@ export const gameSlice = createSlice({
 		) => {
 			const packetWhithHeader = action.payload;
 			const gamePackets = packetWhithHeader.gamePackets;
+			if (state.gameStarted === false) {
+				return;
+			}
 
 			if (
 				state.serverAdjustmentIteration !=
@@ -370,6 +374,7 @@ export const {
 	updateIndestructibleLines,
 	updateTickAdjustments,
 	resetGame,
+	leaveGame,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

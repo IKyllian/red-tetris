@@ -15,6 +15,7 @@ export enum SocketEvent {
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
+	LeaveGame = 'leave-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
 	SyncWithServer = 'sync',

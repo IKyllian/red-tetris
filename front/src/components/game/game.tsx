@@ -40,7 +40,6 @@ export default function Game() {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
-	console.log("Lobby = ", lobby);
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
 	const opponentsGames = useAppSelector(

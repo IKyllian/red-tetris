@@ -249,14 +249,13 @@ export class Game {
 	public hardDrop() {
 		//TODO get drop position and add score
 		this.tickToMoveDown = 0;
-		let newPos = { ...this.piece.position };
-		let nextPos = this.getPosDown(newPos);
+		let nextPos = this.getPosDown(this.piece.position);
 		const shape = this.piece.getShape();
 		while (!this.board.checkCollision(nextPos, shape)) {
-			newPos = nextPos;
-			nextPos = this.getPosDown(newPos);
+			this.score += 2;
+			this.piece.position = nextPos;
+			nextPos = this.getPosDown(nextPos);
 		}
-		this.piece.position = newPos;
 		this.handlePieceDown(shape);
 	}
 

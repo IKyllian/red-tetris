@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { LobbyManager } from './lobby-manager';
 
 @Controller('lobby')

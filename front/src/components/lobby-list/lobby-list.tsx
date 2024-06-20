@@ -1,18 +1,18 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
-import "./rooms-list.css";
+import "./lobby-list.css";
 import { FaUsers } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { ILobby } from "front/types/lobby.type";
 import { IoMdRefresh } from "react-icons/io";
-import { joinLobby } from 'front/store/lobby.slice';
+import { joinLobby } from "front/store/lobby.slice";
 import { useNavigate } from "react-router-dom";
 
-export default function RoomsList() {
+export default function LobbyList() {
 	const [lobbies, setLobbies] = useState<ILobby[]>([]);
 	const [refresh, setRefresh] = useState<boolean>(true);
-	const playerName = useAppSelector(state => state.player.name);
-	const lobby = useAppSelector(state => state.lobby);
-	const navigate = useNavigate()
+	const playerName = useAppSelector((state) => state.player.name);
+	const lobby = useAppSelector((state) => state.lobby);
+	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	useEffect(() => {
 		if (refresh) {
@@ -33,31 +33,31 @@ export default function RoomsList() {
 
 	useEffect(() => {
 		if (lobby) {
-			navigate('/lobby')
+			navigate("/lobby");
 		}
-	}, [lobby])
+	}, [lobby]);
 
 	const handleJoinLobby = (lobbyId: string) => {
-	    dispatch(joinLobby({
-	        lobbyId,
-	        playerName
-	    }));
-	}
+		dispatch(
+			joinLobby({
+				lobbyId,
+				playerName,
+			})
+		);
+	};
 
 	return (
 		<div className="page-wrapper flex flex-col content-center items-center gap16">
 			<div className="flex flex-row items-center gap16">
-				<h2>
-					Lobby List
-				</h2>
+				<h2>Lobby List</h2>
 				<IoMdRefresh
 					onClick={() => setRefresh(true)}
 					style={{
-						fontSize: '30px',
-						cursor: 'pointer',
-						border: '1px solid white',
-						borderRadius: '50%',
-                        padding: '5px'
+						fontSize: "30px",
+						cursor: "pointer",
+						border: "1px solid white",
+						borderRadius: "50%",
+						padding: "5px",
 					}}
 				/>
 			</div>

@@ -39,7 +39,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Name"
-				style={{borderColor: '#88afff'}}
+				style={{ borderColor: "#88afff" }}
 				{...register("lobbyName", { required: true })}
 			/>
 			{errors.lobbyName && errors.lobbyName.message && (
@@ -78,7 +78,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Game Id"
-				style={{borderColor: '#88afff'}}
+				style={{ borderColor: "#88afff" }}
 				{...register("lobbyId", { required: true })}
 			/>
 			{errors.lobbyId && errors.lobbyId.message && (
@@ -109,26 +109,33 @@ const GAME_MODE = [
 		description: "Liste de tous les lobby",
 		color: "#1e1d2d",
 		textColor: "#bab8df",
-		path: "/room-list",
+		path: "/lobby-list",
+	},
+	{
+		title: "leaderboard",
+		description: "Top 10 des meilleurs scores en solo",
+		color: "#4499B0",
+		textColor: "#bab8df",
+		path: "/leaderboard",
 	},
 ];
 
 export default function Home() {
-    const player = useAppSelector((state) => state.player);
-    console.log(player)
-    const playerName = useAppSelector((state) => state.player.name);
-    console.log(playerName)
-    const lobby = useAppSelector(state => state.lobby);
-    const navigate = useNavigate();
+	const player = useAppSelector((state) => state.player);
+	console.log(player);
+	const playerName = useAppSelector((state) => state.player.name);
+	console.log(playerName);
+	const lobby = useAppSelector((state) => state.lobby);
+	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
-    useEffect(() => {
+	useEffect(() => {
 		if (lobby && lobby.gameStarted) {
-			navigate('/game')
+			navigate("/game");
 		} else if (lobby) {
-            navigate('/lobby')
-        }
-    }, [lobby])
+			navigate("/lobby");
+		}
+	}, [lobby]);
 
 	const navigateTo = (path?: string) => {
 		if (path) navigate(path);
@@ -136,11 +143,11 @@ export default function Home() {
 
 	const handleClick = (path: string | undefined) => {
 		if (path) {
-			navigateTo(path)
+			navigateTo(path);
 		} else {
-			dispatch(sendStartGame({playerName}));
+			dispatch(sendStartGame({ playerName }));
 		}
-	}
+	};
 	return (
 		<div className="home-container">
 			<div className="game-mode-list flex flex-col gap12">
@@ -152,7 +159,7 @@ export default function Home() {
 						style={{
 							backgroundColor: gameMode.color,
 							color: gameMode.textColor,
-							border: '1px solid ' + gameMode.textColor,
+							border: "1px solid " + gameMode.textColor,
 						}}
 					>
 						<span className="game-mode-title">
@@ -165,12 +172,14 @@ export default function Home() {
 				))}
 				<div
 					className="game-mode-item flex flex-row content-evenly"
-					style={{ backgroundColor: "#1c263e", color: "#88afff", border: "1px solid #88afff" }}
+					style={{
+						backgroundColor: "#1c263e",
+						color: "#88afff",
+						border: "1px solid #88afff",
+					}}
 				>
 					<div className="flex flex-col">
-						<span className="game-mode-title">
-							Creer un lobby
-						</span>
+						<span className="game-mode-title">Creer un lobby</span>
 						<CreateGameButton playerName={playerName} />
 					</div>
 

@@ -6,7 +6,8 @@ import PublicRoute from "front/router/public-route";
 import Lobby from "front/components/lobby/lobby";
 import JoinLobbyByPath from "front/components/lobby/join-lobby-by-path";
 import Game from "front/components/game/game";
-import RoomsList from "front/components/rooms-list/rooms-list";
+import Leaderboard from "front/components/leaderboard/leaderboard";
+import LobbyList from "front/components/lobby-list/lobby-list";
 
 export const router = createBrowserRouter([
 	{
@@ -50,11 +51,19 @@ export const router = createBrowserRouter([
 		),
 	},
 	{
-		path: "room-list",
+		path: "lobby-list",
 		element: (
-            <PrivateRoute>
-				<RoomsList />
+			<PrivateRoute>
+				<LobbyList />
 			</PrivateRoute>
-		)
-	}
+		),
+	},
+	{
+		path: "leaderboard",
+		element: (
+			<PrivateRoute>
+				<Leaderboard />
+			</PrivateRoute>
+		),
+	},
 ]);

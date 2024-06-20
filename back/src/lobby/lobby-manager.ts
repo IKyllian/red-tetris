@@ -38,7 +38,7 @@ export class LobbyManager {
 		}
 	}
 
-	public leaveLobby(socket: Socket) {
+	public leave(socket: Socket) {
 		const lobbyId = this.socketRoomMap.get(socket.id);
 		if (lobbyId) {
 			this.socketRoomMap.delete(socket.id);

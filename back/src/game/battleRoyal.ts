@@ -127,7 +127,9 @@ export class BattleRoyal {
 			if (winner) {
 				this.ranking.unshift(winner.player);
 			}
-			this.server.emit(SocketEvent.GameOver, this.ranking);
+			this.server
+				.to(this.lobby.id)
+				.emit(SocketEvent.GameOver, this.ranking);
 			this.lobby.gameStarted = false;
 			return true;
 		}

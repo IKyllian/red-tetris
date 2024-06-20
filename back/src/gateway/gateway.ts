@@ -11,9 +11,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ITickAdjustmentPacket, SocketEvent } from 'src/type/event.enum';
 import { LobbyManager } from '../lobby/lobby-manager';
-import { GameSocketManager } from './game-socket-manager';
-import { SoloGame } from './solo-game';
-import { Player } from './player';
+import { GameSocketManager } from '../game/game-socket-manager';
+import { SoloGame } from '../game/solo-game';
+import { Player } from '../game/player';
 import {
 	CreateLobbyDto,
 	InputsPacketDto,
@@ -23,6 +23,8 @@ import {
 } from 'src/utils/dto/gateway.dto';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from 'src/utils/exceptionFilter';
+import { GameService } from '../game/game.service';
+import { GatewayService } from './gateway.service';
 
 @UseFilters(WsExceptionFilter)
 @UsePipes(new ValidationPipe())
@@ -31,16 +33,20 @@ import { WsExceptionFilter } from 'src/utils/exceptionFilter';
 		origin: '*',
 	},
 })
-export class GameGateway
+export class Gateway
 	implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
 	@WebSocketServer() server: Server;
 
-	private gameManager = new GameSocketManager();
+	constructor(
+		private readonly gatewayService: GatewayService,
+		private readonly lobbyManager: LobbyManager,
+		private readonly gameService: GameService
+	) {}
 
-	constructor(private lobbyManager: LobbyManager) {}
-
-	afterInit(_server: Server) {}
+	afterInit(_server: Server) {
+		this.gatewayService.server = _server;
+	}
 
 	async handleConnection(socket: Socket) {
 		console.log('new connection: ', socket.id);
@@ -48,12 +54,13 @@ export class GameGateway
 
 	async handleDisconnect(socket: Socket) {
 		console.log('disconnection: ', socket.id);
-		this.lobbyManager.leaveLobby(socket);
-		const game = this.gameManager.getGameFromSocket(socket.id);
-		if (game) {
-			game.leave(socket.id);
-			this.gameManager.deleteGameFromSocket(socket.id);
-		}
+		this.lobbyManager.leave(socket);
+		this.gameService.leave(socket.id);
+		// const game = this.gameManager.getGameFromSocket(socket.id);
+		// if (game) {
+		// 	game.leave(socket.id);
+		// 	this.gameManager.deleteGameFromSocket(socket.id);
+		// }
 	}
 
 	@SubscribeMessage(SocketEvent.CreateLobby)
@@ -72,6 +79,8 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: JoinLobbyDto
 	) {
+		this.lobbyManager.leave(socket);
+		this.gameService.leave(socket.id);
 		this.lobbyManager.joinLobby(
 			socket,
 			data.playerName,
@@ -83,7 +92,7 @@ export class GameGateway
 
 	@SubscribeMessage(SocketEvent.LeaveLobby)
 	leaveLobby(@ConnectedSocket() socket: Socket) {
-		this.lobbyManager.leaveLobby(socket);
+		this.lobbyManager.leave(socket);
 	}
 
 	@SubscribeMessage(SocketEvent.StartGame)
@@ -91,20 +100,21 @@ export class GameGateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody() data: StartGameDto
 	) {
+		this.gameService.startGame(socket.id, data.playerName);
 		//TODO check if game is already started
-		const lobby = this.lobbyManager.getLobby(socket.id);
-		if (lobby) {
-			if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
-				lobby.startGame(this.server, this.gameManager);
-			}
-		} else {
-			const soloGame = new SoloGame(
-				new Player(data.playerName, socket.id, true),
-				this.server
-			);
-			this.gameManager.setGameToSocket(socket.id, soloGame);
-			soloGame.start();
-		}
+		// const lobby = this.lobbyManager.getLobby(socket.id);
+		// if (lobby) {
+		// 	if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
+		// 		lobby.startGame(this.server, this.gameManager);
+		// 	}
+		// } else {
+		// 	const soloGame = new SoloGame(
+		// 		new Player(data.playerName, socket.id, true),
+		// 		this.server
+		// 	);
+		// 	this.gameManager.setGameToSocket(socket.id, soloGame);
+		// 	soloGame.start();
+		// }
 	}
 
 	// @SubscribeMessage(SocketEvent.StopGame)
@@ -119,10 +129,11 @@ export class GameGateway
 	) {
 		// console.log('command pressed: ', data);
 		//TODO check if command is valid
-		this.gameManager
-			.getGameFromSocket(socket.id)
-			?.getPlayerGame(socket.id)
-			.pushInputsInQueue(data);
+		this.gameService.pushInputs(socket.id, data);
+		// this.gameManager
+		// 	.getGameFromSocket(socket.id)
+		// 	?.getPlayerGame(socket.id)
+		// 	.pushInputsInQueue(data);
 	}
 
 	@SubscribeMessage(SocketEvent.SyncWithServer)
@@ -131,32 +142,13 @@ export class GameGateway
 		@MessageBody('data')
 		data: TickAdjustmentPacketDto
 	) {
-		const gameLobby = this.gameManager.getGameFromSocket(socket.id);
-		const game = gameLobby?.getPlayerGame(socket.id);
-		const { tick, adjustmentIteration } = data;
-		if (
-			gameLobby &&
-			gameLobby.tick + 1 > tick &&
-			adjustmentIteration === game.adjustmentIteration
-		) {
-			// console.log('syncing with server');
-			// console.log(
-			// 	'server tick: ',
-			// 	lobby.tick,
-			// 	'client tick: ',
-			// 	tick,
-			// 	'adjustmentIteration: ',
-			// 	adjustmentIteration,
-			// 	'game.adjustmentIteration: ',
-			// 	game.adjustmentIteration
-			// );
-			game.adjustmentIteration++;
-			const packet: ITickAdjustmentPacket = {
-				tickAdjustment: gameLobby.tick - tick + 5,
-				adjustmentIteration: game.adjustmentIteration,
-			};
-			socket.emit(SocketEvent.SyncWithServer, packet);
-		}
+		this.gameService.syncWithServer(socket, data);
+	}
+
+	@SubscribeMessage(SocketEvent.LeaveGame)
+	leaveGame(@ConnectedSocket() socket: Socket) {
+		console.log('leave game');
+		this.gameService.leave(socket.id);
 	}
 
 	@SubscribeMessage('pong')

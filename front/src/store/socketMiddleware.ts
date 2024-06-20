@@ -31,6 +31,7 @@ import {
 	updateGamesBoard,
 	updateIndestructibleLines,
 	updateTickAdjustments,
+	leaveGame,
 } from './game.slice';
 import { Socket, io } from 'socket.io-client';
 
@@ -48,6 +49,7 @@ export enum SocketEvent {
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
+	LeaveGame = 'leave-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
 	SyncWithServer = 'sync',
@@ -88,7 +90,7 @@ const socketMiddleware: Middleware = (store) => {
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
 						socket.emit('pong');
-						console.log("data = ", data)
+						console.log('data = ', data);
 						store.dispatch(updateGamesBoard(data));
 						// store.dispatch(
 						// 	setTickAdjustments({
@@ -144,24 +146,29 @@ const socketMiddleware: Middleware = (store) => {
 					createPlayer({ name: action.payload, id: socket.id })
 				);
 			}
-	
+
 			if (createLobby.match(action)) {
 				socket.emit(SocketEvent.CreateLobby, {
 					data: action.payload,
 				});
 			}
-	
+
 			if (joinLobby.match(action)) {
 				socket.emit(SocketEvent.JoinLobby, { data: action.payload });
 			}
-	
+
 			if (leaveLobby.match(action)) {
 				socket.emit(SocketEvent.LeaveLobby, action.payload);
 			}
-	
+
 			if (sendStartGame.match(action)) {
-				console.log("action payload = ", action.payload)
+				console.log('action payload = ', action.payload);
 				socket.emit(SocketEvent.StartGame, action.payload);
+			}
+
+			if (leaveGame.match(action)) {
+				console.log('leaveGame');
+				socket.emit(SocketEvent.LeaveGame);
 			}
 		}
 		next(action);

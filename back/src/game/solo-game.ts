@@ -8,6 +8,9 @@ import {
 	UpdateType,
 } from 'src/type/packet.type';
 import { GameMode, MIN_TIME_BETWEEN_TICKS } from 'src/type/game.type';
+import { Repository } from 'typeorm';
+import { Leaderboard } from 'src/entity/leaderboard.entity';
+import { LeaderboardService } from 'src/leaderboard/leaderboard.service';
 
 export class SoloGame {
 	public game: Game;
@@ -19,8 +22,14 @@ export class SoloGame {
 	private timer: number = 0;
 	//TODO: Send score
 	private ranking: Player[] = [];
+	private leaderboardService: LeaderboardService;
 
-	constructor(player: Player, server: Server) {
+	constructor(
+		player: Player,
+		server: Server,
+		leaderboardService: LeaderboardService
+	) {
+		this.leaderboardService = leaderboardService;
 		this.server = server;
 		this.seed = this.createRandomSeed();
 		this.game = new Game(player, this.seed, GameMode.SOLO);
@@ -38,7 +47,7 @@ export class SoloGame {
 
 	private sendUpdates() {
 		if (this.game.hasQuit) {
-			//TODO
+			console.log('game has quit');
 		}
 		let gamePackets: IGameUpdatePacket[] = [];
 		if (this.game.positionChanged || this.game.boardChanged) {
@@ -61,8 +70,20 @@ export class SoloGame {
 	}
 
 	private checkGameOver(): boolean {
-		if (this.game.gameOver) {
+		if (this.game.hasQuit) {
+			return true;
+		} else if (this.game.gameOver) {
 			this.server.emit(SocketEvent.GameOver, this.ranking);
+			if (this.game.score > 0) {
+				try {
+					this.leaderboardService.create(
+						this.game.player.name,
+						this.game.score
+					);
+				} catch (error) {
+					console.error('error creating leaderboard entry', error);
+				}
+			}
 			return true;
 		}
 		return false;

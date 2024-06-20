@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { leaveLobby, sendStartGame } from "front/store/lobby.slice";
-import './lobby.css'
+import "./lobby.css";
 import { LuCrown } from "react-icons/lu";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,11 @@ export default function Lobby() {
 	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby && !lobby.id ? true : lobby?.players.find((player) => player.isLeader)?.id === playerConnected.id;
+	const lobbyOwner =
+		lobby && !lobby.id
+			? true
+			: lobby?.players.find((player) => player.isLeader)?.id ===
+			  playerConnected.id;
 	const navigate = useNavigate();
 	// console.log("lobbyOwner = ", lobbyOwner)
 	// console.log("playerConnected = ", playerConnected)
@@ -32,15 +36,15 @@ export default function Lobby() {
 		if (lobby?.gameStarted) {
 			navigate("/game");
 		}
-	}, [lobby])
+	}, [lobby]);
 
 	const handleClick = () => {
-		dispatch(sendStartGame({playerName: playerConnected.name}));
+		dispatch(sendStartGame({ playerName: playerConnected.name }));
 	};
 
 	const handleLeave = () => {
 		dispatch(leaveLobby(lobby.id));
-		dispatch(resetGame())
+		dispatch(resetGame());
 	};
 
 	//TODO on start, server emit tick several times, client respond with tick to get in sync
@@ -71,11 +75,19 @@ export default function Lobby() {
 						</div>
 						<div className="flex flex-row gap8">
 							{lobbyOwner && (
-								<button className="button" type="button" onClick={handleClick}>
+								<button
+									className="button"
+									type="button"
+									onClick={handleClick}
+								>
 									Start Game
 								</button>
 							)}
-							<button className="button" type="button" onClick={handleLeave}>
+							<button
+								className="button"
+								type="button"
+								onClick={handleLeave}
+							>
 								Leave lobby
 							</button>
 						</div>
