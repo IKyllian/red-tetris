@@ -35,6 +35,7 @@ export default function GameModal({ gameMode, lobby }: GameModeProps) {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
+	const playerGame = useAppSelector((state) => state.game.playerGame);
 	const lobbyOwner =
 		lobby && !lobby.id
 			? true
@@ -59,7 +60,7 @@ export default function GameModal({ gameMode, lobby }: GameModeProps) {
 			{isSolo && (
 				<div className="flex flex-col items-center content-center">
 					<span className="modal-title"> Votre Score </span>
-					<span className="modal-score"> 12354 </span>
+					<span className="modal-score"> {playerGame.score} </span>
 				</div>
 			)}
 			<div className="flex flex-row items-center content-center gap8">

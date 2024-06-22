@@ -101,20 +101,6 @@ export class Gateway
 		@MessageBody() data: StartGameDto
 	) {
 		this.gameService.startGame(socket.id, data.playerName);
-		//TODO check if game is already started
-		// const lobby = this.lobbyManager.getLobby(socket.id);
-		// if (lobby) {
-		// 	if (!lobby.gameStarted && lobby.getPlayer(socket.id)?.isLeader) {
-		// 		lobby.startGame(this.server, this.gameManager);
-		// 	}
-		// } else {
-		// 	const soloGame = new SoloGame(
-		// 		new Player(data.playerName, socket.id, true),
-		// 		this.server
-		// 	);
-		// 	this.gameManager.setGameToSocket(socket.id, soloGame);
-		// 	soloGame.start();
-		// }
 	}
 
 	// @SubscribeMessage(SocketEvent.StopGame)

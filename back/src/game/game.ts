@@ -133,6 +133,14 @@ export class Game {
 		while (this.inputsQueue.length > 0) {
 			const packet = this.inputsQueue[0];
 			if (packet.tick > tick) {
+				if (
+					packet.tick - tick > 10 &&
+					this.adjustmentIteration === packet.adjustmentIteration
+				) {
+					this.adjustmentIteration++;
+					this.tickAdjustment = (packet.tick - tick - 5) * -1;
+					console.log('adjustment minus: ', this.tickAdjustment);
+				}
 				break;
 			} else if (packet.tick === tick) {
 				if (this.player.isLeader) {
@@ -232,15 +240,15 @@ export class Game {
 	}
 
 	public moveDown(fromInterval: boolean = false) {
-		if (!fromInterval) {
-			this.score += 1;
-		}
 		this.tickToMoveDown = 0;
 		const newPosition = this.getPosDown(this.piece.position);
 		const shape = this.piece.getShape();
 		if (this.board.checkCollision(newPosition, shape)) {
 			this.handlePieceDown(shape);
 		} else {
+			if (!fromInterval) {
+				this.score += 1;
+			}
 			this.positionChanged = true;
 			this.piece.position = newPosition;
 		}

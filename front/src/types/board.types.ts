@@ -66,3 +66,5 @@ export const defaultGame: IGame = {
 };
 
 export const NbOfLinesForNextLevel = 10;
+
+export const Scoring = [100, 300, 500, 800];

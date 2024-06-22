@@ -90,7 +90,7 @@ const socketMiddleware: Middleware = (store) => {
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
 						socket.emit('pong');
-						console.log('data = ', data);
+						// console.log('data = ', data);
 						store.dispatch(updateGamesBoard(data));
 						// store.dispatch(
 						// 	setTickAdjustments({

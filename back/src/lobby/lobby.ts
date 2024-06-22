@@ -10,6 +10,7 @@ export class Lobby {
 	public gameStarted: boolean = false;
 	public players: Player[] = [];
 	public game: BattleRoyal;
+	public readonly maxPlayers = 10;
 
 	constructor(name: string, playerName: string, playerId: string) {
 		this.name = name;
@@ -28,7 +29,11 @@ export class Lobby {
 	}
 
 	public addPlayer(playerName: string, playerId: string) {
-		if (!this.players.find((player) => player.id === playerId)) {
+		if (
+			this.players.length < this.maxPlayers &&
+			this.gameStarted === false &&
+			!this.players.find((player) => player.id === playerId)
+		) {
 			this.players.push(new Player(playerName, playerId));
 		}
 	}
@@ -68,6 +73,7 @@ export class Lobby {
 			name: this.name,
 			players: this.players,
 			gameStarted: this.gameStarted,
+			maxPlayers: this.maxPlayers,
 		};
 	}
 }

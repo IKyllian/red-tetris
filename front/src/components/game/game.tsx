@@ -151,7 +151,6 @@ export default function Game() {
 	}
 
 	const flexClass = "flex flex-row content-evenly items-center gap8";
-	console.log("opponents = ", opponentsGames);
 	if (lobby) {
 		return (
 			<div className="game-container">

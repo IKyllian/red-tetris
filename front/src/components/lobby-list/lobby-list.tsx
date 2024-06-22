@@ -71,11 +71,19 @@ export default function LobbyList() {
 						const leaderName = lobby.players.find(
 							(player) => player.isLeader
 						)?.name; // TODO: do we keep leader?
+						const canJoin: boolean =
+							!lobby.gameStarted &&
+							lobby.players.length < lobby.maxPlayers;
 						return (
 							<div
 								key={index}
 								className="room-list-item flex flex-row content-between items-center"
-								onClick={() => handleJoinLobby(lobby.id)}
+								onClick={() =>
+									canJoin && handleJoinLobby(lobby.id)
+								}
+								style={{
+									cursor: canJoin ? "pointer" : "default",
+								}}
 							>
 								<div className="flex flex-col">
 									<span className="lobby-name">
@@ -91,7 +99,8 @@ export default function LobbyList() {
 								</div>
 								<div className="flex flex-row gap4 items-center">
 									<span className="lobby-name">
-										{lobby.players.length}
+										{lobby.players.length}/
+										{lobby.maxPlayers}
 									</span>
 									<FaUsers />
 								</div>

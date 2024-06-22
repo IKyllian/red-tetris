@@ -8,6 +8,7 @@ export interface ILobby {
 	// games: IGame[];
 	// seed: string;
 	gameStarted: boolean;
+	maxPlayers: number;
 	// playerGame?: IGame;
 	// opponentsGames: IGame[];
 	// gamesOver: boolean;

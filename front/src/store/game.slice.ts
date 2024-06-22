@@ -73,7 +73,7 @@ export interface IGameState {
 	indestructibleQueue: IIndestructiblePacket[];
 	gravity: number;
 	gameMode: GameMode;
-
+	countdown: number;
 	forceReconcileTimer: number;
 	render: boolean;
 }
@@ -102,6 +102,7 @@ const defaultGameState: IGameState = {
 	indestructibleQueue: [],
 	gravity: 0.04,
 	gameMode: GameMode.SOLO,
+	countdown: 3,
 
 	skipPieceGeneration: 0,
 	forceReconcileTimer: performance.now(),
@@ -137,6 +138,7 @@ export const gameSlice = createSlice({
 			state.lastServerState = null;
 			state.inputQueue = [];
 			state.indestructibleQueue = [];
+			state.countdown = 3;
 			state.clientStateBuffer = new Array<{ tick: number; game: IGame }>(
 				BUFFER_SIZE
 			);
@@ -247,7 +249,7 @@ export const gameSlice = createSlice({
 				state.adjustmentIteration = state.serverAdjustmentIteration;
 				state.inputQueue.length = 0;
 				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
-				console.log('adjusting tick: ', state.tickAdjustment);
+				// console.log('adjusting tick: ', state.tickAdjustment);
 				// const tickToCatchUp = state.tick + state.tickAdjustment;
 				// while (state.tick < tickToCatchUp) {
 				// 	softDrop(state);
@@ -259,7 +261,19 @@ export const gameSlice = createSlice({
 				// }
 			}
 
+			// server reconciliation
+			if (
+				state.lastProcessedServerState?.tick !==
+				state.lastServerState?.tick
+			) {
+				handleServerReconciliation(state);
+			}
+
+			// countdown before game starts + sync with server
 			if (state.tick < 90) {
+				if (state.tick % 30 === 0) {
+					state.countdown = 3 - state.tick / 30;
+				}
 				while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
 					const instance = SocketFactory.Instance();
 					const data = {
@@ -272,14 +286,8 @@ export const gameSlice = createSlice({
 					state.timer -= MIN_TIME_BETWEEN_TICKS;
 				}
 				return;
-			}
-
-			// server reconciliation
-			if (
-				state.lastProcessedServerState?.tick !==
-				state.lastServerState?.tick
-			) {
-				handleServerReconciliation(state);
+			} else if (state.countdown !== -1) {
+				state.countdown = -1;
 			}
 			//------------------------------------------------------------------
 			const now = performance.now();
@@ -300,12 +308,12 @@ export const gameSlice = createSlice({
 					}
 				}
 				if (state.inputQueue.length > 0) {
-					console.log(
-						'tick: ',
-						state.tick,
-						'input processed: ',
-						state.inputQueue.length
-					);
+					// console.log(
+					// 	'tick: ',
+					// 	state.tick,
+					// 	'input processed: ',
+					// 	state.inputQueue.length
+					// );
 					state.inputQueue.forEach((input) => {
 						handleInput(input, state);
 					});

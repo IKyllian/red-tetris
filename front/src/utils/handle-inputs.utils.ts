@@ -5,13 +5,14 @@ import {
 	I_SRS,
 	JLTSZ_SRS,
 } from 'front/types/tetrominoes.type';
-import { NbOfLinesForNextLevel } from 'front/types/board.types';
+import { NbOfLinesForNextLevel, Scoring } from 'front/types/board.types';
 import {
 	checkCollision,
 	clearDropPreview,
 	clearOldPosition,
 	generatePieces,
 	getPieceIndex,
+	getPosDown,
 	getPosLeft,
 	getPosRight,
 	getShape,
@@ -22,74 +23,72 @@ import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 import { Commands } from 'front/types/command.types';
 
+function handlePieceDown(state: IGameState, shape: number[][]): void {
+	state.playerGame.board.cells = transferPieceToBoard(
+		state.playerGame.board,
+		state.playerGame.piece,
+		shape,
+		true
+	);
+	generatePieces(state, 1, 4);
+	state.playerGame.currentPieceIndex++;
+	state.playerGame.piece = {
+		...state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)],
+	};
+	const newShape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
+	const linesCleared = checkForLines(state.playerGame.board);
+
+	setDropPreview(state.playerGame.board, newShape, state.playerGame.piece);
+	if (linesCleared > 0) {
+		state.playerGame.linesCleared += linesCleared;
+		if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
+			state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
+			state.playerGame.level++;
+			state.playerGame.linesCleared = 0;
+		}
+		state.playerGame.score +=
+			Scoring[linesCleared - 1] * (state.playerGame.level + 1);
+		state.playerGame.totalLinesCleared += linesCleared;
+	}
+	// setDropPreview(game.board, state.playerGame.piece, newShape);
+	// TODO client game over
+	// if (
+	// 	checkCollision(
+	// 		state.playerGame.board,
+	// 		state.playerGame.piece.position,
+	// 		newShape
+	// 	)
+	// ) {
+	// 	state.playerGame.gameOver = true;
+	// }
+	state.playerGame.board.cells = transferPieceToBoard(
+		state.playerGame.board,
+		state.playerGame.piece,
+		newShape,
+		false
+	);
+}
+
 export function moveDown(state: IGameState): void {
 	const newPosition = {
 		...state.playerGame.piece.position,
 		y: state.playerGame.piece.position.y + 1,
 	};
 	state.tickToMoveDown = 0;
-	// state.tickToMoveDown -= 1;
 
 	const shape = getShape(
 		state.playerGame.piece.type,
 		state.playerGame.piece.rotationState
 	);
+	clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
 	if (checkCollision(state.playerGame.board, newPosition, shape)) {
-		state.playerGame.board.cells = transferPieceToBoard(
-			state.playerGame.board,
-			state.playerGame.piece,
-			shape,
-			true
-		);
-		//  Generate one new piece + nbPieceToGenerate,
-		//	nbPieceToGenerate can be negative so that in reconciliation we can generate the right amount of pieces
-		generatePieces(state, 1, 4);
-		state.playerGame.currentPieceIndex++;
-		state.playerGame.piece = {
-			...state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)],
-		};
-
-		state.playerGame.piece =
-			state.pieces[getPieceIndex(state.playerGame.currentPieceIndex)];
-		const newShape = getShape(
-			state.playerGame.piece.type,
-			state.playerGame.piece.rotationState
-		);
-		const linesCleared = checkForLines(state.playerGame.board);
-
-		setDropPreview(
-			state.playerGame.board,
-			newShape,
-			state.playerGame.piece
-		);
-		if (linesCleared > 0) {
-			state.playerGame.linesCleared += linesCleared;
-			if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
-				state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
-				state.playerGame.level++;
-				state.playerGame.linesCleared = 0;
-			}
-			state.playerGame.totalLinesCleared += linesCleared;
-		}
-		// setDropPreview(game.board, state.playerGame.piece, newShape);
-		// TODO client game over
-		// if (
-		// 	checkCollision(
-		// 		state.playerGame.board,
-		// 		state.playerGame.piece.position,
-		// 		newShape
-		// 	)
-		// ) {
-		// 	state.playerGame.gameOver = true;
-		// }
-		state.playerGame.board.cells = transferPieceToBoard(
-			state.playerGame.board,
-			state.playerGame.piece,
-			newShape,
-			false
-		);
+		handlePieceDown(state, shape);
 	} else {
-		clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
+		state.playerGame.score += 1;
+
 		// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
 		state.playerGame.piece.position = newPosition;
 		state.playerGame.board.cells = transferPieceToBoard(
@@ -102,11 +101,19 @@ export function moveDown(state: IGameState): void {
 }
 
 export function hardDrop(state: IGameState): void {
-	//TODO get the position of the piece after hard drop and update the board
-	const currentPieceIndex = state.playerGame.currentPieceIndex;
-	while (currentPieceIndex === state.playerGame.currentPieceIndex) {
-		moveDown(state);
+	state.tickToMoveDown = 0;
+	const shape = getShape(
+		state.playerGame.piece.type,
+		state.playerGame.piece.rotationState
+	);
+	clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
+	let nextPos = getPosDown(state.playerGame.piece.position);
+	while (!checkCollision(state.playerGame.board, nextPos, shape)) {
+		state.playerGame.score += 2;
+		state.playerGame.piece.position = nextPos;
+		nextPos = getPosDown(nextPos);
 	}
+	handlePieceDown(state, shape);
 }
 
 export function changeStatePiecePosition(
