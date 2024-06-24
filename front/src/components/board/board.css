@@ -134,6 +134,7 @@
     margin-bottom: 20px;
     margin-right: 10px;
     text-align: center;
+    flex-direction: column-reverse;
 }
 
 .score-container > span {

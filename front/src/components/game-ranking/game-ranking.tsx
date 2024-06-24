@@ -29,8 +29,6 @@ export default function GameRanking({ leaderboard }: GameRankingProps) {
 								</span>
 								<span> {player.name} </span>
 							</div>
-
-							<span> 1245 </span>
 						</div>
 					);
 				})}

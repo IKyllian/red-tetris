@@ -112,9 +112,9 @@ const Board = ({
 			{!isOpponentBoards && <Countdown />}
 			{
 				isSolo &&
-				<div className="score-container gap16">
-					<span> {score} </span>
-					<span> {level} </span>
+				<div className="score-container flex gap16">
+					<span> Score: {score} </span>
+					<span> Level: {level} </span>
 				</div>
 			}
 			<div className="flex flex-col">
@@ -150,10 +150,11 @@ const Board = ({
 					{playerName}
 				</span>
 			</div>
-			{((!isOpponentBoards && nextPieces.length > 0) ||
-				(isOpponentBoards &&
-					nextPieces.length > 0 &&
-					opponentsLength <= 4)) && (
+			{!isOpponentBoards && nextPieces.length > 0
+				// || (isOpponentBoards &&
+				// 	nextPieces.length > 0 &&
+				// 	opponentsLength <= 4))
+				&& (
 				<div className="board-box-container">
 					<div className="box-title"> NEXT </div>
 					<div className="flex flex-col box-border">
