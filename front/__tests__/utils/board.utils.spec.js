@@ -19,7 +19,6 @@ describe('utils/board', () => {
             const cells = { 
                 occupied: false,
                 type: CellType.I,
-                isDestructible: true,
                 isPreview: false
             }
             const colums = Array.from({ length: size.columns }, () => ({ ...cells }))
@@ -96,11 +95,11 @@ describe('utils/board', () => {
         })
         it('line complete but not destructible, should return 0', () => {
             const board = buildBoard(size);
-            const colums = Array.from({ length: size.columns }, () => ({ ...defaultCell, occupied: true, isDestructible: false }))
+            const colums = Array.from({ length: size.columns }, () => ({ ...defaultCell, occupied: true, type: CellType.INDESTRUCTIBLE }))
             // fill multiple lines to occupied
             for(let i = size.columns - 1; i >= 0; i--) {
                 board.cells[size.rows - 1][i].occupied = true; 
-                board.cells[size.rows - 1][i].isDestructible = false;
+                board.cells[size.rows - 1][i].type = CellType.INDESTRUCTIBLE;
             }
             expect(checkForLines(board)).toBe(0);
             expect(board.cells[size.rows - 1]).toEqual(expect.arrayContaining(colums))

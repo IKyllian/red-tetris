@@ -5,6 +5,7 @@ import { getTetrominoClassName } from "front/utils/piece.utils";
 import { useEffect, useState } from "react";
 import PiecePreview from "./piece-preview";
 import { useAppSelector } from "front/store/hook";
+import { GameMode } from "front/types/packet.types";
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
@@ -12,6 +13,7 @@ interface BoardProps {
 	nextPieces: Array<ITetromino>;
 	isOpponentBoards: boolean;
 	opponentsLength?: number;
+	gameMode: GameMode
 }
 
 const Countdown = () => {
@@ -69,6 +71,7 @@ const Board = ({
 	nextPieces,
 	isOpponentBoards,
 	opponentsLength = 0,
+	gameMode
 }: BoardProps) => {
 	const [boardSize, setBoardSize] = useState(
 		getBoardStyleSize(isOpponentBoards, opponentsLength)
@@ -76,7 +79,9 @@ const Board = ({
 	const [piecePreviewSize, setPiecePreviewSize] = useState(
 		getPiecePreviewSize(boardSize)
 	);
-
+	const isSolo = gameMode === GameMode.SOLO;
+	const score = useAppSelector((state) => state.game.playerGame.score);
+	const level = useAppSelector((state) => state.game.playerGame.level);
 	useEffect(() => {
 		const handleResize = () => {
 			const newSize = getBoardStyleSize(
@@ -105,6 +110,13 @@ const Board = ({
 	return (
 		<div className="inline-flex" style={{ position: "relative" }}>
 			{!isOpponentBoards && <Countdown />}
+			{
+				isSolo &&
+				<div className="score-container gap16">
+					<span> {score} </span>
+					<span> {level} </span>
+				</div>
+			}
 			<div className="flex flex-col">
 				<div
 					className="board board-border"
@@ -114,6 +126,7 @@ const Board = ({
 					{isGameOver && (
 						<span className="gameOver"> Game Over </span>
 					)}
+					
 					{board.cells.map((row) =>
 						row.map((cell, cellIndex) => (
 							<div key={cellIndex} className="cell">

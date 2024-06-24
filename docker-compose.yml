@@ -1,16 +1,16 @@
 services:
 
 # Front
-  red_tetris:
-    build:
-      context: ./front
-    networks:
-      - red_tetris_network
-    restart: always
-    volumes:
-      - ./front/:/usr/app/front
-    ports:
-      - "5173:5173"
+  # red_tetris:
+  #   build:
+  #     context: ./front
+  #   networks:
+  #     - red_tetris_network
+  #   restart: always
+  #   volumes:
+  #     - ./front/:/usr/app/front
+  #   ports:
+  #     - "5173:5173"
 
 # Postgres
   red_tetris_db:

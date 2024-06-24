@@ -130,6 +130,17 @@
     border-radius: 5px;
 }
 
+.score-container  {
+    margin-bottom: 20px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.score-container > span {
+    font-size: 35px;
+    font-weight: bold;
+}
+
 .tetromino_I {
     background-color: aqua;
 }
