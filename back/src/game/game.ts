@@ -16,6 +16,7 @@ export interface IGame {
 	gameOver: boolean;
 	score: number;
 	level: number;
+	linesCleared: number;
 	currentPieceIndex: number;
 	tickToMoveDown: number;
 }
@@ -51,6 +52,8 @@ export class Game {
 		Scoring.FourLines,
 	];
 
+	private tick: number; //TODO delete
+
 	constructor(player: Player, seed: string, gameMode: GameMode) {
 		this.gameMode = gameMode;
 		this.rng = seedrandom(seed);
@@ -79,6 +82,7 @@ export class Game {
 
 	public updateState(tick: number, gravity?: number) {
 		//TODO find better way?
+		this.tick = tick;
 		this.boardChanged = false;
 		this.positionChanged = false;
 		if (this.gameOver) {
@@ -210,6 +214,12 @@ export class Game {
 						this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
 						this.level++;
 						this.linesCleared = 0;
+						console.log(
+							'level up at tick: ',
+							this.tick,
+							' - level: ',
+							this.level
+						);
 					}
 					let lineScore = 0;
 					if (linesCleared <= this.lineScores.length) {
@@ -337,6 +347,7 @@ export class Game {
 			gameOver: this.gameOver,
 			score: this.score,
 			level: this.level,
+			linesCleared: this.linesCleared,
 			currentPieceIndex: this.nbOfpieceDown,
 			tickToMoveDown: this.tickToMoveDown,
 		};

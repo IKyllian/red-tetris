@@ -146,7 +146,7 @@ export function softDrop(state: IGameState) {
 	switch (state.gameMode) {
 		case GameMode.BATTLEROYAL:
 			if (state.tickToMoveDown >= 1) {
-				moveDown(state);
+				moveDown(state, true);
 			} else {
 				state.tickToMoveDown += state.gravity;
 			}
@@ -156,7 +156,7 @@ export function softDrop(state: IGameState) {
 				state.tickToMoveDown >=
 				getFramesPerGridCell(state.playerGame.level)
 			) {
-				moveDown(state);
+				moveDown(state, true);
 			} else {
 				state.tickToMoveDown++;
 			}

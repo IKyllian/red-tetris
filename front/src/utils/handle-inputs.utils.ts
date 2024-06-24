@@ -22,7 +22,7 @@ import {
 import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 import { Commands } from 'front/types/command.types';
-
+import { current } from 'immer';
 function handlePieceDown(state: IGameState, shape: number[][]): void {
 	state.playerGame.board.cells = transferPieceToBoard(
 		state.playerGame.board,
@@ -40,14 +40,22 @@ function handlePieceDown(state: IGameState, shape: number[][]): void {
 		state.playerGame.piece.rotationState
 	);
 	const linesCleared = checkForLines(state.playerGame.board);
+	console.log('lines cleared: ', linesCleared);
 
 	setDropPreview(state.playerGame.board, newShape, state.playerGame.piece);
 	if (linesCleared > 0) {
 		state.playerGame.linesCleared += linesCleared;
+		console.log('toto lines cleared: ', state.playerGame.linesCleared);
 		if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
 			state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
 			state.playerGame.level++;
 			state.playerGame.linesCleared = 0;
+			console.log(
+				'level up at tick: ',
+				state.tick,
+				' - level: ',
+				state.playerGame.level
+			);
 		}
 		state.playerGame.score +=
 			Scoring[linesCleared - 1] * (state.playerGame.level + 1);
@@ -72,7 +80,7 @@ function handlePieceDown(state: IGameState, shape: number[][]): void {
 	);
 }
 
-export function moveDown(state: IGameState): void {
+export function moveDown(state: IGameState, isSoftDrop: boolean = false): void {
 	const newPosition = {
 		...state.playerGame.piece.position,
 		y: state.playerGame.piece.position.y + 1,
@@ -87,7 +95,9 @@ export function moveDown(state: IGameState): void {
 	if (checkCollision(state.playerGame.board, newPosition, shape)) {
 		handlePieceDown(state, shape);
 	} else {
-		state.playerGame.score += 1;
+		if (!isSoftDrop) {
+			state.playerGame.score += 1;
+		}
 
 		// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
 		state.playerGame.piece.position = newPosition;
@@ -176,6 +186,7 @@ export function rotate(state: IGameState): void {
 }
 
 export function handleInput(input: Commands, state: IGameState): void {
+	// console.log('GOOD STATE = ', current(state));
 	switch (input) {
 		case Commands.ROTATE:
 			rotate(state);

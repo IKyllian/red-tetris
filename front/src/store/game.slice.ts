@@ -292,11 +292,12 @@ export const gameSlice = createSlice({
 			//------------------------------------------------------------------
 			const now = performance.now();
 			while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
-				// if (state.tick === 200) {
-				// 	console.log('force reconcile');
-				// 	hardDrop(state);
-				// 	state.forceReconcileTimer = now;
-				// 	state.render = false;
+				// if (state.tick === 500) {
+				// 	state.playerGame.gameOver = true;
+				// 	// 	console.log('force reconcile');
+				// 	// 	hardDrop(state);
+				// 	// 	state.forceReconcileTimer = now;
+				// 	// 	state.render = false;
 				// }
 				for (let i = 0; i < state.indestructibleQueue.length; i++) {
 					const indestructible = state.indestructibleQueue[i];
@@ -371,6 +372,11 @@ export const gameSlice = createSlice({
 				state.tick += action.payload.tickAdjustment;
 			}
 		},
+		gameOver(state) {
+			if (state.playerGame) {
+				state.playerGame.gameOver = true;
+			}
+		},
 	},
 });
 
@@ -383,6 +389,7 @@ export const {
 	updateTickAdjustments,
 	resetGame,
 	leaveGame,
+	gameOver,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

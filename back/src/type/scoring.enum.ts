@@ -1,5 +1,5 @@
 export enum Scoring {
-	NbOfLinesForNextLevel = 10,
+	NbOfLinesForNextLevel = 1,
 	OneLine = 100,
 	TwoLines = 300,
 	ThreeLines = 500,

@@ -32,6 +32,7 @@ import {
 	updateIndestructibleLines,
 	updateTickAdjustments,
 	leaveGame,
+	gameOver,
 } from './game.slice';
 import { Socket, io } from 'socket.io-client';
 
@@ -112,9 +113,10 @@ const socketMiddleware: Middleware = (store) => {
 				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					console.log('GameOver = ', data);
 					//TODO
-					setTimeout(() => {
-						store.dispatch(onAllGamesOver(data));
-					}, 5000);
+					// setTimeout(() => {
+					store.dispatch(onAllGamesOver(data));
+					store.dispatch(gameOver());
+					// }, 5000);
 				});
 
 				socket.on(

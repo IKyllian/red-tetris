@@ -108,18 +108,18 @@ export default function Game() {
 
 	useEffect(() => {
 		if (!lobby) navigate("/home");
+	}, [lobby])
+
+	useEffect(() => {
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
 		}
-		let cleanup;
-		if (lobby) {
-			cleanup = gameLoop(fpsRef, dispatch);
-		}
+		let cleanup = gameLoop(fpsRef, dispatch);
 		return () => {
 			if (cleanup) cleanup();
 		};
-	}, [gameStarted, dispatch, gameOver, lobby]);
+	}, [gameStarted, dispatch, gameOver]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);
