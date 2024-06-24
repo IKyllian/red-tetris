@@ -89,7 +89,6 @@ export class Board {
 			{ length: this.size.columns },
 			() => ({
 				occupied: true,
-				isDestructible: false,
 				type: CellType.INDESTRUCTIBLE,
 			})
 		);

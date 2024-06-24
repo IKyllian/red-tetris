@@ -8,11 +8,10 @@ import lobbyReducer, {
 	onAllGamesOver,
  } from 'front/store/lobby.slice';
 import { expect, vi } from "vitest"
-import { defaultLobby } from 'front/types/lobby.type';
 
 describe("reducer/lobby", () => {
     const player = {name: "test", id: "qwe", isLeader: true}
-    const initialState = defaultLobby;
+    const initialState = null;
     const newLobby = {
         players: [player],
         name: "test",

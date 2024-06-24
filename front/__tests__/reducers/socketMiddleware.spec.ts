@@ -12,7 +12,7 @@ const createPlayer = createAction<{ name: String, id: String }>('player/createPl
 const createLobby = createAction<{lobbyName: string}>('lobby/createLobby');
 const joinLobby = createAction<{lobbyId: string, playerName: string}>('lobby/joinLobby');
 const leaveLobby = createAction<string>('lobby/leaveLobby');
-const sendStartGame = createAction('lobby/sendStartGame');
+const sendStartGame = createAction<{playerName: string}>('lobby/sendStartGame');
 const sendInputs = createAction<IInputsPacket>('game/sendInputs');
 
 // TODO: use mock of socket factory ?
@@ -46,10 +46,10 @@ describe('socket middleware', () => {
       // Reset mocks before each test
       mockSocket.on.mockReset();
       mockSocket.emit.mockReset();
+
+      store.dispatch(initSocket());
     });
     it('should initialize socket and set up listeners on initSocket action', () => {
-        store.dispatch(initSocket());
-    
         expect(io).toHaveBeenCalledWith('http://localhost:3000'); // Ensure socket.io-client is initialized with correct endpoint
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Connect , expect.any(Function)); // Ensure socket event listeners are set up
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Error, expect.any(Function));
@@ -72,7 +72,6 @@ describe('socket middleware', () => {
 
     it('should handle createLobby action and emit CreateLobby', () => {
         const payload = { lobbyName: 'NewLobby' };
-        store.dispatch(initSocket());
         store.dispatch(createLobby(payload));
 
         expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.CreateLobby, { data: payload });
@@ -80,7 +79,6 @@ describe('socket middleware', () => {
 
     it('should handle joinLobby action and emit JoinLobby', () => {
         const payload = { lobbyId: 'fAZ4', playerName: 'Test' };
-        store.dispatch(initSocket());
         store.dispatch(joinLobby(payload));
 
         expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.JoinLobby, { data: payload });
@@ -88,16 +86,17 @@ describe('socket middleware', () => {
 
     it('should handle leaveLobby action and emit LeaveLobby', () => {
         const payload = 'fAZ4';
-        store.dispatch(initSocket());
         store.dispatch(leaveLobby(payload));
 
         expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.LeaveLobby, payload);
     });
 
     it('should handle sendStartGame action and emit StartGame', () => {
-        store.dispatch(initSocket());
-        store.dispatch(sendStartGame());
-
-        expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.StartGame);
+        const payload = {
+            playerName: 'Test'
+        }
+        store.dispatch(sendStartGame(payload));
+        
+        expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.StartGame, payload);
     });
 })

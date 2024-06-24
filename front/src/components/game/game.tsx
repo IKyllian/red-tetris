@@ -204,6 +204,7 @@ export default function Game() {
 										getPieceIndex(playerGamePieceIndex + 4)
 									)}
 									isOpponentBoards={false}
+									gameMode={gameMode}
 								/>
 							</>
 						)}
@@ -243,6 +244,7 @@ export default function Game() {
 											opponentsLength={
 												opponentsGames.length
 											}
+											gameMode={gameMode}
 										/>
 									);
 								}
