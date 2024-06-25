@@ -27,7 +27,7 @@ export default function Register() {
 	return (
 		<div className="form-container flex flex-col content-center items-center">
 			<h4> Chose a name :</h4>
-			<form onSubmit={handleSubmit(onSubmit)} className="">
+			<form data-testid="form-register" onSubmit={handleSubmit(onSubmit)}>
 				<input
 					className="input"
 					type="text"
@@ -37,7 +37,7 @@ export default function Register() {
 				{errors.name && errors.name.message && (
 					<p className="error-message"> {errors.name.message} </p>
 				)}
-				<button className="button" type="submit">Submit</button>
+				<button data-testid="submit-button" className="button" type="submit" name="submit">Submit</button>
 			</form>
 		</div>
 	);

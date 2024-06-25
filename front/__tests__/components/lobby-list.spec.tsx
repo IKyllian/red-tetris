@@ -81,10 +81,7 @@ describe("Looby-list", () => {
             expect(item).toHaveStyle('cursor: pointer')
 
             fireEvent.click(item);
-            expect(mockDispatch).toHaveBeenCalledWith(joinLobby({
-                lobbyId: lobby.id,
-				playerName: mockState.player.name
-            }))
+            expect(mockDispatch).toHaveBeenCalledWith(joinLobby({lobbyId: lobby.id, playerName: mockState.player.name}))
         }
     })
     it('Should render Lobby list component with 1 lobby not joinable', async () => {
