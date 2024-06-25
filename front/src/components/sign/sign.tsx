@@ -21,7 +21,6 @@ export default function Register() {
 	const onSubmit = (data: FormValues): void => {
 		console.log(data);
 		dispatch(sign(data.name));
-		// dispatch(initSocket());
 		navigate("/home");
 	};
 

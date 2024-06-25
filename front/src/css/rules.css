@@ -50,6 +50,10 @@
     gap: 16px;
 }
 
+.text-center {
+    text-align: center;
+}
+
 .button {
     all: unset;
     width: 150px;

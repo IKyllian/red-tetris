@@ -18,7 +18,6 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<CreateFormValues>();
-	// const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
 	const handleCreateLobby = (data: CreateFormValues, e) => {
@@ -29,7 +28,6 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				playerName: playerName,
 			})
 		);
-		// navigate('/lobby');
 	};
 
 	return (
@@ -58,7 +56,6 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<JoinFormValues>();
-	// const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
 	const handleJoinLobby = (data: JoinFormValues) => {
@@ -68,7 +65,6 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				playerName: playerName,
 			})
 		);
-		// navigate('/lobby');
 	};
 
 	return (
@@ -91,19 +87,13 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 	);
 }
 
-const GAME_MODE = [
+export const GAME_MODE = [
 	{
 		title: "solo",
 		description: "Jouez solo et faites le meilleur score possible",
 		color: "#34222d",
 		textColor: "#f1bcdb",
 	},
-	// {
-	//     title: "multijoueur",
-	//     description: "Creez ou rejoignez un lobby pour jouer en multijoueur",
-	//     color: "#1e1d2d",
-	//     textColor: '#bab8df'
-	// },
 	{
 		title: "liste des lobby",
 		description: "Liste de tous les lobby",

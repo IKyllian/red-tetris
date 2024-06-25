@@ -6,6 +6,7 @@ import { ILobby } from "front/types/lobby.type";
 import { IoMdRefresh } from "react-icons/io";
 import { joinLobby } from "front/store/lobby.slice";
 import { useNavigate } from "react-router-dom";
+import { getLobbyList } from "front/api/lobby.api";
 
 export default function LobbyList() {
 	const [lobbies, setLobbies] = useState<ILobby[]>([]);
@@ -16,18 +17,25 @@ export default function LobbyList() {
 	const dispatch = useAppDispatch();
 	useEffect(() => {
 		if (refresh) {
-			fetch("http://localhost:3000/lobby", { method: "GET" })
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error(
-							`HTTP error! Status: ${response.status}`
-						);
-					}
-					return response.json();
-				})
-				.then((data) => setLobbies(data))
-				.catch((error) => console.error(error))
-				.finally(() => setRefresh(false));
+			// fetch("http://localhost:3000/lobby", { method: "GET" })
+			// 	.then((response) => {
+			// 		if (!response.ok) {
+			// 			throw new Error(
+			// 				`HTTP error! Status: ${response.status}`
+			// 			);
+			// 		}
+			// 		return response.json();
+			// 	})
+			// 	.then((data) => setLobbies(data))
+			// 	.catch((error) => console.error(error))
+			// 	.finally(() => setRefresh(false));
+
+				const fetchData = async () => {
+					const data = await getLobbyList();
+					setLobbies(data);
+					setRefresh(false);
+				}
+				fetchData()
 		}
 	}, [refresh]);
 
@@ -63,7 +71,7 @@ export default function LobbyList() {
 			</div>
 			<div className="rooms-list-container flex flex-col gap8">
 				{lobbies.length === 0 ? (
-					<div className="no-lobbies-message">
+					<div data-testid="no-lobbies-message" className="no-lobbies-message">
 						No lobbies available
 					</div>
 				) : (
@@ -77,6 +85,7 @@ export default function LobbyList() {
 						return (
 							<div
 								key={index}
+								data-testid="lobby-list-item"
 								className="room-list-item flex flex-row content-between items-center"
 								onClick={() =>
 									canJoin && handleJoinLobby(lobby.id)
