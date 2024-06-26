@@ -8,12 +8,13 @@ interface GameRankingProps {
 
 export default function GameRanking({ leaderboard }: GameRankingProps) {
 	return (
-		<div className="gameranking-container flex flex-col gap8">
+		<div data-testid='game-ranking' className="gameranking-container flex flex-col gap8">
 			<h2> Classement </h2>
 			<div className="gameranking-wrapper flex flex-col gap8">
 				{leaderboard.map((player, index) => {
 					return (
 						<div
+							data-testid="rank-item"
 							key={index}
 							className="gameranking-item flex flex-row items-center content-between"
 						>

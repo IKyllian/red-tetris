@@ -22,6 +22,8 @@ export default function JoinLobbyByPath() {
 				})
 			);
 			navigate("/lobby");
+		} else {
+			navigate('/sign')
 		}
 	}, []);
 

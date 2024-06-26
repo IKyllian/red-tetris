@@ -47,6 +47,7 @@ export default function Header() {
 				{TETRIS.map((letter, index) => {
 					return (
 						<span
+							data-testid="logo-letter"
 							key={index}
 							className="header-logo"
 							style={{ color: letter.color }}
@@ -56,14 +57,14 @@ export default function Header() {
 					);
 				})}
 			</div>
-			<div className="flex flex-row items-center gap12">
+			<div data-testid="header-right-container" className="flex flex-row items-center gap12">
 				{lobby?.gameStarted && (
-					<button onClick={handleLeave} className="button">
+					<button data-testid="leave-button" onClick={handleLeave} className="button">
 						Leave
 					</button>
 				)}
 				{player && (
-					<div className="flex flex-row items-center gap16">
+					<div data-testid="player-name" className="flex flex-row items-center gap16">
 						<FaUser />
 						<span className="player-name"> {player.name} </span>
 					</div>

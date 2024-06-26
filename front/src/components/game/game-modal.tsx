@@ -1,30 +1,10 @@
 import "./game.css";
-import { IPlayer } from "front/types/player.type";
 import { GameMode } from "front/types/packet.types";
 import { useNavigate } from "react-router-dom";
 import { ILobby } from "front/types/lobby.type";
 import { resetLobby, sendStartGame } from "front/store/lobby.slice";
 import { useAppDispatch, useAppSelector } from "front/store/hook";
-import { leaveGame } from "front/store/game.slice";
 import GameRanking from "../game-ranking/game-ranking";
-
-// const LEADERBOARD: IPlayer[] = [
-//     {
-//         id: 'qwe',
-//         name: 'Test',
-//         isLeader: false
-//     },
-//     {
-//         id: 'qwe',
-//         name: 'Test2',
-//         isLeader: false
-//     },
-//     {
-//         id: 'qwe',
-//         name: 'Test3',
-//         isLeader: false
-//     }
-// ]
 
 interface GameModeProps {
 	gameMode: GameMode;
@@ -42,33 +22,33 @@ export default function GameModal({ gameMode, lobby }: GameModeProps) {
 			: lobby?.players.find((player) => player.isLeader)?.id ===
 			  playerConnected.id;
 	const isSolo = gameMode === GameMode.SOLO;
-	console.log("isSolo", isSolo);
 	const leave = () => {
 		//TODO check if this is needed
 		if (isSolo) {
-			navigate("/home");
 			dispatch(resetLobby());
+			navigate("/home");
 		} else {
 			navigate("/lobby");
 		}
 	};
 	return (
-		<div className="game-modal-container flex flex-col content-evenly">
+		<div data-testid='game-modal-container' className="game-modal-container flex flex-col content-evenly">
 			{!isSolo && lobby.leaderboard && (
 				<GameRanking leaderboard={lobby.leaderboard} />
 			)}
 			{isSolo && (
-				<div className="flex flex-col items-center content-center">
+				<div data-testid='solo-score' className="flex flex-col items-center content-center">
 					<span className="modal-title"> Votre Score </span>
 					<span className="modal-score"> {playerGame.score} </span>
 				</div>
 			)}
-			<div className="flex flex-row items-center content-center gap8">
-				<button className="button" onClick={leave}>
+			<div data-testid='buttons-container' className="flex flex-row items-center content-center gap8">
+				<button data-testid='leave-button' className="button" onClick={leave}>
 					Retour au lobby
 				</button>
 				{lobbyOwner && (
 					<button
+						data-testid='play-again-button'
 						className="button"
 						onClick={() =>
 							dispatch(
@@ -82,7 +62,7 @@ export default function GameModal({ gameMode, lobby }: GameModeProps) {
 					</button>
 				)}
 				{!lobbyOwner && (
-					<span> En attente du leader pour relancer </span>
+					<span data-testid='waiting-text'> En attente du leader pour relancer </span>
 				)}
 			</div>
 		</div>
