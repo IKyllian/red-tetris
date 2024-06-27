@@ -46,7 +46,7 @@ describe('Home', () => {
                 register: vi.fn(),
                 handleSubmit: mockHandleSubmit,
                 formState: { errors: {} }
-              });
+            });
         });
 
         it('Should render create game form without error', async () => {

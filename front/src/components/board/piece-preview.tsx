@@ -30,10 +30,10 @@ export default function PiecePreview({ tetromino, piecePreviewSize }: PiecePrevi
 		false
 	);
 	return (
-		<div className="board" style={boardStyles}>
+		<div data-testid='board' className="board" style={boardStyles}>
 			{rows.map((row) =>
 				row.map((cell: ICell, cellIndex: number) => (
-					<div key={cellIndex} className="cell-piece-preview">
+					<div data-testid='cell-preview' key={cellIndex} className="cell-piece-preview">
 						<div className={getTetrominoClassName(
 							cell.type,
 							cell.isPreview
