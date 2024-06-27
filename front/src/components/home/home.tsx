@@ -31,7 +31,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleCreateLobby)} className="home-form">
+		<form data-testid='form' onSubmit={handleSubmit(handleCreateLobby)} className="home-form">
 			<input
 				autoComplete="off"
 				className="input"
@@ -41,9 +41,9 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				{...register("lobbyName", { required: true })}
 			/>
 			{errors.lobbyName && errors.lobbyName.message && (
-				<p className="error-message"> {errors.lobbyName.message} </p>
+				<p data-testid='form-error' className="error-message"> {errors.lobbyName.message} </p>
 			)}
-			<button className="button" type="submit">
+			<button data-testid='form-button' className="button" type="submit">
 				Create game
 			</button>
 		</form>
@@ -68,7 +68,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleJoinLobby)} className="home-form">
+		<form data-testid='form' onSubmit={handleSubmit(handleJoinLobby)} className="home-form">
 			<input
 				autoComplete="off"
 				className="input"
@@ -78,9 +78,9 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				{...register("lobbyId", { required: true })}
 			/>
 			{errors.lobbyId && errors.lobbyId.message && (
-				<p className="error-message"> {errors.lobbyId.message} </p>
+				<p data-testid='form-error' className="error-message"> {errors.lobbyId.message} </p>
 			)}
-			<button className="button" type="submit">
+			<button data-testid='form-button' className="button" type="submit">
 				Join game
 			</button>
 		</form>
@@ -111,29 +111,22 @@ export const GAME_MODE = [
 ];
 
 export default function Home() {
-	const player = useAppSelector((state) => state.player);
-	console.log(player);
 	const playerName = useAppSelector((state) => state.player.name);
-	console.log(playerName);
 	const lobby = useAppSelector((state) => state.lobby);
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		if (lobby && lobby.gameStarted) {
+		if (lobby?.gameStarted) {
 			navigate("/game");
 		} else if (lobby) {
 			navigate("/lobby");
 		}
 	}, [lobby]);
 
-	const navigateTo = (path?: string) => {
-		if (path) navigate(path);
-	};
-
 	const handleClick = (path: string | undefined) => {
 		if (path) {
-			navigateTo(path);
+			navigate(path);
 		} else {
 			dispatch(sendStartGame({ playerName }));
 		}
@@ -143,6 +136,7 @@ export default function Home() {
 			<div className="game-mode-list flex flex-col gap12">
 				{GAME_MODE.map((gameMode, index) => (
 					<div
+					    data-testid="tetris-letter"
 						onClick={() => handleClick(gameMode.path)}
 						key={index}
 						className="game-mode-item flex flex-col"
