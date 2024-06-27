@@ -81,32 +81,34 @@ function handlePieceDown(state: IGameState, shape: number[][]): void {
 }
 
 export function moveDown(state: IGameState, isSoftDrop: boolean = false): void {
-	const newPosition = {
-		...state.playerGame.piece.position,
-		y: state.playerGame.piece.position.y + 1,
-	};
-	state.tickToMoveDown = 0;
-
-	const shape = getShape(
-		state.playerGame.piece.type,
-		state.playerGame.piece.rotationState
-	);
-	clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
-	if (checkCollision(state.playerGame.board, newPosition, shape)) {
-		handlePieceDown(state, shape);
-	} else {
-		if (!isSoftDrop) {
-			state.playerGame.score += 1;
-		}
-
-		// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
-		state.playerGame.piece.position = newPosition;
-		state.playerGame.board.cells = transferPieceToBoard(
-			state.playerGame.board,
-			state.playerGame.piece,
-			shape,
-			false
+	if (state.playerGame) {
+		const newPosition = {
+			...state.playerGame.piece.position,
+			y: state.playerGame.piece.position.y + 1,
+		};
+		state.tickToMoveDown = 0;
+	
+		const shape = getShape(
+			state.playerGame.piece.type,
+			state.playerGame.piece.rotationState
 		);
+		clearOldPosition(state.playerGame.piece, shape, state.playerGame.board);
+		if (checkCollision(state.playerGame.board, newPosition, shape)) {
+			handlePieceDown(state, shape);
+		} else {
+			if (!isSoftDrop) {
+				state.playerGame.score += 1;
+			}
+	
+			// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
+			state.playerGame.piece.position = newPosition;
+			state.playerGame.board.cells = transferPieceToBoard(
+				state.playerGame.board,
+				state.playerGame.piece,
+				shape,
+				false
+			);
+		}
 	}
 }
 
@@ -131,58 +133,63 @@ export function changeStatePiecePosition(
 	cb: (position: IPosition) => IPosition
 ): void {
 	// const tetromino = state.playerGame.piece;
-	const board = state.playerGame.board;
-	const newPos = cb(state.playerGame.piece.position);
-	const shape = getShape(
-		state.playerGame.piece.type,
-		state.playerGame.piece.rotationState
-	);
-
-	if (!checkCollision(board, newPos, shape)) {
-		clearDropPreview(board, shape, state.playerGame.piece);
-		clearOldPosition(state.playerGame.piece, shape, board);
-		state.playerGame.piece.position = newPos;
-		setDropPreview(board, shape, state.playerGame.piece);
-		board.cells = transferPieceToBoard(
-			board,
-			state.playerGame.piece,
-			shape,
-			false
+	if (state.playerGame) {
+		const board = state.playerGame.board;
+		const newPos = cb(state.playerGame.piece.position);
+		const shape = getShape(
+			state.playerGame.piece.type,
+			state.playerGame.piece.rotationState
 		);
+	
+		if (!checkCollision(board, newPos, shape)) {
+			clearDropPreview(board, shape, state.playerGame.piece);
+			clearOldPosition(state.playerGame.piece, shape, board);
+			state.playerGame.piece.position = newPos;
+			setDropPreview(board, shape, state.playerGame.piece);
+			board.cells = transferPieceToBoard(
+				board,
+				state.playerGame.piece,
+				shape,
+				false
+			);
+		}
 	}
 }
 
 export function rotate(state: IGameState): void {
 	// const piece = state.playerGame.piece;
-	const board = state.playerGame.board;
-	if (state.playerGame.piece.type === CellType.O) return;
-	const currentShape = getShape(
-		state.playerGame.piece.type,
-		state.playerGame.piece.rotationState
-	);
-	const newRotation = (state.playerGame.piece.rotationState + 1) % 4;
-	const newShape = getShape(state.playerGame.piece.type, newRotation);
-	const srs = state.playerGame.piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
-	for (let position of srs[state.playerGame.piece.rotationState]) {
-		const newPosition = {
-			x: state.playerGame.piece.position.x + position.x,
-			y: state.playerGame.piece.position.y + position.y,
-		};
-		if (!checkCollision(board, newPosition, newShape)) {
-			clearDropPreview(board, currentShape, state.playerGame.piece);
-			clearOldPosition(state.playerGame.piece, currentShape, board);
-			state.playerGame.piece.position = newPosition;
-			state.playerGame.piece.rotationState = newRotation;
-			setDropPreview(board, newShape, state.playerGame.piece);
-			board.cells = transferPieceToBoard(
-				board,
-				state.playerGame.piece,
-				newShape,
-				false
-			);
-			break;
+	if (state.playerGame) {
+		const board = state.playerGame.board;
+		if (state.playerGame.piece.type === CellType.O) return;
+		const currentShape = getShape(
+			state.playerGame.piece.type,
+			state.playerGame.piece.rotationState
+		);
+		const newRotation = (state.playerGame.piece.rotationState + 1) % 4;
+		const newShape = getShape(state.playerGame.piece.type, newRotation);
+		const srs = state.playerGame.piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
+		for (let position of srs[state.playerGame.piece.rotationState]) {
+			const newPosition = {
+				x: state.playerGame.piece.position.x + position.x,
+				y: state.playerGame.piece.position.y + position.y,
+			};
+			if (!checkCollision(board, newPosition, newShape)) {
+				clearDropPreview(board, currentShape, state.playerGame.piece);
+				clearOldPosition(state.playerGame.piece, currentShape, board);
+				state.playerGame.piece.position = newPosition;
+				state.playerGame.piece.rotationState = newRotation;
+				setDropPreview(board, newShape, state.playerGame.piece);
+				board.cells = transferPieceToBoard(
+					board,
+					state.playerGame.piece,
+					newShape,
+					false
+				);
+				break;
+			}
 		}
 	}
+	
 }
 
 export function handleInput(input: Commands, state: IGameState): void {

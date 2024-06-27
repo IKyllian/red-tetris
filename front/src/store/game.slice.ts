@@ -78,7 +78,7 @@ export interface IGameState {
 	render: boolean;
 }
 
-const defaultGameState: IGameState = {
+export const defaultGameState: IGameState = {
 	seed: '',
 	gameStarted: false,
 	playerGame: null,
