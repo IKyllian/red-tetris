@@ -10,7 +10,6 @@ import {
 	checkCollision,
 	clearDropPreview,
 	clearOldPosition,
-	generatePieces,
 	getPieceIndex,
 	getPosDown,
 	getPosLeft,
@@ -19,10 +18,12 @@ import {
 	setDropPreview,
 	transferPieceToBoard,
 } from './piece.utils';
+import { generatePieces } from 'front/utils/piece-generation.utils'
 import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 import { Commands } from 'front/types/command.types';
 import { current } from 'immer';
+
 function handlePieceDown(state: IGameState, shape: number[][]): void {
 	state.playerGame.board.cells = transferPieceToBoard(
 		state.playerGame.board,

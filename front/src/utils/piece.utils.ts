@@ -13,7 +13,6 @@ import {
 } from 'front/types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { IGameState } from 'front/store/game.slice';
 import { PIECES_BUFFER_SIZE } from './game.utils';
 
 export function getTetrominoClassName(
@@ -47,19 +46,19 @@ export function getTetrominoClassName(
 export function getShape(type: CellType, rotationState: number): number[][] {
 	switch (type) {
 		case CellType.I:
-			return I_TetrominoShape[rotationState];
+			return I_TetrominoShape[rotationState] || I_TetrominoShape[0];
 		case CellType.J:
-			return J_TetrominoShape[rotationState];
+			return J_TetrominoShape[rotationState] || J_TetrominoShape[0];
 		case CellType.L:
-			return L_TetrominoShape[rotationState];
+			return L_TetrominoShape[rotationState] || L_TetrominoShape[0];
 		case CellType.O:
 			return O_TetrominoShape;
 		case CellType.S:
-			return S_TetrominoShape[rotationState];
+			return S_TetrominoShape[rotationState] || S_TetrominoShape[0];
 		case CellType.T:
-			return T_TetrominoShape[rotationState];
+			return T_TetrominoShape[rotationState] || T_TetrominoShape[0];
 		default:
-			return Z_TetrominoShape[rotationState];
+			return Z_TetrominoShape[rotationState] || Z_TetrominoShape[0];
 	}
 }
 
@@ -75,28 +74,10 @@ export function getPosDown(position: IPosition): IPosition {
 	return { ...position, y: position.y + 1 };
 }
 
-export function getNextPiece(rng: seedrandom.PRNG) {
+export function getNextPiece(rng: seedrandom.PRNG): ITetromino {
 	const index = Math.floor(rng() * TetriminosArray.length);
-	const piece = { ...TetriminosArray[index] };
+	const piece = TetriminosArray[index] ? { ...TetriminosArray[index] } : { ...TetriminosArray[0] };
 	return piece;
-}
-
-export function generatePieces(
-	state: IGameState,
-	count: number,
-	offset: number = 0
-) {
-	const i =
-		(state.playerGame.currentPieceIndex % PIECES_BUFFER_SIZE) + offset;
-	// console.log('generatePieces', i);
-	for (let j = 0; j < count; j++) {
-		// console.log('in loop');
-		if (state.skipPieceGeneration > 0) {
-			state.skipPieceGeneration--;
-			continue;
-		}
-		state.pieces[i + j] = getNextPiece(state.rng);
-	}
 }
 
 export function checkCollision(
@@ -172,6 +153,32 @@ export function transferPieceToBoard(
 	return newCells;
 }
 
+export function transferPreviewToBoard(
+	board: IBoard,
+	tetromino: ITetromino,
+	shape: number[][]
+): ICell[][] {
+	let newCells = [...board.cells];
+	shape.forEach((row: number[], y: number) => {
+		if (tetromino.position.y + y < 0) return;
+		row.forEach((cell: number, x: number) => {
+			if (cell) {
+				const _x = x + tetromino.position.x;
+				const _y = y + tetromino.position.y;
+				if (newCells[_y][_x].type === CellType.EMPTY) {
+					newCells[_y][_x] = {
+						type: tetromino.type,
+						occupied: false,
+						isPreview: true,
+					};
+				}
+			}
+		});
+	});
+	return newCells;
+}
+
+
 function getDropPosition(
 	board: IBoard,
 	position: IPosition,
@@ -205,30 +212,6 @@ export function clearOldDropPosition(
 	return cells;
 }
 
-export function transferPreviewToBoard(
-	board: IBoard,
-	tetromino: ITetromino,
-	shape: number[][]
-): ICell[][] {
-	let newCells = [...board.cells];
-	shape.forEach((row: number[], y: number) => {
-		if (tetromino.position.y + y < 0) return;
-		row.forEach((cell: number, x: number) => {
-			if (cell) {
-				const _x = x + tetromino.position.x;
-				const _y = y + tetromino.position.y;
-				if (newCells[_y][_x].type === CellType.EMPTY) {
-					newCells[_y][_x] = {
-						type: tetromino.type,
-						occupied: false,
-						isPreview: true,
-					};
-				}
-			}
-		});
-	});
-	return newCells;
-}
 
 export function clearDropPreview(
 	board: IBoard,
@@ -252,6 +235,6 @@ export function setDropPreview(
 	);
 }
 
-export function getPieceIndex(currentPieceIndex: number) {
+export function getPieceIndex(currentPieceIndex: number): number {
 	return currentPieceIndex % PIECES_BUFFER_SIZE;
 }

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import PiecePreview from "./piece-preview";
 import { useAppSelector } from "front/store/hook";
 import { GameMode } from "front/types/packet.types";
+import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-display-utils'
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
@@ -15,54 +16,6 @@ interface BoardProps {
 	opponentsLength?: number;
 	gameMode: GameMode
 }
-
-const Countdown = () => {
-	const count = useAppSelector((state) => state.game.countdown);
-	return (
-		<div className="countdown-container">
-			{count > -1 && <span> {count > 0 ? count : "GO"} </span>}
-		</div>
-	);
-};
-
-const getBoardStyleSize = (
-	isOpponentBoards: boolean,
-	numberOfOpponents: number
-) => {
-	const { innerWidth: width, innerHeight: height } = window;
-	const size =
-		isOpponentBoards && numberOfOpponents > 1
-			? {
-					widthRatio: 0.1,
-					heightRatio: 0.2,
-					width: width / 2,
-					height: width / 2,
-			  }
-			: {
-					widthRatio: 0.3,
-					heightRatio: 0.5,
-					width,
-					height,
-			  };
-	const ret = {
-		width: Math.min(
-			size.width * size.widthRatio,
-			size.height * size.widthRatio
-		),
-		height: Math.min(
-			size.width * size.heightRatio,
-			size.height * size.heightRatio
-		),
-	};
-	return ret;
-};
-
-const getPiecePreviewSize = (boardSize: { width: number; height: number }) => {
-	return {
-		width: boardSize.width * 0.4,
-		height: boardSize.height * 0.2,
-	};
-};
 
 const Board = ({
 	board,
@@ -82,6 +35,8 @@ const Board = ({
 	const isSolo = gameMode === GameMode.SOLO;
 	const score = useAppSelector((state) => state.game.playerGame.score);
 	const level = useAppSelector((state) => state.game.playerGame.level);
+	const count = useAppSelector((state) => state.game.countdown);
+
 	useEffect(() => {
 		const handleResize = () => {
 			const newSize = getBoardStyleSize(
@@ -109,7 +64,12 @@ const Board = ({
 
 	return (
 		<div className="inline-flex" style={{ position: "relative" }}>
-			{!isOpponentBoards && <Countdown />}
+			{
+				!isOpponentBoards && 
+				<div className="countdown-container">
+					{count > -1 && <span> {count > 0 ? count : "GO"} </span>}
+				</div>
+			}
 			{
 				isSolo &&
 				<div className="score-container flex gap16">

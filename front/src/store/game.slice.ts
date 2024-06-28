@@ -15,10 +15,10 @@ import {
 	getShape,
 	clearOldPosition,
 	transferPieceToBoard,
-	generatePieces,
 	setDropPreview,
 	clearDropPreview,
 } from 'front/utils/piece.utils';
+import { generatePieces } from 'front/utils/piece-generation.utils'
 import { ITetromino } from 'front/types/tetrominoes.type';
 import {
 	handleInput,

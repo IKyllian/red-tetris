@@ -4,11 +4,11 @@ import { cloneDeep, isEqual } from 'lodash';
 import { compareCells, getFramesPerGridCell } from './board.utils';
 import { handleInput, moveDown } from './handle-inputs.utils';
 import {
-	generatePieces,
 	getShape,
 	setDropPreview,
 	transferPieceToBoard,
 } from './piece.utils';
+import { generatePieces } from 'front/utils/piece-generation.utils'
 import { GameMode } from 'front/types/packet.types';
 
 export const PIECES_BUFFER_SIZE = 100;
