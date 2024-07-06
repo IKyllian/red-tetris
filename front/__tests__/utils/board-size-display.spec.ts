@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getPiecePreviewSize, getBoardStyleSize } from 'front/utils/board-size-display-utils';
+import { getPiecePreviewSize, getBoardStyleSize } from 'front/utils/board-size-display.utils';
 
 describe('board-size-display.utils', () => {
     describe('getBoardStyleSize', () => {

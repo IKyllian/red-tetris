@@ -1,38 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "front/store/hook";
 import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
 import { addInputToQueue, resetGame } from "front/store/game.slice";
 import { getCommand, Commands } from "front/types/command.types";
-import BoardPreview from "front/components/board/board-preview";
-import { leaveLobby } from "front/store/lobby.slice";
 import { useNavigate } from "react-router-dom";
 import GameModal from "./game-modal";
 import "./game.css";
 import { ILobby } from "front/types/lobby.type";
-import { get } from "lodash";
-
-const Countdown = () => {
-	const [count, setCount] = useState<number>(3);
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setCount((prev) => prev - 1);
-		}, 900);
-
-		if (count < -1) {
-			clearInterval(interval);
-		}
-		return () => clearInterval(interval);
-	}, [count]);
-	return (
-		<div className="countdown-container">
-			<span> 555</span>
-			{count > -1 && <span> {count > 0 ? count : "GO"} </span>}
-		</div>
-	);
-};
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);

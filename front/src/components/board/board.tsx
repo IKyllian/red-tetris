@@ -2,11 +2,11 @@ import "./board.css";
 import { ITetromino } from "front/types/tetrominoes.type";
 import { IBoard } from "front/types/board.types";
 import { getTetrominoClassName } from "front/utils/piece.utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PiecePreview from "./piece-preview";
 import { useAppSelector } from "front/store/hook";
 import { GameMode } from "front/types/packet.types";
-import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-display-utils'
+import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-display.utils'
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
@@ -53,43 +53,48 @@ const Board = ({
 		};
 	}, []);
 
-	const boardStyles = {
+	const boardStyles = useMemo(() => ({
 		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
 		width: `${boardSize.width}px`,
 		height: `${boardSize.height}px`,
 		minWidth: "73px",
 		minHeight: "156px",
-	};
+	}), [board.size.rows, board.size.columns, boardSize]);
 
 	return (
 		<div className="inline-flex" style={{ position: "relative" }}>
 			{
-				!isOpponentBoards && 
-				<div className="countdown-container">
-					{count > -1 && <span> {count > 0 ? count : "GO"} </span>}
+				!isOpponentBoards && count > -1 && 
+				<div data-testid="countdown" className="countdown-container">
+					<span> {count > 0 ? count : "GO"} </span>
 				</div>
 			}
 			{
 				isSolo &&
-				<div className="score-container flex gap16">
+				<div data-testid="score-container" className="score-container flex gap16">
 					<span> Score: {score} </span>
 					<span> Level: {level} </span>
 				</div>
 			}
 			<div className="flex flex-col">
 				<div
+					data-testid="board"
 					className="board board-border"
 					style={boardStyles}
 					tabIndex={0}
 				>
 					{isGameOver && (
-						<span className="gameOver"> Game Over </span>
+						<span data-testid="gameOver" className="gameOver"> Game Over </span>
 					)}
 					
 					{board.cells.map((row) =>
 						row.map((cell, cellIndex) => (
-							<div key={cellIndex} className="cell">
+							<div
+								data-testid="cell-item"
+								key={cellIndex}
+								className="cell"
+							>
 								<div
 									className={getTetrominoClassName(
 										cell.type,
@@ -115,7 +120,7 @@ const Board = ({
 				// 	nextPieces.length > 0 &&
 				// 	opponentsLength <= 4))
 				&& (
-				<div className="board-box-container">
+				<div data-testid="next-pieces-container" className="board-box-container">
 					<div className="box-title"> NEXT </div>
 					<div className="flex flex-col box-border">
 						{nextPieces.map((piece, index) => (

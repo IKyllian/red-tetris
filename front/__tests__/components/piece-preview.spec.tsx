@@ -19,7 +19,7 @@ describe('piece preview', () => {
         const { findAllByTestId, findByTestId } = render(<PiecePreview tetromino={tetromino} piecePreviewSize={piecePreviewSize} />)
 
         const cells = await findAllByTestId("cell-preview")
-        const board = await findByTestId("board")
+        const board = await findByTestId("board-preview")
 
         expect(cells).toHaveLength(size * size)
         expect(board).toHaveStyle({
