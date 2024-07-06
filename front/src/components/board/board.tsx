@@ -2,7 +2,7 @@ import "./board.css";
 import { ITetromino } from "front/types/tetrominoes.type";
 import { IBoard } from "front/types/board.types";
 import { getTetrominoClassName } from "front/utils/piece.utils";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PiecePreview from "./piece-preview";
 import { useAppSelector } from "front/store/hook";
 import { GameMode } from "front/types/packet.types";
@@ -32,6 +32,8 @@ const Board = ({
 	const [piecePreviewSize, setPiecePreviewSize] = useState(
 		getPiecePreviewSize(boardSize)
 	);
+	const boardRef = useRef<HTMLDivElement>(null);
+
 	const isSolo = gameMode === GameMode.SOLO;
 	const score = useAppSelector((state) => state.game.playerGame.score);
 	const level = useAppSelector((state) => state.game.playerGame.level);
@@ -48,6 +50,9 @@ const Board = ({
 		};
 
 		window.addEventListener("resize", handleResize);
+		if (boardRef.current) {
+			boardRef.current.focus();
+		}
 		return () => {
 			window.removeEventListener("resize", handleResize);
 		};
@@ -63,7 +68,7 @@ const Board = ({
 	}), [board.size.rows, board.size.columns, boardSize]);
 
 	return (
-		<div className="inline-flex" style={{ position: "relative" }}>
+		<div className="inline-flex" style={{ position: "relative" }} autoFocus={true}>
 			{
 				!isOpponentBoards && count > -1 && 
 				<div data-testid="countdown" className="countdown-container">
@@ -83,6 +88,7 @@ const Board = ({
 					className="board board-border"
 					style={boardStyles}
 					tabIndex={0}
+					ref={boardRef}
 				>
 					{isGameOver && (
 						<span data-testid="gameOver" className="gameOver"> Game Over </span>

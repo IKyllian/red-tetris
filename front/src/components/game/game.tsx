@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import GameModal from "./game-modal";
 import "./game.css";
 import { ILobby } from "front/types/lobby.type";
+import { GameMode } from "front/types/packet.types";
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
@@ -130,16 +131,10 @@ export default function Game() {
 	if (lobby) {
 		return (
 			<div className="game-container">
-				{!lobby.gameStarted && (
+				{ (gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) || (gameMode === GameMode.SOLO && gameOver) && (
 					<GameModal lobby={lobby} gameMode={gameMode} />
 				)}
-				{/* <div style={{ fontSize: "25px", color: "green" }}>Tick: {tick}</div> */}
-
-				{/* <div style={{ fontSize: "25px", color: "blue" }}>
-					Render average: {renderAverage.current}
-				</div> */}
 				<div
-					// className="game-wrapper flex flex-row items-center content-center gap8"
 					className={`game-wrapper ${
 						opponentsGames.length <= 1 ? flexClass : ""
 					}`}
@@ -155,10 +150,6 @@ export default function Game() {
 								: "calc(100vw / 4)",
 					}}
 				>
-					{/* <div style={{ fontSize: "25px", color: "red" }}>
-						FPS: {fpsRef.current.toFixed(2)}
-					</div> */}
-					{/* <Countdown /> */}
 					<div
 						className={`${
 							opponentsGames.length > 1
