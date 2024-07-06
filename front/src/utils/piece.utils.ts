@@ -14,6 +14,7 @@ import {
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
 import { PIECES_BUFFER_SIZE } from './game.utils';
+import { getDropPosition } from 'front/utils/drop.utils';
 
 export function getTetrominoClassName(
 	type: CellType,
@@ -176,21 +177,6 @@ export function transferPreviewToBoard(
 		});
 	});
 	return newCells;
-}
-
-
-function getDropPosition(
-	board: IBoard,
-	position: IPosition,
-	shape: number[][]
-): IPosition {
-	let newPos = { ...position };
-	let nextPos = getPosDown(newPos);
-	while (!checkCollision(board, nextPos, shape)) {
-		newPos = nextPos;
-		nextPos = getPosDown(newPos);
-	}
-	return newPos;
 }
 
 export function clearOldDropPosition(

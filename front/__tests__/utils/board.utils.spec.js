@@ -1,7 +1,12 @@
-import { getFramesPerGridCell, buildBoard, checkForLines } from 'front/utils/board.utils';
+import { getFramesPerGridCell, buildBoard, checkForLines, canBePushedBack } from 'front/utils/board.utils';
 import { expect, it, describe } from 'vitest';
 import { defaultCell } from 'front/types/board.types';
 import { CellType } from 'front/types/tetrominoes.type';
+import {
+	CellType,
+	O_TetrominoShape,
+    T_TetrominoShape
+} from 'front/types/tetrominoes.type';
 
 describe('utils/board', () => {
     describe('buildBoard', () => {
@@ -104,5 +109,37 @@ describe('utils/board', () => {
             expect(checkForLines(board)).toBe(0);
             expect(board.cells[size.rows - 1]).toEqual(expect.arrayContaining(colums))
         })
+    })
+
+    describe("canBePushedBack", () => {
+        describe('canBePushedBack', () => {
+            it('should return true if the piece can be pushed back onto the board', () => {
+                const shape = O_TetrominoShape
+                expect(canBePushedBack(0, shape)).toBe(true);
+                expect(canBePushedBack(1, shape)).toBe(true);
+                expect(canBePushedBack(2, shape)).toBe(true);
+            });
+        
+            it('should return false if the piece cannot be pushed back onto the board', () => {
+                const shape = O_TetrominoShape
+                expect(canBePushedBack(-1, shape)).toBe(false);
+                expect(canBePushedBack(-2, shape)).toBe(false);
+                expect(canBePushedBack(-3, shape)).toBe(false);
+            });
+        
+            it('should handle shapes with varying heights correctly', () => {
+                const shape1 = T_TetrominoShape[1];
+                expect(canBePushedBack(0, shape1)).toBe(true);
+                expect(canBePushedBack(-2, shape1)).toBe(false);
+        
+                const shape2 = [
+                    [1, 0],
+                    [1, 0],
+                    [1, 1],
+                ];
+                expect(canBePushedBack(0, shape2)).toBe(true);
+                expect(canBePushedBack(-1, shape2)).toBe(false);
+            });
+        });
     })
 })

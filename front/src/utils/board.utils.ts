@@ -88,7 +88,7 @@ export function checkForLines(board: IBoard): number {
 	return lines;
 }
 
-function canBePushedBack(pieceY: number, shape: number[][]) {
+export function canBePushedBack(pieceY: number, shape: number[][]) {
 	for (let y = 0; y < shape.length; y++) {
 		for (let x = 0; x < shape[y].length; x++) {
 			if (shape[y][x]) {

@@ -1,5 +1,4 @@
 import { describe, expect, Mock, it, vi, afterEach, beforeEach } from "vitest"
-import { CellType } from 'front/types/tetrominoes.type';
 import {
     getTetrominoClassName,
     getShape,
@@ -7,7 +6,11 @@ import {
     getPosLeft,
     getPosDown,
     getNextPiece,
-    getPieceIndex
+    getPieceIndex,
+    clearOldPosition,
+    checkCollision,
+    transferPieceToBoard,
+    transferPreviewToBoard
 } from 'front/utils/piece.utils';
 import {
 	CellType,
@@ -23,6 +26,8 @@ import {
 	Z_TetrominoShape,
 } from 'front/types/tetrominoes.type';
 import { PIECES_BUFFER_SIZE } from 'front/utils/game.utils'
+import { defaultCell, ICell, IBoard } from 'front/types/board.types';
+import { buildBoard } from 'front/utils/board.utils';
 
 describe('utils/piece', () => {
     const pos = {
@@ -158,30 +163,146 @@ describe('utils/piece', () => {
         });
     })
 
-    // describe('clearOldPosition', () => {
-    //     const tetromino = {
-    //         type: CellType.J,
-    //         position: { x: 3, y: 0 },
-    //         rotationState: 0
-    //     }
-    //     const shape = [
-    //         [1, 0, 0],
-    //         [1, 1, 1],
-    //         [0, 0, 0]
-    //     ]
-    //     const board = buildBoard({
-    //         rows: 2,
-    //         cols: 2,
-    //         boardCells: {
-    //             occupied: true,
-    //             type: CellType.J,
-    //             isPreview: false,
-    //         }
-    //     })
 
+    describe('checkCollision', () => {
+        const size = { rows: 5, columns: 5 };
+        const shape = O_TetrominoShape;
+        it('should return false for no collision', () => {
+            const board = buildBoard(size);
+            const position: IPosition = { x: 1, y: 1 };
 
-    // })
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(false);
+        });
 
+        it('should return true for collision with board boundaries', () => {
+            const board = buildBoard(size);
+            const position: IPosition = { x: 4, y: 4 };
+
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(true);
+        });
+
+        it('should return true for collision with occupied cells', () => {
+            const board = buildBoard(size);
+            board.cells[2][2] = { ...board.cells[2][2], occupied: true };
+            const position: IPosition = { x: 1, y: 1 };
+
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(true);
+        });
+
+        it('should handle negative y position correctly', () => {
+            const board = buildBoard(size);
+            const position: IPosition = { x: 1, y: -1 };
+
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(false);
+        });
+
+        it('should return true for collision with left boundary', () => {
+            const board = buildBoard(size);
+            const position: IPosition = { x: -1, y: 2 };
+
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(true);
+        });
+
+        it('should return true for collision with right boundary', () => {
+            const board = buildBoard(size);
+            const position: IPosition = { x: 4, y: 2 };
+
+            const result = checkCollision(board, position, shape);
+            expect(result).toBe(true);
+        });
+    });
+
+    describe('clearOldPosition', () => {
+        const size = { rows: 5, columns: 5 };
+        const board = buildBoard(size)
+
+        it('should clear the old position of the tetromino on the board', () => {
+            const newCell = { occupied: false, type: CellType.O, isPreview: true }
+            const tetromino = {...TetriminosArray[3], position: { x: 1, y: 1 }}
+            board.cells[1][1] = newCell;
+            board.cells[1][2] = newCell;
+            board.cells[2][1] = newCell;
+            board.cells[2][2] = newCell;
+
+            const newCells = clearOldPosition(tetromino, O_TetrominoShape, board);
+            const expectedCells: ICell[][] = Array.from({ length: size.rows }, () =>
+                Array.from({ length: size.columns }, () => ({ ...defaultCell }))
+            );
+    
+            expect(newCells).toEqual(expectedCells);
+        });
+    
+        it('should not clear cells outside the board', () => {
+            const tetrominoOutOfBounds: ITetromino = {...TetriminosArray[3], position: { x: 3, y: -1 }}
+            const newCells = clearOldPosition(tetrominoOutOfBounds, O_TetrominoShape, board);
+    
+            const expectedCells: ICell[][] = Array.from({ length: size.rows }, () =>
+                Array.from({ length: size.columns }, () => ({ ...defaultCell }))
+            );
+    
+            expect(newCells).toEqual(expectedCells);
+        });
+    });
+
+    describe('transferPieceToBoard', () => {
+        const size = { rows: 5, columns: 5 };
+        let board: IBoard;
+        let tetromino: ITetromino;
+    
+        beforeEach(() => {
+            board = buildBoard(size);
+            tetromino = {...TetriminosArray[3], position: { x: 1, y: 1 }};
+        });
+    
+        it('should transfer the piece to the board without fixing it', () => {
+            const result = transferPieceToBoard(board, tetromino, O_TetrominoShape, false);
+            expect(result[1][1]).toEqual({ type: CellType.O, occupied: false, isPreview: false });
+            expect(result[1][2]).toEqual({ type: CellType.O, occupied: false, isPreview: false });
+            expect(result[2][1]).toEqual({ type: CellType.O, occupied: false, isPreview: false });
+            expect(result[2][2]).toEqual({ type: CellType.O, occupied: false, isPreview: false });
+        });
+    
+        it('should transfer the piece to the board and fix it', () => {
+            const result = transferPieceToBoard(board, tetromino, O_TetrominoShape, true);
+            expect(result[1][1]).toEqual({ type: CellType.O, occupied: true, isPreview: false });
+            expect(result[1][2]).toEqual({ type: CellType.O, occupied: true, isPreview: false });
+            expect(result[2][1]).toEqual({ type: CellType.O, occupied: true, isPreview: false });
+            expect(result[2][2]).toEqual({ type: CellType.O, occupied: true, isPreview: false });
+        });
+    });
+
+    describe('transferPreviewToBoard', () => {
+        const size = { rows: 5, columns: 5 };
+        let board: IBoard;
+        let tetromino: ITetromino;
+    
+        beforeEach(() => {
+            board = buildBoard(size);
+            tetromino = {...TetriminosArray[3], position: { x: 1, y: 1 }};
+        });
+    
+        it('should transfer the preview to the board', () => {
+            const result = transferPreviewToBoard(board, tetromino, O_TetrominoShape);
+            expect(result[1][1]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+            expect(result[1][2]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+            expect(result[2][1]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+            expect(result[2][2]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+        });
+    
+        it('should not overwrite non-empty cells', () => {
+            board.cells[1][1] = { type: CellType.Z, occupied: true, isPreview: false };
+            const result = transferPreviewToBoard(board, tetromino, O_TetrominoShape);
+            expect(result[1][1]).toEqual({ type: CellType.Z, occupied: true, isPreview: false });
+            expect(result[1][2]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+            expect(result[2][1]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+            expect(result[2][2]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
+        });
+    });
 
     describe('getPieceIndex', () => {
         it('should return the index of the piece in the array', () => {
