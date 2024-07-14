@@ -2,7 +2,7 @@ import { IGameState } from 'front/store/game.slice';
 import { IGame } from 'front/types/board.types';
 import { cloneDeep, isEqual } from 'lodash';
 import { compareCells, getFramesPerGridCell } from './board.utils';
-import { handleInput, moveDown } from './handle-inputs.utils';
+import { moveDown } from 'front/utils/piece-move.utils'
 import {
 	getShape,
 	setDropPreview,

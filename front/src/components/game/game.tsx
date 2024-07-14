@@ -10,6 +10,7 @@ import GameModal from "./game-modal";
 import "./game.css";
 import { ILobby } from "front/types/lobby.type";
 import { GameMode } from "front/types/packet.types";
+import { useGameLoop } from "front/hooks/useGameLoop";
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
@@ -35,7 +36,8 @@ export default function Game() {
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
 	// const tick = useAppSelector((state) => state.game.tick);
-	const fpsRef = useRef<number>(0);
+	// const fpsRef = useRef<number>(0);
+	const fps = useGameLoop(gameOver);
 
 	const lastRenderTimeRef = useRef(null);
 	const renderCountRef = useRef<number>(0);
@@ -56,47 +58,27 @@ export default function Game() {
 	} else {
 		renderCountRef.current++;
 	}
-	// Disable scrolling when the component mounts and enable it when it unmounts
-	// useEffect(() => {
-	// 	if (!lobby) navigate('/home')
-	// 	document.body.style.overflow = "hidden";
-	// 	return () => {
-	// 		document.body.style.overflow = "auto";
-	// 		if (lobby) {
-	// 			dispatch(leaveLobby(lobby.id));
-	// 		}
-	// 	};
-	// }, []);
-	//TODO: stop using useEffect
-
-	// useEffect(() => {
-	// 	return (() => {
-	// 		if (lobby) {
-	// 			dispatch(leaveLobby(lobby.id));
-	// 		}
-	// 	})
-	// }, [])
-
-	// useEffect(() => {
-	// 	return () => {
-	// 		dispatch(resetGame())
-	// 	};
-	// }, [])
 
 	useEffect(() => {
 		if (!lobby) navigate("/home");
 	}, [lobby])
 
+	// useEffect(() => {
+	// 	if (gameOver) {
+	// 		console.log("GAME OVER");
+	// 		return;
+	// 	}
+	// 	let cleanup = gameLoop(fpsRef, dispatch);
+	// 	return () => {
+	// 		if (cleanup) cleanup();
+	// 	};
+	// }, [gameStarted, dispatch, gameOver]);
+
 	useEffect(() => {
 		if (gameOver) {
-			console.log("GAME OVER");
-			return;
+		  console.log('GAME OVER');
 		}
-		let cleanup = gameLoop(fpsRef, dispatch);
-		return () => {
-			if (cleanup) cleanup();
-		};
-	}, [gameStarted, dispatch, gameOver]);
+	  }, [gameOver]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);
@@ -131,7 +113,7 @@ export default function Game() {
 	if (lobby) {
 		return (
 			<div className="game-container">
-				{ (gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) || (gameMode === GameMode.SOLO && gameOver) && (
+				{ ((gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) || (gameMode === GameMode.SOLO && gameOver)) && (
 					<GameModal lobby={lobby} gameMode={gameMode} />
 				)}
 				<div

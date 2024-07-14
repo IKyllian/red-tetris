@@ -20,8 +20,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 	} = useForm<CreateFormValues>();
 	const dispatch = useAppDispatch();
 
-	const handleCreateLobby = (data: CreateFormValues, e) => {
-		e?.preventDefault();
+	const handleCreateLobby = (data: CreateFormValues) => {
 		dispatch(
 			createLobby({
 				name: data.lobbyName,
