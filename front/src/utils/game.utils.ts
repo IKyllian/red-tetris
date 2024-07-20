@@ -10,6 +10,7 @@ import {
 	transferPieceToBoard,
 } from './piece.utils';
 import { GameMode } from 'front/types/packet.types';
+import { current } from 'immer';
 
 export const PIECES_BUFFER_SIZE = 100;
 export const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
@@ -91,6 +92,7 @@ export function handleServerReconciliation(state: IGameState) {
 				tick: state.lastServerState.tick,
 				game: cloneDeep(serverGameState),
 			};
+			// console.log(current(state.))
 			state.tickToMoveDown = serverGameState.tickToMoveDown;
 			let tickToProcess = state.lastServerState.tick + 1;
 			const pieceDiff =
@@ -104,14 +106,11 @@ export function handleServerReconciliation(state: IGameState) {
 			state.playerGame = { ...serverGameState };
 			while (tickToProcess < state.tick) {
 				const index = tickToProcess % BUFFER_SIZE;
-				// if (state.inputBuffer[index]?.length > 0) {
-				// 	//TODO problem
-				// 	console.log('reprocess inputs from tick: ', tickToProcess);
-				// 	state.inputBuffer[index].forEach((input) => {
-				// 		console.log('input', input);
-				// 		handleInput(input, state);
-				// 	});
-				// }
+				if (state.inputBuffer[index]?.length > 0) {
+					state.inputBuffer[index].forEach((input) => {
+						handleInput(input, state);
+					});
+				}
 				softDrop(state);
 				// state.clientStateBuffer[tickToProcess % BUFFER_SIZE] = {
 				// 	...state.playerGame,

@@ -138,11 +138,12 @@ export class Game {
 			const packet = this.inputsQueue[0];
 			if (packet.tick > tick) {
 				if (
-					packet.tick - tick > 10 &&
+					packet.tick - tick > 15 &&
 					this.adjustmentIteration === packet.adjustmentIteration
 				) {
 					this.adjustmentIteration++;
-					this.tickAdjustment = (packet.tick - tick - 5) * -1;
+					this.tickAdjustment = -1;
+					// this.tickAdjustment = (packet.tick - tick - 5) * -1;
 					console.log('adjustment minus: ', this.tickAdjustment);
 				}
 				break;
@@ -168,7 +169,7 @@ export class Game {
 			} else if (tick > packet.tick) {
 				if (this.adjustmentIteration === packet.adjustmentIteration) {
 					this.adjustmentIteration++;
-					this.tickAdjustment = tick - packet.tick + 5;
+					this.tickAdjustment = tick - packet.tick + 15;
 					console.log('adjustment: ', this.tickAdjustment);
 				}
 				this.inputsQueue.shift();
@@ -214,12 +215,6 @@ export class Game {
 						this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
 						this.level++;
 						this.linesCleared = 0;
-						console.log(
-							'level up at tick: ',
-							this.tick,
-							' - level: ',
-							this.level
-						);
 					}
 					let lineScore = 0;
 					if (linesCleared <= this.lineScores.length) {

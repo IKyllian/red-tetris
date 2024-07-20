@@ -22,7 +22,6 @@ import {
 import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 import { Commands } from 'front/types/command.types';
-import { current } from 'immer';
 function handlePieceDown(state: IGameState, shape: number[][]): void {
 	state.playerGame.board.cells = transferPieceToBoard(
 		state.playerGame.board,
@@ -40,22 +39,14 @@ function handlePieceDown(state: IGameState, shape: number[][]): void {
 		state.playerGame.piece.rotationState
 	);
 	const linesCleared = checkForLines(state.playerGame.board);
-	console.log('lines cleared: ', linesCleared);
 
 	setDropPreview(state.playerGame.board, newShape, state.playerGame.piece);
 	if (linesCleared > 0) {
 		state.playerGame.linesCleared += linesCleared;
-		console.log('toto lines cleared: ', state.playerGame.linesCleared);
 		if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
 			state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
 			state.playerGame.level++;
 			state.playerGame.linesCleared = 0;
-			console.log(
-				'level up at tick: ',
-				state.tick,
-				' - level: ',
-				state.playerGame.level
-			);
 		}
 		state.playerGame.score +=
 			Scoring[linesCleared - 1] * (state.playerGame.level + 1);

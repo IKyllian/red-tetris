@@ -249,7 +249,8 @@ export const gameSlice = createSlice({
 				state.adjustmentIteration = state.serverAdjustmentIteration;
 				state.inputQueue.length = 0;
 				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
-				// console.log('adjusting tick: ', state.tickAdjustment);
+
+				console.log('adjusting tick: ', state.tickAdjustment);
 				// const tickToCatchUp = state.tick + state.tickAdjustment;
 				// while (state.tick < tickToCatchUp) {
 				// 	softDrop(state);
