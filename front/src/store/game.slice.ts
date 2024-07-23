@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IGame, defaultGame } from 'front/types/board.types';
+import { IGame } from 'front/types/board.types';
 import {
 	GameMode,
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
 	IIndestructiblePacket,
-	IInputsPacket,
 	IPositionUpdate,
 	IServerState,
 	ITickAdjustmentPacket,
@@ -16,26 +15,19 @@ import {
 	clearOldPosition,
 	transferPieceToBoard,
 	setDropPreview,
-	clearDropPreview,
 } from 'front/utils/piece.utils';
 import { generatePieces } from 'front/utils/piece-generation.utils'
 import { ITetromino } from 'front/types/tetrominoes.type';
 import {
-	handleInput,
-	hardDrop,
-	moveDown,
-	rotate,
+	handleInput
 } from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
 import {
 	addIndestructibleLines,
-	compareCells,
-	getFramesPerGridCell,
 } from 'front/utils/board.utils';
 import SocketFactory from 'front/store/socketFactory';
 import { SocketEvent } from 'front/store/socketMiddleware';
-import { cloneDeep, isEqual } from 'lodash';
-import { produce } from 'immer';
+import { cloneDeep } from 'lodash';
 import {
 	PIECES_BUFFER_SIZE,
 	BUFFER_SIZE,
@@ -44,8 +36,6 @@ import {
 	softDrop,
 } from 'front/utils/game.utils';
 import { Commands } from 'front/types/command.types';
-
-const TICK_OFFSET = 4;
 
 export interface IGameState {
 	seed: string;
