@@ -2,7 +2,7 @@ import { describe, it, vi, Mock, expect, beforeEach } from "vitest";
 import { useAppSelector } from "front/store/hook";
 import React from 'react';
 import Board from 'front/components/board/board';
-import { render } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { GameMode } from "front/types/packet.types";
 import { TetriminosArray } from "front/types/tetrominoes.type";
 import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-display.utils';
@@ -59,150 +59,170 @@ describe('Board Component', () => {
             minWidth: "73px",
             minHeight: "156px",
         };
-        const { findByTestId, getByText, findAllByTestId, queryByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={mockState.player.name}
-                isGameOver={false}
-                nextPieces={nextPieces}
-                isOpponentBoards={false}
-                opponentsLength={0}
-                gameMode={GameMode.SOLO}
-            />
-        )
 
-        const scoreContainer = await findByTestId('score-container')
-        const board = await findByTestId('board')
-        const cells = await findAllByTestId('cell-item')
-        const boardsPreview = await findAllByTestId('board-preview')
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={mockState.player.name}
+                    isGameOver={false}
+                    nextPieces={nextPieces}
+                    isOpponentBoards={false}
+                    opponentsLength={0}
+                    gameMode={GameMode.SOLO}
+                />
+            );
+        });
+
+        const scoreContainer = await screen.findByTestId('score-container')
+        const board = await screen.findByTestId('board')
+        const cells = await screen.findAllByTestId('cell-item')
+        const boardsPreview = await screen.findAllByTestId('board-preview')
 
         expect(scoreContainer).toHaveTextContent(mockState.game.playerGame.score)
         expect(scoreContainer).toHaveTextContent(mockState.game.playerGame.level)
         expect(board).toHaveStyle(boardStyles)
-        expect(getByText(mockState.player.name)).toBeInTheDocument()
+        expect(screen.getByText(mockState.player.name)).toBeInTheDocument()
         expect(cells).toHaveLength(mockBoard.size.rows * mockBoard.size.columns)
         expect(boardsPreview).toHaveLength(nextPieces.length)
-        expect(queryByTestId('countdown')).toBeNull();
+        expect(screen.queryByTestId('countdown')).toBeNull();
     })
     it('should render the board on solo mode with countdown to 3', async () => {
         const state = {...mockState, game: {...mockState.game, countdown: 3}};
         (useAppSelector as Mock).mockImplementation((selector) => selector(state));
 
-        const { findByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={state.player.name}
-                isGameOver={false}
-                nextPieces={nextPieces}
-                isOpponentBoards={false}
-                opponentsLength={0}
-                gameMode={GameMode.SOLO}
-            />
-        )
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={state.player.name}
+                    isGameOver={false}
+                    nextPieces={nextPieces}
+                    isOpponentBoards={false}
+                    opponentsLength={0}
+                    gameMode={GameMode.SOLO}
+                />
+            );
+        });
 
-        const countdown = await findByTestId('countdown')
-        console.log(countdown)
+        const countdown = await screen.findByTestId('countdown')
         expect(countdown).toHaveTextContent(`${state.game.countdown}`)
     })
     it('should render the board on solo mode with countdown to 0', async () => {
         const state = {...mockState, game: {...mockState.game, countdown: 0}};
         (useAppSelector as Mock).mockImplementation((selector) => selector(state));
 
-        const { findByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={state.player.name}
-                isGameOver={false}
-                nextPieces={nextPieces}
-                isOpponentBoards={false}
-                opponentsLength={0}
-                gameMode={GameMode.SOLO}
-            />
-        )
-        const countdown = await findByTestId('countdown')
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={state.player.name}
+                    isGameOver={false}
+                    nextPieces={nextPieces}
+                    isOpponentBoards={false}
+                    opponentsLength={0}
+                    gameMode={GameMode.SOLO}
+                />
+            );
+        });
+        const countdown = await screen.findByTestId('countdown')
         expect(countdown).toHaveTextContent('GO')
     })
     it('should render the board on multi mode (isOpponentBoards: false)', async () => {
         (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
 
-        const { queryByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={mockState.player.name}
-                isGameOver={false}
-                nextPieces={nextPieces}
-                isOpponentBoards={false}
-                opponentsLength={0}
-                gameMode={GameMode.BATTLEROYAL}
-            />
-        )
-        expect(queryByTestId('score-container')).toBeNull();
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={mockState.player.name}
+                    isGameOver={false}
+                    nextPieces={nextPieces}
+                    isOpponentBoards={false}
+                    opponentsLength={0}
+                    gameMode={GameMode.BATTLEROYAL}
+                />
+            );
+        });
+
+        expect(screen.queryByTestId('score-container')).toBeNull();
     })
     it('should render the board on multi mode (isOpponentBoards: true)', async () => {
         (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
 
-        const { queryByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={mockState.player.name}
-                isGameOver={false}
-                nextPieces={nextPieces}
-                isOpponentBoards={true}
-                opponentsLength={3}
-                gameMode={GameMode.BATTLEROYAL}
-            />
-        )
-        expect(queryByTestId('score-container')).toBeNull();
-        expect(queryByTestId('countdown')).toBeNull();
-        expect(queryByTestId('next-pieces-container')).toBeNull();
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={mockState.player.name}
+                    isGameOver={false}
+                    nextPieces={nextPieces}
+                    isOpponentBoards={true}
+                    opponentsLength={3}
+                    gameMode={GameMode.BATTLEROYAL}
+                />
+            );
+        });
+
+        expect(screen.queryByTestId('score-container')).toBeNull();
+        expect(screen.queryByTestId('countdown')).toBeNull();
+        expect(screen.queryByTestId('next-pieces-container')).toBeNull();
     })
     it('should render the board on solo without next pieces', async () => {
         (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
 
-        const { queryByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={mockState.player.name}
-                isGameOver={false}
-                nextPieces={[]}
-                isOpponentBoards={false}
-                opponentsLength={3}
-                gameMode={GameMode.BATTLEROYAL}
-            />
-        )
-        expect(queryByTestId('next-pieces-container')).toBeNull();
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={mockState.player.name}
+                    isGameOver={false}
+                    nextPieces={[]}
+                    isOpponentBoards={false}
+                    opponentsLength={3}
+                    gameMode={GameMode.BATTLEROYAL}
+                />
+            );
+        });
+        expect(screen.queryByTestId('next-pieces-container')).toBeNull();
     })
     it('should display game over when gameOver is true', async () => {
         (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
 
-        const { queryByTestId } = render(
-            <Board
-                board={mockBoard}
-                playerName={mockState.player.name}
-                isGameOver={true}
-                nextPieces={[]}
-                isOpponentBoards={true}
-                opponentsLength={3}
-                gameMode={GameMode.BATTLEROYAL}
-            />
-        )
-        expect(queryByTestId('gameOver')).toBeDefined();
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName={mockState.player.name}
+                    isGameOver={true}
+                    nextPieces={[]}
+                    isOpponentBoards={true}
+                    opponentsLength={3}
+                    gameMode={GameMode.BATTLEROYAL}
+                />
+            );
+        });
+        expect(screen.queryByTestId('gameOver')).toBeDefined();
     })
-    it('handles window resize event', () => {    
-        render(
-          <Board
-            board={mockBoard}
-            playerName="Player1"
-            isGameOver={false}
-            nextPieces={[]}
-            isOpponentBoards={false}
-            gameMode="SOLO"
-          />
-        );
+    it('handles window resize event', async () => {    
+        await act(async () => {
+            render(
+                <Board
+                    board={mockBoard}
+                    playerName="Player1"
+                    isGameOver={false}
+                    nextPieces={[]}
+                    isOpponentBoards={false}
+                    gameMode="SOLO"
+                />
+            );
+        });
     
-        // Simulate the window resize event
-        global.dispatchEvent(new Event('resize'));
-    
+        await act(async () => {
+            // Simulate the window resize event
+            global.dispatchEvent(new Event('resize'));
+        });
+        
         // Check if the mock functions were called
         expect(getBoardStyleSize).toHaveBeenCalled();
         expect(getPiecePreviewSize).toHaveBeenCalled();
