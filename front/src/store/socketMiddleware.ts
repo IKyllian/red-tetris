@@ -7,7 +7,6 @@ import {
 } from 'front/store/socket.slice';
 import { IGame } from 'front/types/board.types';
 import {
-	// commandPressed,
 	createLobby,
 	joinLobby,
 	leaveLobby,
@@ -15,7 +14,6 @@ import {
 	sendStartGame,
 	setGameStarted,
 	onAllGamesOver,
-	// sendInputs,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
 import { createPlayer, sign } from 'front/store/player.slice';
@@ -83,40 +81,26 @@ const socketMiddleware: Middleware = (store) => {
 				});
 
 				socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
-					console.log('Updated Lobby = ', lobby);
 					store.dispatch(setLobby(lobby));
 				});
 
 				socket.on(
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
-						socket.emit('pong');
-						// console.log('data = ', data);
 						store.dispatch(updateGamesBoard(data));
-						// store.dispatch(
-						// 	setTickAdjustments({
-						// 		packet: data,
-						// 		playerId: socket.id,
-						// 	})
-						// );
 					}
 				);
 
 				socket.on(
 					SocketEvent.SyncWithServer,
 					(packet: ITickAdjustmentPacket) => {
-						console.log('SyncWithServer = ', packet);
 						store.dispatch(updateTickAdjustments(packet));
 					}
 				);
 
 				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
-					console.log('GameOver = ', data);
-					//TODO
-					// setTimeout(() => {
 					store.dispatch(onAllGamesOver(data));
 					store.dispatch(gameOver());
-					// }, 5000);
 				});
 
 				socket.on(
@@ -127,7 +111,6 @@ const socketMiddleware: Middleware = (store) => {
 						seed: string;
 						opponentsGames?: IGame[];
 					}) => {
-						console.log('StartingGame = ', data);
 						store.dispatch(setGameStarted(true));
 						store.dispatch(setGameStartingState(data));
 					}
@@ -164,12 +147,10 @@ const socketMiddleware: Middleware = (store) => {
 			}
 
 			if (sendStartGame.match(action)) {
-				console.log('action payload = ', action.payload);
 				socket.emit(SocketEvent.StartGame, action.payload);
 			}
 
 			if (leaveGame.match(action)) {
-				console.log('leaveGame');
 				socket.emit(SocketEvent.LeaveGame);
 			}
 		}

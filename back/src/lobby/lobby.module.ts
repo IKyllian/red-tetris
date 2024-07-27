@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { LobbyManager } from './lobby-manager';
+import { LobbyService } from './lobby.service';
 import { LobbyController } from './lobby.controller';
 
 @Module({
 	controllers: [LobbyController],
-	providers: [LobbyManager],
-	exports: [LobbyManager],
+	providers: [LobbyService],
+	exports: [LobbyService],
 })
 export class LobbyModule {}

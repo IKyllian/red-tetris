@@ -1,5 +1,4 @@
-import { Game } from 'src/game/game';
-import { Player } from 'src/game/player';
+import { Player } from '../game/player';
 
 export interface ILobby {
 	id: string;

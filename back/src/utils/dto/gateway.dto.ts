@@ -1,11 +1,5 @@
-import {
-	IsEnum,
-	IsNotEmpty,
-	IsNumber,
-	IsOptional,
-	IsString,
-} from 'class-validator';
-import { Commands } from 'src/type/command.types';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Commands } from '../../type/command.types';
 
 export class CreateLobbyDto {
 	@IsString()

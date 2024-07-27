@@ -1,8 +1,7 @@
-import { Game } from '../game/game';
 import { Player } from '../game/player';
 import { Server } from 'socket.io';
 import { BattleRoyal } from '../game/battleRoyal';
-import { GameSocketManager } from 'src/game/game-socket-manager';
+import { GameSocketManager } from '../game/game-socket-manager';
 
 export class Lobby {
 	public name: string;
@@ -16,7 +15,6 @@ export class Lobby {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
 		this.id = this.createRandomId();
-		console.log('Lobby created with id: ', this.id);
 	}
 
 	private createRandomId(length: number = 5) {
@@ -39,12 +37,6 @@ export class Lobby {
 	}
 
 	public deletePlayer(playerId: string) {
-		// if (this.gameStarted) {
-		// 	const game = this.getPlayerGame(playerId);
-		// 	if (game && game.gameOver === false) {
-		// 		game.hasQuit = true;
-		// 	}
-		// }
 		this.players = this.players.filter(
 			(player: Player) => player.id != playerId
 		);

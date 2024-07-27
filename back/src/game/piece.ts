@@ -1,4 +1,3 @@
-import { zip } from 'lodash';
 import {
 	IPosition,
 	ITetromino,
@@ -10,11 +9,10 @@ import {
 	O_TetrominoShape,
 	S_TetrominoShape,
 	T_TetrominoShape,
-	TetriminosArray,
 	Z_TetrominoShape,
-} from 'src/type/tetromino.interface';
+} from '../type/tetromino.interface';
 import { Board } from './board';
-import { CellType } from 'src/type/cell.interface';
+import { CellType } from '../type/cell.interface';
 
 export class Piece {
 	public type: CellType;
@@ -45,7 +43,7 @@ export class Piece {
 	}
 
 	public rotate(board: Board): boolean {
-		const isNewShape = false;
+		let isNewShape = false;
 		if (this.type === CellType.O) {
 			return isNewShape;
 		}
@@ -60,14 +58,10 @@ export class Piece {
 			if (!board.checkCollision(newPosition, newShape)) {
 				this.position = newPosition;
 				this.rotationState = newRotation;
+				isNewShape = true;
 				break;
 			}
 		}
 		return isNewShape;
 	}
-
-	public getRandomPiece = (): ITetromino => {
-		const randomIndex = Math.floor(Math.random() * TetriminosArray.length);
-		return TetriminosArray[randomIndex];
-	};
 }

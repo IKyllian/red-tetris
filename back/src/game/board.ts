@@ -1,5 +1,5 @@
-import { CellType, ICell, ISize, defaultCell } from 'src/type/cell.interface';
-import { IPosition } from 'src/type/tetromino.interface';
+import { CellType, ICell, ISize, defaultCell } from '../type/cell.interface';
+import { IPosition } from '../type/tetromino.interface';
 import { Piece } from './piece';
 
 export class Board {

@@ -1,13 +1,13 @@
-import { defaultBoardSize } from 'src/type/board.interface';
+import { defaultBoardSize } from '../type/board.interface';
 import { Board } from './board';
 import { Player } from './player';
 import { Piece } from './piece';
-import { Scoring } from 'src/type/scoring.enum';
+import { Scoring } from '../type/scoring.enum';
 import seedrandom from 'seedrandom';
-import { IPosition, TetriminosArray } from 'src/type/tetromino.interface';
-import { GameMode } from 'src/type/game.type';
-import { Commands } from 'src/type/command.types';
-import { IInputsPacket } from 'src/type/event.enum';
+import { IPosition, TetriminosArray } from '../type/tetromino.interface';
+import { GameMode } from '../type/game.type';
+import { Commands } from '../type/command.types';
+import { IInputsPacket } from '../type/event.enum';
 
 export interface IGame {
 	player: Player;
@@ -273,8 +273,7 @@ export class Game {
 	}
 
 	public rotate() {
-		this.piece.rotate(this.board);
-		this.positionChanged = true; //TODO check if needed
+		this.positionChanged = this.piece.rotate(this.board);
 	}
 
 	public moveSideway(newPosition: IPosition) {

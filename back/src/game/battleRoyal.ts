@@ -1,16 +1,15 @@
 import { Game, IGame } from './game';
 import { Lobby } from '../lobby/lobby';
-import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
-import { SocketEvent } from 'src/type/event.enum';
+import { SocketEvent } from '../type/event.enum';
 import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
 	IIndestructiblePacket,
 	UpdateType,
-} from 'src/type/packet.type';
-import { GameMode, MIN_TIME_BETWEEN_TICKS } from 'src/type/game.type';
+} from '../type/packet.type';
+import { GameMode, MIN_TIME_BETWEEN_TICKS } from '../type/game.type';
 
 export class BattleRoyal {
 	public lobby: Lobby;
