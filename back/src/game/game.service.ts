@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { GameSocketManager } from './game-socket-manager';
-import { LobbyManager } from 'src/lobby/lobby-manager';
 import { SoloGame } from './solo-game';
 import { Player } from './player';
 import { Socket } from 'socket.io';
 import { BattleRoyal } from './battleRoyal';
-import { GatewayService } from 'src/gateway/gateway.service';
+import { GatewayService } from '../gateway/gateway.service';
 import {
 	InputsPacketDto,
 	TickAdjustmentPacketDto,
-} from 'src/utils/dto/gateway.dto';
-import { ITickAdjustmentPacket, SocketEvent } from 'src/type/event.enum';
-import { LeaderboardService } from 'src/leaderboard/leaderboard.service';
+} from '../utils/dto/gateway.dto';
+import { ITickAdjustmentPacket, SocketEvent } from '../type/event.enum';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
+import { LobbyService } from '../lobby/lobby.service';
 
 @Injectable()
 export class GameService {
@@ -19,7 +19,7 @@ export class GameService {
 
 	constructor(
 		private readonly gatewayService: GatewayService,
-		private readonly lobbyService: LobbyManager,
+		private readonly lobbyService: LobbyService,
 		private readonly leaderboardService: LeaderboardService
 	) {}
 
@@ -38,7 +38,7 @@ export class GameService {
 				this.gameSocketMap.setGameToSocket(player.id, battleRoyal);
 			});
 			battleRoyal.start();
-		} else {
+		} else if (!lobby) {
 			const soloGame = new SoloGame(
 				new Player(playerName, socketId, true),
 				this.gatewayService.server,
@@ -75,7 +75,7 @@ export class GameService {
 		) {
 			game.adjustmentIteration++;
 			const packet: ITickAdjustmentPacket = {
-				tickAdjustment: gameLobby.tick - tick + 5,
+				tickAdjustment: gameLobby.tick - tick + 15,
 				adjustmentIteration: game.adjustmentIteration,
 			};
 			socket.emit(SocketEvent.SyncWithServer, packet);

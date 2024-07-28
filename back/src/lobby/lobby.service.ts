@@ -1,11 +1,11 @@
-import { SocketEvent } from 'src/type/event.enum';
+import { SocketEvent } from '../type/event.enum';
 import { Socket, Server } from 'socket.io';
-import { ILobby } from 'src/type/lobby.interface';
+import { ILobby } from '../type/lobby.interface';
 import { Lobby } from './lobby';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class LobbyManager {
+export class LobbyService {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
 	private lobbys: Map<string, Lobby> = new Map();
 
@@ -29,8 +29,11 @@ export class LobbyManager {
 		server: Server
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
-		//TODO send error if game started?
-		if (lobby && lobby.gameStarted === false) {
+		if (
+			lobby &&
+			lobby.gameStarted === false &&
+			lobby.players.length < lobby.maxPlayers
+		) {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);

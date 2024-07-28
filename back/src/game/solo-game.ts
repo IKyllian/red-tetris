@@ -1,16 +1,14 @@
 import { Game } from './game';
 import { Player } from './player';
 import { Server } from 'socket.io';
-import { SocketEvent } from 'src/type/event.enum';
+import { SocketEvent } from '../type/event.enum';
 import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
 	UpdateType,
-} from 'src/type/packet.type';
-import { GameMode, MIN_TIME_BETWEEN_TICKS } from 'src/type/game.type';
-import { Repository } from 'typeorm';
-import { Leaderboard } from 'src/entity/leaderboard.entity';
-import { LeaderboardService } from 'src/leaderboard/leaderboard.service';
+} from '../type/packet.type';
+import { GameMode, MIN_TIME_BETWEEN_TICKS } from '../type/game.type';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 export class SoloGame {
 	public game: Game;

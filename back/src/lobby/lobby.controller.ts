@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { LobbyManager } from './lobby-manager';
+import { LobbyService } from './lobby.service';
 
 @Controller('lobby')
 export class LobbyController {
-	constructor(private lobbyManager: LobbyManager) {}
+	constructor(private LobbyService: LobbyService) {}
 
 	@Get()
 	getLobbies() {
-		return this.lobbyManager.getLobbies();
+		return this.LobbyService.getLobbies();
 	}
 }

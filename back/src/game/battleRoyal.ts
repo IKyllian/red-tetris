@@ -1,16 +1,15 @@
 import { Game, IGame } from './game';
 import { Lobby } from '../lobby/lobby';
-import { Piece } from './piece';
 import { Player } from './player';
 import { Server } from 'socket.io';
-import { SocketEvent } from 'src/type/event.enum';
+import { SocketEvent } from '../type/event.enum';
 import {
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
 	IIndestructiblePacket,
 	UpdateType,
-} from 'src/type/packet.type';
-import { GameMode, MIN_TIME_BETWEEN_TICKS } from 'src/type/game.type';
+} from '../type/packet.type';
+import { GameMode, MIN_TIME_BETWEEN_TICKS } from '../type/game.type';
 
 export class BattleRoyal {
 	public lobby: Lobby;
@@ -52,7 +51,7 @@ export class BattleRoyal {
 				(acc, game) => Math.max(acc, game.tickAdjustment),
 				0
 			);
-			const tickOffset = this.tick + maxTickOffset + 40;
+			const tickOffset = this.tick + maxTickOffset + 30;
 			if (otherGame.player.id !== game.player.id && !otherGame.gameOver) {
 				const indestructiblePacket: IIndestructiblePacket = {
 					tick: tickOffset,
@@ -122,7 +121,6 @@ export class BattleRoyal {
 			(this.games.length > 1 &&
 				this.ranking.length === this.games.length - 1)
 		) {
-			//todo what if draw
 			const winner = this.games.find((game) => !game.gameOver);
 			if (winner) {
 				this.ranking.unshift(winner.player);
@@ -136,11 +134,6 @@ export class BattleRoyal {
 		return false;
 	}
 
-	//TODO classement, emit game over, errors, when leaving lobby in game, gamover in Game true
-	//  send board only if line cleared or destructible lines?
-	// do better update Type
-	// Separate game  and lobby
-	// filter game when player leave?
 	private update() {
 		const now = performance.now();
 		const deltaTime = now - this.lastUpdate;
@@ -152,10 +145,6 @@ export class BattleRoyal {
 				this.timer -= MIN_TIME_BETWEEN_TICKS;
 				continue;
 			}
-			if (this.tick === 90) {
-				console.log('starting game');
-			}
-			// console.log('tick: ', this.tick, ' - gravity: ', this.gravity);
 			for (const game of this.games) {
 				game.updateState(this.tick, this.gravity);
 				if (game.gameOver && game.boardChanged) {

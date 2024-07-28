@@ -1,13 +1,13 @@
-import { defaultBoardSize } from 'src/type/board.interface';
+import { defaultBoardSize } from '../type/board.interface';
 import { Board } from './board';
 import { Player } from './player';
 import { Piece } from './piece';
-import { Scoring } from 'src/type/scoring.enum';
+import { Scoring } from '../type/scoring.enum';
 import seedrandom from 'seedrandom';
-import { IPosition, TetriminosArray } from 'src/type/tetromino.interface';
-import { GameMode } from 'src/type/game.type';
-import { Commands } from 'src/type/command.types';
-import { IInputsPacket } from 'src/type/event.enum';
+import { IPosition, TetriminosArray } from '../type/tetromino.interface';
+import { GameMode } from '../type/game.type';
+import { Commands } from '../type/command.types';
+import { IInputsPacket } from '../type/event.enum';
 
 export interface IGame {
 	player: Player;
@@ -138,11 +138,12 @@ export class Game {
 			const packet = this.inputsQueue[0];
 			if (packet.tick > tick) {
 				if (
-					packet.tick - tick > 10 &&
+					packet.tick - tick > 15 &&
 					this.adjustmentIteration === packet.adjustmentIteration
 				) {
 					this.adjustmentIteration++;
-					this.tickAdjustment = (packet.tick - tick - 5) * -1;
+					this.tickAdjustment = -1;
+					// this.tickAdjustment = (packet.tick - tick - 5) * -1;
 					console.log('adjustment minus: ', this.tickAdjustment);
 				}
 				break;
@@ -168,7 +169,7 @@ export class Game {
 			} else if (tick > packet.tick) {
 				if (this.adjustmentIteration === packet.adjustmentIteration) {
 					this.adjustmentIteration++;
-					this.tickAdjustment = tick - packet.tick + 5;
+					this.tickAdjustment = tick - packet.tick + 15;
 					console.log('adjustment: ', this.tickAdjustment);
 				}
 				this.inputsQueue.shift();
@@ -214,12 +215,6 @@ export class Game {
 						this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
 						this.level++;
 						this.linesCleared = 0;
-						console.log(
-							'level up at tick: ',
-							this.tick,
-							' - level: ',
-							this.level
-						);
 					}
 					let lineScore = 0;
 					if (linesCleared <= this.lineScores.length) {
@@ -278,8 +273,7 @@ export class Game {
 	}
 
 	public rotate() {
-		this.piece.rotate(this.board);
-		this.positionChanged = true; //TODO check if needed
+		this.positionChanged = this.piece.rotate(this.board);
 	}
 
 	public moveSideway(newPosition: IPosition) {
