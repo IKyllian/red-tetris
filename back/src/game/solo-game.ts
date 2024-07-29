@@ -44,9 +44,9 @@ export class SoloGame {
 	}
 
 	private sendUpdates() {
-		if (this.game.hasQuit) {
-			console.log('game has quit');
-		}
+		// if (this.game.hasQuit) {
+		// 	console.log('game has quit');
+		// }
 		let gamePackets: IGameUpdatePacket[] = [];
 		if (this.game.positionChanged || this.game.boardChanged) {
 			gamePackets.push({
@@ -98,9 +98,9 @@ export class SoloGame {
 				this.timer -= MIN_TIME_BETWEEN_TICKS;
 				continue;
 			}
-			if (this.tick === 90) {
-				console.log('starting game');
-			}
+			// if (this.tick === 90) {
+			// 	console.log('starting game');
+			// }
 			// console.log('tick: ', this.tick, ' - gravity: ', this.gravity);
 			this.game.updateState(this.tick);
 			if (this.game.gameOver && this.game.boardChanged) {
