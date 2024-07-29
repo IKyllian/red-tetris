@@ -11,6 +11,7 @@ import {
 import { generatePieces } from 'front/utils/piece-generation.utils'
 import { GameMode } from 'front/types/packet.types';
 import { current } from 'immer';
+import { handleInput } from 'front/utils/handle-inputs.utils';
 
 export const PIECES_BUFFER_SIZE = 100;
 export const MIN_TIME_BETWEEN_TICKS = 1000 / 30;

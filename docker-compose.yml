@@ -3,14 +3,22 @@ services:
 # Front
   # red_tetris:
   #   build:
-  #     context: ./front
+  #     context: ./app
+  #     dockerfile: ../Dockerfile
   #   networks:
   #     - red_tetris_network
   #   restart: always
   #   volumes:
-  #     - ./front/:/usr/app/front
+  #     - ./app/:/usr/app
   #   ports:
   #     - "5173:5173"
+  #   depends_on:
+  #     - red_tetris_db
+  #   environment:
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #     POSTGRES_HOST: ${POSTGRES_HOST}
 
 # Postgres
   red_tetris_db:
@@ -21,6 +29,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
     ports:
       - "5432:5432"
 

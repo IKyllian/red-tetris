@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Leaderboard } from './entity/leaderboard.entity';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
 	imports: [
@@ -20,12 +21,24 @@ import { GatewayModule } from './gateway/gateway.module';
 			dropSchema: true,
 		}),
 
+		// TypeOrmModule.forRoot({
+		// 	type: 'postgres',
+		// 	host: process.env.POSTGRES_HOST,
+		// 	port: 5432,
+		// 	username: process.env.POSTGRES_USER,
+		// 	password: process.env.POSTGRES_PASSWORD,
+		// 	database: process.env.POSTGRES_DB,
+		// 	entities: [Leaderboard],
+		// 	synchronize: true,
+		// 	dropSchema: true,
+		// }),
+
 		GatewayModule,
 		GameModule,
 		LobbyModule,
 		LeaderboardModule,
 		// ServeStaticModule.forRoot({
-		//   rootPath: '/home/kdelport/Documents/red-tetris/front/dist',
+		//   rootPath: '/usr/src/front/dist',
 		// }),
 	],
 })
