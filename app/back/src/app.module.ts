@@ -11,7 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 	imports: [
 		TypeOrmModule.forRoot({
 			type: 'postgres',
-			host: 'localhost',
+			host: 'red_tetris_db',
 			port: 5432,
 			username: 'red_tetris_user',
 			password: 'red_tetris_pwd',
@@ -37,9 +37,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 		GameModule,
 		LobbyModule,
 		LeaderboardModule,
-		// ServeStaticModule.forRoot({
-		//   rootPath: '/usr/src/front/dist',
-		// }),
+		ServeStaticModule.forRoot({
+		  rootPath: '/usr/app/front/dist',
+		}),
 	],
 })
 export class AppModule {

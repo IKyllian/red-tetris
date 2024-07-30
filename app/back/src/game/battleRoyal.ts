@@ -206,7 +206,7 @@ export class BattleRoyal {
 		}
 	}
 
-	public getPlayerGame(playerId: string): Game {
+	public getPlayerGame(playerId: string): Game | undefined {
 		return this.games.find((game) => game.player.id === playerId);
 	}
 }

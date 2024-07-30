@@ -23,18 +23,18 @@ export class Board {
 		return builtRows;
 	};
 
-	public clearOldPosition(tetromino: Piece, shape: number[][]) {
-		shape.forEach((row: number[], y: number) => {
-			if (tetromino.position.y + y < 0) return;
-			row.forEach((cell: number, x: number) => {
-				if (cell) {
-					const _x = x + tetromino.position.x;
-					const _y = y + tetromino.position.y;
-					this.cells[_y][_x] = { ...defaultCell };
-				}
-			});
-		});
-	}
+	// public clearOldPosition(tetromino: Piece, shape: number[][]) {
+	// 	shape.forEach((row: number[], y: number) => {
+	// 		if (tetromino.position.y + y < 0) return;
+	// 		row.forEach((cell: number, x: number) => {
+	// 			if (cell) {
+	// 				const _x = x + tetromino.position.x;
+	// 				const _y = y + tetromino.position.y;
+	// 				this.cells[_y][_x] = { ...defaultCell };
+	// 			}
+	// 		});
+	// 	});
+	// }
 
 	public transferPieceToBoard(
 		tetromino: Piece,
@@ -119,15 +119,15 @@ export class Board {
 		return false;
 	}
 
-	public printBoard() {
-		for (let i = 0; i < this.cells.length; i++) {
-			let rowString = '';
-			for (let j = 0; j < this.cells[i].length; j++) {
-				const cell = this.cells[i][j];
-				rowString += cell.occupied ? 'X ' : 'O ';
-			}
-			console.log(rowString + ' y: ', i);
-		}
-		console.log('');
-	}
+	// public printBoard() {
+	// 	for (let i = 0; i < this.cells.length; i++) {
+	// 		let rowString = '';
+	// 		for (let j = 0; j < this.cells[i].length; j++) {
+	// 			const cell = this.cells[i][j];
+	// 			rowString += cell.occupied ? 'X ' : 'O ';
+	// 		}
+	// 		console.log(rowString + ' y: ', i);
+	// 	}
+	// 	console.log('');
+	// }
 }
