@@ -11,34 +11,22 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 	imports: [
 		TypeOrmModule.forRoot({
 			type: 'postgres',
-			host: 'red_tetris_db',
+			host: process.env.POSTGRES_HOST,
 			port: 5432,
-			username: 'red_tetris_user',
-			password: 'red_tetris_pwd',
-			database: 'red_tetris',
+			username: process.env.POSTGRES_USER,
+			password: process.env.POSTGRES_PASSWORD,
+			database: process.env.POSTGRES_DB,
 			entities: [Leaderboard],
 			synchronize: true,
 			dropSchema: true,
 		}),
-
-		// TypeOrmModule.forRoot({
-		// 	type: 'postgres',
-		// 	host: process.env.POSTGRES_HOST,
-		// 	port: 5432,
-		// 	username: process.env.POSTGRES_USER,
-		// 	password: process.env.POSTGRES_PASSWORD,
-		// 	database: process.env.POSTGRES_DB,
-		// 	entities: [Leaderboard],
-		// 	synchronize: true,
-		// 	dropSchema: true,
-		// }),
 
 		GatewayModule,
 		GameModule,
 		LobbyModule,
 		LeaderboardModule,
 		ServeStaticModule.forRoot({
-		  rootPath: '/usr/app/front/dist',
+		  rootPath: process.env.FRONT_DIST_PATH
 		}),
 	],
 })

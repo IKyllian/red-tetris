@@ -1,22 +1,36 @@
 services:
-
-# Front
-  red_tetris:
+  # Front-end
+  frontend:
     build:
-      context: ./app
-      dockerfile: ../Dockerfile
+      context: ./front
+      dockerfile: Dockerfile
     networks:
       - red_tetris_network
-    restart: always
     volumes:
-      - ./app/:/usr/app
+      - frontend_dist:/usr/src/app/dist
+
+  # Back-end
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    networks:
+      - red_tetris_network
+    volumes:
+      - frontend_dist:/usr/src/app/dist
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: red_tetris_db
+      FRONT_DIST_PATH: ${FRONT_DIST_PATH}
     ports:
-      - "5173:5173"
       - "3000:3000"
     depends_on:
+      - frontend
       - red_tetris_db
 
-# Postgres
+  # Database
   red_tetris_db:
     image: postgres
     networks:
@@ -32,3 +46,6 @@ networks:
   red_tetris_network:
     name: red_tetris_network
     driver: bridge
+
+volumes:
+  frontend_dist:
