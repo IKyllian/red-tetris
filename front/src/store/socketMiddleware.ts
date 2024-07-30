@@ -1,5 +1,5 @@
 import { Middleware } from '@reduxjs/toolkit';
-import SocketFactory, { SocketInterface } from 'front/store/socketFactory';
+import SocketFactory from 'front/store/socketFactory';
 import {
 	connectionEstablished,
 	connectionLost,
@@ -7,26 +7,32 @@ import {
 } from 'front/store/socket.slice';
 import { IGame } from 'front/types/board.types';
 import {
-	// commandPressed,
 	createLobby,
 	joinLobby,
 	leaveLobby,
 	setLobby,
 	sendStartGame,
 	setGameStarted,
-	// onAllGamesOver,
-	// sendInputs,
+	onAllGamesOver,
 } from 'front/store/lobby.slice';
 import { ILobby } from 'front/types/lobby.type';
-import { createPlayer, setName } from 'front/store/player.slice';
+import { createPlayer, sign } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
-import { IGameUpdatePacketHeader } from 'front/types/packet.types';
 import {
-	sendInputs,
+	GameMode,
+	IGameUpdatePacketHeader,
+	IIndestructiblePacket,
+	ITickAdjustmentPacket,
+} from 'front/types/packet.types';
+import {
 	setGameStartingState,
 	updateGamesBoard,
 	updateIndestructibleLines,
+	updateTickAdjustments,
+	leaveGame,
+	gameOver,
 } from './game.slice';
+import { Socket, io } from 'socket.io-client';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -42,133 +48,111 @@ export enum SocketEvent {
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
+	LeaveGame = 'leave-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
+	SyncWithServer = 'sync',
 	// On events
 	Error = 'error',
 	SetName = 'set-name',
 }
 
-let AZE = 0;
 const socketMiddleware: Middleware = (store) => {
-	let socket: SocketInterface;
-
+	let socket: Socket;
 	return (next) => (action) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
 			if (!socket) {
 				// Create Socket
 				socket = SocketFactory.Instance();
-
-				socket.socket.on(SocketEvent.Connect, () => {
+				socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());
 				});
 
 				// handle all Error events
-				socket.socket.on(SocketEvent.Error, (message) => {
+				socket.on(SocketEvent.Error, (message) => {
 					console.error(message);
 				});
 
 				// Handle disconnect event
-				socket.socket.on(SocketEvent.Disconnect, (reason) => {
+				socket.on(SocketEvent.Disconnect, (reason) => {
 					console.error(reason);
 					store.dispatch(connectionLost());
 				});
 
-				socket.socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
-					console.log('Updated Lobby = ', lobby);
+				socket.on(SocketEvent.UpdateLobby, (lobby: ILobby) => {
 					store.dispatch(setLobby(lobby));
 				});
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacketHeader) => {
-						// if (AZE < 1) {
-						socket.socket.emit('pong');
 						store.dispatch(updateGamesBoard(data));
-						// store.dispatch(
-						// 	setTickAdjustments({
-						// 		packet: data,
-						// 		playerId: socket.socket.id,
-						// 	})
-						// );
-						// AZE++
-						// }
 					}
 				);
 
-				socket.socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
-					console.log('GameOver = ', data);
-					// store.dispatch(onAllGamesOver(data));
+				socket.on(
+					SocketEvent.SyncWithServer,
+					(packet: ITickAdjustmentPacket) => {
+						store.dispatch(updateTickAdjustments(packet));
+					}
+				);
+
+				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
+					store.dispatch(onAllGamesOver(data));
+					store.dispatch(gameOver());
 				});
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.StartingGame,
 					(data: {
 						playerGame: IGame;
-						opponentsGames: IGame[];
+						gameMode: GameMode;
 						seed: string;
+						opponentsGames?: IGame[];
 					}) => {
-						console.log('StartingGame = ', data);
 						store.dispatch(setGameStarted(true));
 						store.dispatch(setGameStartingState(data));
-						// if (history.location.pathname !== '/game') {
-						// 	history.push('/game');
-						// }
 					}
 				);
 
-				socket.socket.on(
+				socket.on(
 					SocketEvent.IndestructibleLine,
-					(nbOflines: number) => {
-						store.dispatch(updateIndestructibleLines(nbOflines));
+					(packet: IIndestructiblePacket) => {
+						store.dispatch(updateIndestructibleLines(packet));
 					}
 				);
 			}
 		}
 
-		if (setName.match(action) && socket) {
-			store.dispatch(
-				createPlayer({ name: action.payload, id: socket.socket.id })
-			);
-		}
+		if (socket) {
+			if (sign.match(action)) {
+				store.dispatch(
+					createPlayer({ name: action.payload, id: socket.id })
+				);
+			}
 
-		if (createLobby.match(action) && socket) {
-			console.log('CreateLobby', action.payload);
-			socket.socket.emit(SocketEvent.CreateLobby, {
-				data: action.payload,
-			});
-		}
+			if (createLobby.match(action)) {
+				socket.emit(SocketEvent.CreateLobby, {
+					data: action.payload,
+				});
+			}
 
-		if (joinLobby.match(action) && socket) {
-			socket.socket.emit(SocketEvent.JoinLobby, { data: action.payload });
-		}
+			if (joinLobby.match(action)) {
+				socket.emit(SocketEvent.JoinLobby, { data: action.payload });
+			}
 
-		if (leaveLobby.match(action) && socket) {
-			socket.socket.emit(SocketEvent.LeaveLobby, action.payload);
-		}
+			if (leaveLobby.match(action)) {
+				socket.emit(SocketEvent.LeaveLobby, action.payload);
+			}
 
-		if (sendStartGame.match(action) && socket) {
-			socket.socket.emit(SocketEvent.StartGame);
-		}
+			if (sendStartGame.match(action)) {
+				socket.emit(SocketEvent.StartGame, action.payload);
+			}
 
-		// Listen for board updates
-		// if (setBoardListener.match(action) && socket) {
-		// 	socket.socket.on(SocketEvent.BoardUpdate, (cells: ICell[][]) => {
-		// 		store.dispatch(setBoard({ cells }));
-		// 	});
-		// }
-
-		// Handle the commands action
-		// if (commandPressed.match(action) && socket) {
-		// 	let command = { data: { ...action.payload } };
-		// 	socket.socket.emit(SocketEvent.CommandPressed, command);
-		// }
-
-		if (sendInputs.match(action) && socket) {
-			console.log('emit sendInputs');
-			let command = { data: { ...action.payload } };
-			socket.socket.emit(SocketEvent.CommandPressed, command);
+			if (leaveGame.match(action)) {
+				socket.emit(SocketEvent.LeaveGame);
+			}
 		}
 		next(action);
 	};

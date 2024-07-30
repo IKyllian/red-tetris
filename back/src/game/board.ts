@@ -1,5 +1,5 @@
-import { CellType, ICell, ISize, defaultCell } from 'src/type/cell.interface';
-import { IPosition } from 'src/type/tetromino.interface';
+import { CellType, ICell, ISize, defaultCell } from '../type/cell.interface';
+import { IPosition } from '../type/tetromino.interface';
 import { Piece } from './piece';
 
 export class Board {
@@ -23,18 +23,18 @@ export class Board {
 		return builtRows;
 	};
 
-	public clearOldPosition(tetromino: Piece, shape: number[][]) {
-		shape.forEach((row: number[], y: number) => {
-			if (tetromino.position.y + y < 0) return;
-			row.forEach((cell: number, x: number) => {
-				if (cell) {
-					const _x = x + tetromino.position.x;
-					const _y = y + tetromino.position.y;
-					this.cells[_y][_x] = { ...defaultCell };
-				}
-			});
-		});
-	}
+	// public clearOldPosition(tetromino: Piece, shape: number[][]) {
+	// 	shape.forEach((row: number[], y: number) => {
+	// 		if (tetromino.position.y + y < 0) return;
+	// 		row.forEach((cell: number, x: number) => {
+	// 			if (cell) {
+	// 				const _x = x + tetromino.position.x;
+	// 				const _y = y + tetromino.position.y;
+	// 				this.cells[_y][_x] = { ...defaultCell };
+	// 			}
+	// 		});
+	// 	});
+	// }
 
 	public transferPieceToBoard(
 		tetromino: Piece,
@@ -55,7 +55,6 @@ export class Board {
 					this.cells[_y][_x] = {
 						type: tetromino.type,
 						occupied: fixOnBoard,
-						isDestructible: true,
 					};
 				}
 			});
@@ -66,7 +65,12 @@ export class Board {
 		let lines = 0;
 		for (let i = this.size.rows - 1; i >= 0; i--) {
 			const row = this.cells[i];
-			if (row.every((cell) => cell.occupied && cell.isDestructible)) {
+			if (
+				row.every(
+					(cell) =>
+						cell.occupied && cell.type !== CellType.INDESTRUCTIBLE
+				)
+			) {
 				lines++;
 				this.cells.splice(i, 1);
 				this.cells.unshift(
@@ -80,66 +84,50 @@ export class Board {
 		return lines;
 	}
 
-	public addIndestructibleLines(nbOfLines: number) {
+	public addIndestructibleLine() {
 		const indestructibleRow: ICell[] = Array.from(
 			{ length: this.size.columns },
 			() => ({
 				occupied: true,
-				isDestructible: false,
 				type: CellType.INDESTRUCTIBLE,
 			})
 		);
-		for (let i = 0; i < nbOfLines; i++) {
-			this.cells.push(indestructibleRow);
-			this.cells.shift();
-		}
-		//TODO push back current piece if in collision ?
-
-		// for (let i = this.size.rows - 1; i >= 0 && nbOfLines > 0; i--) {
-		// 	const row = this.cells[i];
-		// 	if (row[0].isDestructible) {
-		// 		row.forEach((cell) => {
-		// 			cell.occupied = true;
-		// 			cell.isDestructible = false;
-		// 			cell.className = indestructibleCell;
-		// 		});
-		// 		--nbOfLines;
-		// 	}
-		// }
+		this.cells.push(indestructibleRow);
+		this.cells.shift();
 	}
 
-	public checkCollision(position: IPosition, shape: number[][]) {
-		let isCollision = false;
-		shape.forEach((row: number[], y: number) => {
-			if (position.y + y < 0) return;
-			row.forEach((cell: number, x: number) => {
-				if (cell) {
+	public checkCollision(position: IPosition, shape: number[][]): boolean {
+		for (let y = 0; y < shape.length; y++) {
+			if (position.y + y < 0) continue;
+
+			for (let x = 0; x < shape[y].length; x++) {
+				if (shape[y][x]) {
 					const _x = x + position.x;
 					const _y = y + position.y;
+
 					if (
 						_x < 0 ||
 						_x >= this.size.columns ||
-						_y >= this.size.rows
+						_y >= this.size.rows ||
+						this.cells[_y][_x].occupied
 					) {
-						isCollision = true;
-					} else if (this.cells[_y][_x].occupied) {
-						isCollision = true;
+						return true;
 					}
 				}
-			});
-		});
-		return isCollision;
+			}
+		}
+		return false;
 	}
 
-	public printBoard() {
-		for (let i = 0; i < this.cells.length; i++) {
-			let rowString = '';
-			for (let j = 0; j < this.cells[i].length; j++) {
-				const cell = this.cells[i][j];
-				rowString += cell.occupied ? 'X ' : 'O ';
-			}
-			console.log(rowString + ' y: ', i);
-		}
-		console.log('');
-	}
+	// public printBoard() {
+	// 	for (let i = 0; i < this.cells.length; i++) {
+	// 		let rowString = '';
+	// 		for (let j = 0; j < this.cells[i].length; j++) {
+	// 			const cell = this.cells[i][j];
+	// 			rowString += cell.occupied ? 'X ' : 'O ';
+	// 		}
+	// 		console.log(rowString + ' y: ', i);
+	// 	}
+	// 	console.log('');
+	// }
 }

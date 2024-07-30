@@ -1,44 +1,41 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IGame, defaultGame } from 'front/types/board.types';
+import { IGame } from 'front/types/board.types';
 import {
+	GameMode,
 	IGameUpdatePacket,
 	IGameUpdatePacketHeader,
-	IInputsPacket,
+	IIndestructiblePacket,
 	IPositionUpdate,
 	IServerState,
+	ITickAdjustmentPacket,
 	UpdateType,
 } from 'front/types/packet.types';
 import {
 	getShape,
 	clearOldPosition,
 	transferPieceToBoard,
-	generatePieces,
 	setDropPreview,
-	clearDropPreview,
 } from 'front/utils/piece.utils';
+import { generatePieces } from 'front/utils/piece-generation.utils'
 import { ITetromino } from 'front/types/tetrominoes.type';
 import {
-	handleInput,
-	hardDrop,
-	moveDown,
-	rotate,
+	handleInput
 } from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
-import { COMMANDS } from 'front/types/command.types';
 import {
 	addIndestructibleLines,
-	compareCells,
-	getFramesPerGridCell,
 } from 'front/utils/board.utils';
 import SocketFactory from 'front/store/socketFactory';
 import { SocketEvent } from 'front/store/socketMiddleware';
-import { cloneDeep, isEqual } from 'lodash';
-import { produce } from 'immer';
-
-export const PIECES_BUFFER_SIZE = 100;
-const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
-const BUFFER_SIZE = 1024;
-const TICK_OFFSET = 4;
+import { cloneDeep } from 'lodash';
+import {
+	PIECES_BUFFER_SIZE,
+	BUFFER_SIZE,
+	MIN_TIME_BETWEEN_TICKS,
+	handleServerReconciliation,
+	softDrop,
+} from 'front/utils/game.utils';
+import { Commands } from 'front/types/command.types';
 
 export interface IGameState {
 	seed: string;
@@ -54,45 +51,48 @@ export interface IGameState {
 	tickToMoveDown: number;
 	timer: number;
 	rng: seedrandom.PRNG;
-	clientStateBuffer: Array<IGame>;
-	inputBuffer: Array<COMMANDS[]>;
+	clientStateBuffer: Array<{ tick: number; game: IGame }>;
+	inputBuffer: Array<Commands[]>;
 	lastServerState: IServerState;
 	lastProcessedServerState: IServerState;
 	tickAdjustment: number;
 	adjustmentIteration: number;
 	serverAdjustmentIteration: number;
-	inputQueue: COMMANDS[];
-	pendingInputs: IInputsPacket; //TODO delete
+	inputQueue: Commands[];
 	skipPieceGeneration: number;
-
+	indestructibleQueue: IIndestructiblePacket[];
+	gravity: number;
+	gameMode: GameMode;
+	countdown: number;
 	forceReconcileTimer: number;
 	render: boolean;
 }
 
-const defaultGameState: IGameState = {
+export const defaultGameState: IGameState = {
 	seed: '',
 	gameStarted: false,
-	// playerGame: defaultGame,
 	playerGame: null,
 	opponentsGames: [],
 	opponentsUpdates: [],
 	leaderboard: [],
 	gamesOver: false,
 	pieces: new Array<ITetromino>(PIECES_BUFFER_SIZE),
-	// pieceIndex: 0,
 	tick: 0,
 	tickToMoveDown: 0,
 	timer: 0,
 	rng: null,
-	clientStateBuffer: new Array<IGame>(BUFFER_SIZE),
+	clientStateBuffer: new Array<{ tick: number; game: IGame }>(BUFFER_SIZE),
 	lastServerState: null,
 	lastProcessedServerState: null,
 	tickAdjustment: 0,
 	adjustmentIteration: 0,
 	serverAdjustmentIteration: 0,
 	inputQueue: [],
-	inputBuffer: new Array<COMMANDS[]>(BUFFER_SIZE),
-	pendingInputs: null,
+	inputBuffer: new Array<Commands[]>(BUFFER_SIZE),
+	indestructibleQueue: [],
+	gravity: 0.04,
+	gameMode: GameMode.SOLO,
+	countdown: 3,
 
 	skipPieceGeneration: 0,
 	forceReconcileTimer: performance.now(),
@@ -103,34 +103,58 @@ export const gameSlice = createSlice({
 	name: 'game',
 	initialState: defaultGameState,
 	reducers: {
-		sendInputs: (state, __) => {
-			console.log('okok input sent');
-			state.pendingInputs = null;
-		},
+		leaveGame: () => {},
 		addInputToQueue(state, action) {
-			state.inputQueue.push(action.payload);
+			if (state.tick >= 90) {
+				state.inputQueue.push(action.payload);
+			}
 		},
-
+		resetGame: () => defaultGameState,
 		setGameStartingState: (
 			state,
 			action: {
 				payload: {
 					playerGame: IGame;
-					opponentsGames: IGame[];
+					gameMode: GameMode;
 					seed: string;
+					opponentsGames?: IGame[];
 				};
 			}
 		) => {
+			state.gamesOver = false;
+			state.adjustmentIteration = 0;
+			state.serverAdjustmentIteration = 0;
+			state.lastProcessedServerState = null;
+			state.lastServerState = null;
+			state.inputQueue = [];
+			state.indestructibleQueue = [];
+			state.countdown = 3;
+			state.clientStateBuffer = new Array<{ tick: number; game: IGame }>(
+				BUFFER_SIZE
+			);
+			state.inputBuffer = new Array<Commands[]>(BUFFER_SIZE);
+			state.tick = 0;
+			state.timer = 0;
+			state.tickAdjustment = 0;
+			state.tickToMoveDown = 0;
+			state.gravity = 0.04;
 			state.playerGame = action.payload.playerGame;
-			state.opponentsGames = action.payload.opponentsGames;
+			state.gameMode = action.payload.gameMode;
+			if (state.gameMode === GameMode.BATTLEROYAL) {
+				state.opponentsGames = action.payload.opponentsGames;
+			}
 			//TODO not store seed?
 			state.seed = action.payload.seed;
 			state.rng = seedrandom(state.seed);
 			generatePieces(state, 4);
-			setDropPreview(state.playerGame.board, state.playerGame.piece);
 			const shape = getShape(
 				state.playerGame.piece.type,
 				state.playerGame.piece.rotationState
+			);
+			setDropPreview(
+				state.playerGame.board,
+				shape,
+				state.playerGame.piece
 			);
 			transferPieceToBoard(
 				state.playerGame.board,
@@ -144,39 +168,24 @@ export const gameSlice = createSlice({
 			state,
 			action: { payload: IGameUpdatePacketHeader }
 		) => {
-			// console.log('nb of update = ', action.payload.gamePackets.length);
 			const packetWhithHeader = action.payload;
 			const gamePackets = packetWhithHeader.gamePackets;
-			//TODO check if rendered once every update
+			if (state.gameStarted === false) {
+				return;
+			}
+
 			if (
 				state.serverAdjustmentIteration !=
 				packetWhithHeader.adjustmentIteration
 			) {
-				console.log(
-					'tick adjustement: ',
-					packetWhithHeader.tickAdjustment
-				);
 				state.tickAdjustment = packetWhithHeader.tickAdjustment;
 				state.serverAdjustmentIteration =
 					packetWhithHeader.adjustmentIteration;
 			}
-			// const playerIndex = gamePackets.findIndex(
-			// 	(g) => g.state.player.id === state.playerGame.player.id
-			// );
-			// if (playerIndex !== -1) {
-			// 	state.lastServerState = {
-			// 		tick: packetWhithHeader.tick,
-			// 		packet: gamePackets[playerIndex],
-			// 	};
-			// 	gamePackets.splice(playerIndex, 1);
-			// }
-			// state.opponentsUpdates = gamePackets;
-
 			//-------------------------------------------------------------------
 
 			for (const gamePacket of gamePackets) {
 				if (gamePacket.state.player.id === state.playerGame.player.id) {
-					// console.log('player updates');
 					state.lastServerState = {
 						tick: packetWhithHeader.tick,
 						packet: gamePacket,
@@ -187,15 +196,16 @@ export const gameSlice = createSlice({
 				const index = state.opponentsGames.findIndex(
 					(g) => g.player.id === gamePacket.state.player.id
 				);
+
 				if (
+					index !== -1 &&
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
-					console.log("POSITION")
 					const newState = gamePacket.state as IPositionUpdate;
 					const piece = state.opponentsGames[index].piece;
 					let shape = getShape(piece.type, piece.rotationState);
-					//why is it working
+
 					clearOldPosition(
 						piece,
 						shape,
@@ -223,124 +233,79 @@ export const gameSlice = createSlice({
 			}
 		},
 		updatePlayerGame: (state, action) => {
-			// state.render = false;
 			state.timer += action.payload;
 
 			if (state.adjustmentIteration != state.serverAdjustmentIteration) {
 				state.adjustmentIteration = state.serverAdjustmentIteration;
-				state.timer += MIN_TIME_BETWEEN_TICKS * state.tickAdjustment;
 				state.inputQueue.length = 0;
-				console.log('adjusting tick');
+				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
+
+				console.log('adjusting tick: ', state.tickAdjustment);
+				// const tickToCatchUp = state.tick + state.tickAdjustment;
+				// while (state.tick < tickToCatchUp) {
+				// 	softDrop(state);
+				// 	state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
+				// 		tick: state.tick,
+				// 		game: cloneDeep(state.playerGame),
+				// 	};
+				// 	state.tick++;
+				// }
 			}
 
 			// server reconciliation
-			if (state.lastProcessedServerState !== state.lastServerState) {
-				const index = state.lastServerState.tick % BUFFER_SIZE;
-				if (state.clientStateBuffer[index]) {
-					const serverGameState = state.lastServerState.packet
-						.state as IGame;
-					if (
-						!compareCells(
-							state.clientStateBuffer[index].board.cells,
-							serverGameState.board.cells,
-							state.clientStateBuffer[index].piece
-						) ||
-						serverGameState.gameOver ||
-						!isEqual(
-							state.clientStateBuffer[index].piece,
-							serverGameState.piece
-						)
-					) {
-						if (
-							!compareCells(
-								state.clientStateBuffer[index].board.cells,
-								serverGameState.board.cells,
-								state.clientStateBuffer[index].piece
-							)
-						) {
-							console.log('board different');
-						}
-						if (serverGameState.gameOver) {
-							console.log('game over from server update');
-						}
-						if (
-							!isEqual(
-								state.clientStateBuffer[index].piece,
-								serverGameState.piece
-							)
-						) {
-							console.log('piece different');
-						}
-						console.log(
-							'-----------------------------------------------------'
-						);
-
-						state.clientStateBuffer[index] = { ...serverGameState };
-						state.tickToMoveDown = serverGameState.tickToMoveDown;
-						let tickToProcess = state.lastServerState.tick + 1;
-						const pieceDiff =
-							serverGameState.currentPieceIndex -
-							state.playerGame.currentPieceIndex;
-						if (pieceDiff >= 0) {
-							generatePieces(state, pieceDiff, 4);
-						} else {
-							state.skipPieceGeneration += pieceDiff * -1;
-						}
-						state.playerGame = { ...serverGameState };
-						while (tickToProcess < state.tick) {
-							const index = tickToProcess % BUFFER_SIZE;
-							if (state.inputBuffer[index]?.length > 0) {
-								//TODO problem here
-								console.log('reprocess inputs');
-								state.inputBuffer[index].forEach((input) => {
-									console.log('input', input);
-									handleInput(input, state);
-								});
-							}
-							if (
-								state.tickToMoveDown >=
-								getFramesPerGridCell(state.playerGame.level)
-							) {
-								moveDown(state);
-							} else {
-								state.tickToMoveDown++;
-							}
-							state.clientStateBuffer[
-								tickToProcess % BUFFER_SIZE
-							] = {
-								...state.playerGame,
-							};
-							tickToProcess++;
-						}
-						const shape = getShape(
-							state.playerGame.piece.type,
-							state.playerGame.piece.rotationState
-						);
-						setDropPreview(
-							state.playerGame.board,
-							state.playerGame.piece
-						);
-						transferPieceToBoard(
-							state.playerGame.board,
-							state.playerGame.piece,
-							shape,
-							false
-						);
-					}
-					state.lastProcessedServerState = state.lastServerState;
-				}
+			if (
+				state.lastProcessedServerState?.tick !==
+				state.lastServerState?.tick
+			) {
+				handleServerReconciliation(state);
 			}
-			////--------------------------------------------------------------
+
+			// countdown before game starts + sync with server
+			if (state.tick < 90) {
+				if (state.tick % 30 === 0) {
+					state.countdown = 3 - state.tick / 30;
+				}
+				while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
+					const instance = SocketFactory.Instance();
+					const data = {
+						tick: state.tick,
+						adjustmentIteration: state.adjustmentIteration,
+					};
+					// console.log('sync with server', data);
+					instance.emit(SocketEvent.SyncWithServer, { data });
+					state.tick++;
+					state.timer -= MIN_TIME_BETWEEN_TICKS;
+				}
+				return;
+			} else if (state.countdown !== -1) {
+				state.countdown = -1;
+			}
 			//------------------------------------------------------------------
 			const now = performance.now();
 			while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
-				// if (state.tick === 200) {
-				// 	console.log('force reconcile');
-				// 	hardDrop(state);
-				// 	state.forceReconcileTimer = now;
-				// 	state.render = false;
+				// if (state.tick === 500) {
+				// 	state.playerGame.gameOver = true;
+				// 	// 	console.log('force reconcile');
+				// 	// 	hardDrop(state);
+				// 	// 	state.forceReconcileTimer = now;
+				// 	// 	state.render = false;
 				// }
+				for (let i = 0; i < state.indestructibleQueue.length; i++) {
+					const indestructible = state.indestructibleQueue[i];
+					if (indestructible.tick === state.tick) {
+						console.log('add indestructible lines');
+						addIndestructibleLines(state, indestructible.nb);
+						state.indestructibleQueue.splice(i, 1);
+						i--;
+					}
+				}
 				if (state.inputQueue.length > 0) {
+					// console.log(
+					// 	'tick: ',
+					// 	state.tick,
+					// 	'input processed: ',
+					// 	state.inputQueue.length
+					// );
 					state.inputQueue.forEach((input) => {
 						handleInput(input, state);
 					});
@@ -354,42 +319,68 @@ export const gameSlice = createSlice({
 						adjustmentIteration: state.adjustmentIteration,
 						inputs: [...state.inputQueue],
 					};
-					instance.socket.emit(SocketEvent.CommandPressed, {
+					// if (state.tick % 100 !== 0 || state.tick % 150 === 0) {
+					instance.emit(SocketEvent.CommandPressed, {
 						data: data,
 					});
+					// }
 					state.inputQueue.length = 0;
 				}
-				if (
-					state.tickToMoveDown >=
-					getFramesPerGridCell(state.playerGame.level)
-				) {
-					moveDown(state);
-				} else {
-					state.tickToMoveDown++;
-				}
-
+				softDrop(state);
 				state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
-					...state.playerGame,
+					tick: state.tick,
+					game: cloneDeep(state.playerGame),
 				};
+				// state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
+				// 	...state.playerGame,
+				// };
+
+				if (state.tick && state.tick % 1800 === 0) {
+					state.gravity += 0.005;
+				}
 
 				state.tick++;
 				// console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},
-		updateIndestructibleLines(state, action) {
-			addIndestructibleLines(state, action.payload);
+		updateIndestructibleLines(
+			state,
+			action: { payload: IIndestructiblePacket }
+		) {
+			state.indestructibleQueue.push(action.payload);
+		},
+		updateTickAdjustments(
+			state,
+			action: { payload: ITickAdjustmentPacket }
+		) {
+			console.log('tick adjustement: ', action.payload.tickAdjustment);
+			if (
+				state.adjustmentIteration != action.payload.adjustmentIteration
+			) {
+				state.adjustmentIteration = action.payload.adjustmentIteration;
+				state.serverAdjustmentIteration = state.adjustmentIteration;
+				state.tick += action.payload.tickAdjustment;
+			}
+		},
+		gameOver(state) {
+			if (state.playerGame) {
+				state.playerGame.gameOver = true;
+			}
 		},
 	},
 });
 
 export const {
-	sendInputs,
 	setGameStartingState,
 	updateGamesBoard,
 	updatePlayerGame,
 	addInputToQueue,
 	updateIndestructibleLines,
+	updateTickAdjustments,
+	resetGame,
+	leaveGame,
+	gameOver,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

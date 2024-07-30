@@ -1,37 +1,7 @@
-// {
-//   "compilerOptions": {
-//     "target": "ES2020",
-//     "useDefineForClassFields": true,
-//     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-//     "module": "ESNext",
-//     "skipLibCheck": true,
-//     "esModuleInterop": true,
-//     "baseUrl": "./",
-//     "paths": {
-//       "front/*": ["src/*"]
-//     },
-//     "rootDir": "./",
-//     /* Bundler mode */
-//     "moduleResolution": "bundler",
-//     "allowImportingTsExtensions": true,
-//     "allowSyntheticDefaultImports": true,
-//     "resolveJsonModule": true,
-//     "isolatedModules": true,
-//     "noEmit": true,
-//     "jsx": "react-jsx",
-
-//     /* Linting */
-//     "strict": false, /* Enable strict mode in futur */
-//     "noUnusedLocals": true,
-//     "noUnusedParameters": true,
-//     "noFallthroughCasesInSwitch": true
-//   },
-//   "include": ["src"],
-//   // "references": [{ "path": "./tsconfig.node.json" }]
-// }
-
 {
   "compilerOptions": {
+    // "types": ["vitest/globals", "@testing-library/jest-dom", "@testing-library/jest-dom/vitest"],
+    "types": ["vitest/globals"],
     "target": "ES2020",
     "moduleResolution": "node",
     "module": "es2020",
@@ -39,12 +9,13 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "jsx": "react-jsx",
+    "skipLibCheck": true,
     "paths": {
-      "front/*": ["src/*"]
+      "front/*": ["src/*"],
     },
     "allowJs": true,
     "noEmit": true,
     "rootDir": "./"
   },
-  "include": ["src"]
+  "include": ["src", "__tests__/vitest.setup.ts"]
 }

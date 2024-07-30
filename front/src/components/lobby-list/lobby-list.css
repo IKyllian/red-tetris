@@ -1,0 +1,25 @@
+.room-list-item {
+  /* background-color: var(--main-color); */
+  /* color: var(--main-bg-color); */
+  width: 70vw;
+  padding: 7px 10px;
+  border: 2px solid var(--main-color);
+  text-transform: uppercase;
+  border-radius: 7px;
+  cursor: pointer
+}
+
+.lobby-name {
+    font-size: 30px;
+}
+
+.lobby-info {
+    font-size: 15px;
+}
+
+.no-lobbies-message {
+  text-align: center;
+  color: var(--main-color);;
+  font-size: 30px;
+  margin-top: 20px;
+}

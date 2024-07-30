@@ -1,4 +1,4 @@
-import { COMMANDS } from './command.types';
+import { Commands } from './command.types';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -15,8 +15,10 @@ export enum SocketEvent {
 	StopGame = 'stop-game',
 	GamesUpdate = 'games-update',
 	StartingGame = 'starting-game',
+	LeaveGame = 'leave-game',
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
+	SyncWithServer = 'sync',
 	// On events
 	Error = 'error',
 }
@@ -24,5 +26,10 @@ export enum SocketEvent {
 export interface IInputsPacket {
 	tick: number;
 	adjustmentIteration: number;
-	inputs: COMMANDS[];
+	inputs: Commands[];
+}
+
+export interface ITickAdjustmentPacket {
+	tickAdjustment: number;
+	adjustmentIteration: number;
 }

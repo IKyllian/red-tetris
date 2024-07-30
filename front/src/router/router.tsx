@@ -1,18 +1,20 @@
 import { createBrowserRouter } from "react-router-dom";
-import { SignIn } from "front/components/sign/sign.tsx";
-import { Home } from "front/components/home/home.tsx";
-import PrivateRoute from "front/router/private-route.tsx";
-import PublicRoute from "front/router/public-route.tsx";
-import { Lobby } from "front/components/lobby/lobby.tsx";
-import { JoinLobbyByPath } from "front/components/lobby/join-lobby-by-path.tsx";
-import { Game } from "front/components/game/game.tsx";
+import Register from "front/components/sign/sign";
+import Home from "front/components/home/home";
+import PrivateRoute from "front/router/private-route";
+import PublicRoute from "front/router/public-route";
+import Lobby from "front/components/lobby/lobby";
+import JoinLobbyByPath from "front/components/lobby/join-lobby-by-path";
+import Game from "front/components/game/game";
+import Leaderboard from "front/components/leaderboard/leaderboard";
+import LobbyList from "front/components/lobby-list/lobby-list";
 
 export const router = createBrowserRouter([
 	{
 		path: "/",
 		element: (
 			<PublicRoute>
-				<SignIn />
+				<Register />
 			</PublicRoute>
 		),
 	},
@@ -45,6 +47,22 @@ export const router = createBrowserRouter([
 		element: (
 			<PrivateRoute>
 				<Game />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "lobby-list",
+		element: (
+			<PrivateRoute>
+				<LobbyList />
+			</PrivateRoute>
+		),
+	},
+	{
+		path: "leaderboard",
+		element: (
+			<PrivateRoute>
+				<Leaderboard />
 			</PrivateRoute>
 		),
 	},

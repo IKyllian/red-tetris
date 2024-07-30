@@ -1,4 +1,3 @@
-import { zip } from 'lodash';
 import {
 	IPosition,
 	ITetromino,
@@ -10,24 +9,19 @@ import {
 	O_TetrominoShape,
 	S_TetrominoShape,
 	T_TetrominoShape,
-	TetriminosArray,
 	Z_TetrominoShape,
-} from 'src/type/tetromino.interface';
+} from '../type/tetromino.interface';
 import { Board } from './board';
-import { CellType } from 'src/type/cell.interface';
+import { CellType } from '../type/cell.interface';
 
 export class Piece {
-	// Ou Tetromino
-	// public shape: number[][];
 	public type: CellType;
 	public position: IPosition;
 	private rotationState: number = 0;
 
 	constructor(tetromino: ITetromino) {
-		// const tetromino = this.getRandomPiece();
 		this.type = tetromino.type;
 		this.position = { ...tetromino.position };
-		// this.shape = this.getShape();
 	}
 	public getShape(rotationState: number = this.rotationState): number[][] {
 		switch (this.type) {
@@ -47,18 +41,12 @@ export class Piece {
 				return Z_TetrominoShape[rotationState];
 		}
 	}
-	// private getRotatedShape(): number[][] {
-	// 	// Transpose the shape matrix (columns become rows)
-	// 	const transposed = zip(...this.shape);
-	// 	// Reverse each row of the transposed matrix to rotate clockwise
-	// 	return transposed.map((row) => row.reverse());
-	// }
 
-	public rotate(board: Board): void {
+	public rotate(board: Board): boolean {
+		let isNewShape = false;
 		if (this.type === CellType.O) {
-			return;
+			return isNewShape;
 		}
-		const currentShape = this.getShape();
 		const newRotation = (this.rotationState + 1) % 4;
 		const newShape = this.getShape(newRotation);
 		const srs = this.type === CellType.I ? I_SRS : JLTSZ_SRS;
@@ -68,17 +56,12 @@ export class Piece {
 				y: this.position.y + position.y,
 			};
 			if (!board.checkCollision(newPosition, newShape)) {
-				// board.clearOldPosition(this, currentShape);
 				this.position = newPosition;
-				// board.transferPieceToBoard(this, newShape, false);
 				this.rotationState = newRotation;
+				isNewShape = true;
 				break;
 			}
 		}
+		return isNewShape;
 	}
-
-	public getRandomPiece = (): ITetromino => {
-		const randomIndex = Math.floor(Math.random() * TetriminosArray.length);
-		return TetriminosArray[randomIndex];
-	};
 }

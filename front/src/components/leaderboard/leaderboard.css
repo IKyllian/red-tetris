@@ -1,0 +1,25 @@
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.leaderboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.leaderboard-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 30%; /* Adjust the width as needed */
+}
+
+.text-position {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

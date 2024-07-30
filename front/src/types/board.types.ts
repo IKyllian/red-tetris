@@ -4,7 +4,6 @@ import { CellType, ITetromino } from 'front/types/tetrominoes.type';
 export interface ICell {
 	occupied: boolean;
 	type: CellType;
-	isDestructible: boolean;
 	isPreview: boolean;
 }
 
@@ -21,13 +20,11 @@ export const defaultBoardSize: ISize = {
 export interface IBoard {
 	cells: ICell[][];
 	size: ISize;
-	// gameOver: boolean;
 }
 
 export const defaultCell: ICell = {
 	occupied: false,
 	type: CellType.EMPTY,
-	isDestructible: true,
 	isPreview: false,
 };
 
@@ -50,7 +47,6 @@ export const defaultGame: IGame = {
 			Array.from({ length: defaultBoardSize.columns }, () => defaultCell)
 		),
 		size: defaultBoardSize,
-		// gameOver: false,
 	},
 	player: {
 		id: '',
@@ -68,3 +64,5 @@ export const defaultGame: IGame = {
 };
 
 export const NbOfLinesForNextLevel = 10;
+
+export const Scoring = [100, 300, 500, 800];

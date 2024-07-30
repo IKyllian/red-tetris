@@ -1,13 +1,20 @@
-import { SocketEvent } from 'src/type/event.enum';
-import { Lobby } from './lobby';
+import { SocketEvent } from '../type/event.enum';
 import { Socket, Server } from 'socket.io';
-import { ILobby } from 'src/type/lobby.interface';
+import { ILobby } from '../type/lobby.interface';
+import { Lobby } from './lobby';
+import { Injectable } from '@nestjs/common';
 
-export class LobbyManager {
+@Injectable()
+export class LobbyService {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
 	private lobbys: Map<string, Lobby> = new Map();
 
 	public createLobby(socket: Socket, playerName: string, lobbyName: string) {
+		if (lobbyName.length === 0) {
+			lobbyName = 'Lobby';
+		} else if (lobbyName.length > 20) {
+			lobbyName = lobbyName.substring(0, 20);
+		}
 		const lobby = new Lobby(lobbyName, playerName, socket.id);
 		this.lobbys.set(lobby.id, lobby);
 		socket.join(lobby.id);
@@ -22,31 +29,29 @@ export class LobbyManager {
 		server: Server
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
-		//TODO send error if game started?
-		if (lobby && lobby.gameStarted === false) {
+		if (
+			lobby &&
+			lobby.gameStarted === false &&
+			lobby.players.length < lobby.maxPlayers
+		) {
 			lobby.addPlayer(playerName, socket.id);
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
-			//TODO remove unwanted data to emit
 			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
 		}
 	}
 
-	public leaveLobby(socket: Socket) {
+	public leave(socket: Socket) {
 		const lobbyId = this.socketRoomMap.get(socket.id);
 		if (lobbyId) {
 			this.socketRoomMap.delete(socket.id);
 			const lobby = this.lobbys.get(lobbyId);
 			if (lobby) {
-				if (lobby.gameStarted) {
-					lobby.getPlayerGame(socket.id).gameOver = true;
-				}
 				lobby.deletePlayer(socket.id);
 				socket.leave(lobby.id);
 				if (lobby.players.length === 0) {
 					this.lobbys.delete(lobby.id);
 				} else {
-					//TODO check if in game it cause problems
 					lobby.players[0].isLeader = true;
 					socket
 						.to(lobby.id)
@@ -61,15 +66,10 @@ export class LobbyManager {
 		return this.lobbys.get(lobbyId);
 	}
 
-	public getLobbys(): ILobby[] {
+	public getLobbies(): ILobby[] {
 		const lobbys: ILobby[] = [];
 		for (const lobby of this.lobbys.values()) {
-			lobbys.push({
-				id: lobby.id,
-				name: lobby.name,
-				players: lobby.players,
-				games: lobby.games,
-			});
+			lobbys.push(lobby.getInfo());
 		}
 		return lobbys;
 	}

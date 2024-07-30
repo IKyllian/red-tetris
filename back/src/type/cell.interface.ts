@@ -12,13 +12,11 @@ export enum CellType {
 export interface ICell {
 	occupied: boolean;
 	type: CellType;
-	isDestructible: boolean;
 }
 
 export const defaultCell: ICell = {
 	occupied: false,
 	type: CellType.EMPTY,
-	isDestructible: true,
 };
 
 export interface ISize {

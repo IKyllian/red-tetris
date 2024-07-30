@@ -1,0 +1,58 @@
+.game-modal-container {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background-color: #344C64;
+    border-radius: 10px;
+    color: white;
+    z-index: 5;
+}
+
+.modal-title {
+    font-size: 40px;
+}
+
+.modal-score {
+    font-size: 50px;
+}
+
+.game-container {
+    position: relative;
+    height: calc(100vh - var(--main-header-height));
+}
+
+.game-wrapper {
+    height: 100%;
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    /* margin-left: calc(100vw / 4); */
+}
+
+.opponents-game-container {
+    /* position: absolute;
+    right: 0;
+    width: calc((100vw / 2) - 250px);
+    top: 50%;
+    right: 20%;
+    max-height: calc(100vh - var(--main-header-height));
+    transform: translate(50%, -50%); */
+    max-height: calc(100vh - (var(--main-header-height) * 2));
+    overflow: hidden;
+}
+
+.game-player-container {
+    /* position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%); */
+}

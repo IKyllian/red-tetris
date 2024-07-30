@@ -8,21 +8,9 @@ export interface ILobby {
 	// games: IGame[];
 	// seed: string;
 	gameStarted: boolean;
+	maxPlayers: number;
 	// playerGame?: IGame;
 	// opponentsGames: IGame[];
 	// gamesOver: boolean;
-	// leaderboard: IPlayer[];
+	leaderboard: IPlayer[] | null;
 }
-
-export const defaultLobby: ILobby = {
-	name: '',
-	id: '',
-	players: [],
-	// games: [],
-	// seed: '',
-	gameStarted: false,
-	// opponentsGames: [],
-	// playerGame: null,
-	// gamesOver: false,
-	// leaderboard: [],
-};

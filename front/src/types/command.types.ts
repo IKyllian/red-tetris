@@ -1,26 +1,24 @@
-export enum COMMANDS {
-	KEY_UP = 'ArrowUp',
-	KEY_DOWN = 'ArrowDown',
-	KEY_LEFT = 'ArrowLeft',
-	KEY_RIGHT = 'ArrowRight',
-	KEY_SPACE = 'Space',
+export enum Commands {
+	ROTATE,
+	MOVE_DOWN,
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	HARD_DROP,
 }
 
-export type Command =
-	| COMMANDS.KEY_UP
-	| COMMANDS.KEY_DOWN
-	| COMMANDS.KEY_LEFT
-	| COMMANDS.KEY_RIGHT
-	| COMMANDS.KEY_SPACE;
-
-//Liste des commandes
-export const commands: Command[] = [
-	COMMANDS.KEY_UP,
-	COMMANDS.KEY_DOWN,
-	COMMANDS.KEY_LEFT,
-	COMMANDS.KEY_RIGHT,
-	COMMANDS.KEY_SPACE,
-];
-
-// Check si la valeur reçu est de type Command
-export const isCommandType = (x: any): x is Command => commands.includes(x);
+export function getCommand(command: string): Commands | null {
+	switch (command) {
+		case 'ArrowUp':
+			return Commands.ROTATE;
+		case 'ArrowDown':
+			return Commands.MOVE_DOWN;
+		case 'ArrowLeft':
+			return Commands.MOVE_LEFT;
+		case 'ArrowRight':
+			return Commands.MOVE_RIGHT;
+		case 'Space':
+			return Commands.HARD_DROP;
+		default:
+			return null;
+	}
+}

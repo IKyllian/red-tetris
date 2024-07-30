@@ -13,7 +13,8 @@ import {
 } from 'front/types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { IGameState, PIECES_BUFFER_SIZE } from 'front/store/game.slice';
+import { PIECES_BUFFER_SIZE } from './game.utils';
+import { getDropPosition } from 'front/utils/drop.utils';
 
 export function getTetrominoClassName(
 	type: CellType,
@@ -46,19 +47,19 @@ export function getTetrominoClassName(
 export function getShape(type: CellType, rotationState: number): number[][] {
 	switch (type) {
 		case CellType.I:
-			return I_TetrominoShape[rotationState];
+			return I_TetrominoShape[rotationState] || I_TetrominoShape[0];
 		case CellType.J:
-			return J_TetrominoShape[rotationState];
+			return J_TetrominoShape[rotationState] || J_TetrominoShape[0];
 		case CellType.L:
-			return L_TetrominoShape[rotationState];
+			return L_TetrominoShape[rotationState] || L_TetrominoShape[0];
 		case CellType.O:
 			return O_TetrominoShape;
 		case CellType.S:
-			return S_TetrominoShape[rotationState];
+			return S_TetrominoShape[rotationState] || S_TetrominoShape[0];
 		case CellType.T:
-			return T_TetrominoShape[rotationState];
+			return T_TetrominoShape[rotationState] || T_TetrominoShape[0];
 		default:
-			return Z_TetrominoShape[rotationState];
+			return Z_TetrominoShape[rotationState] || Z_TetrominoShape[0];
 	}
 }
 
@@ -74,28 +75,10 @@ export function getPosDown(position: IPosition): IPosition {
 	return { ...position, y: position.y + 1 };
 }
 
-export function getNextPiece(rng: seedrandom.PRNG) {
+export function getNextPiece(rng: seedrandom.PRNG): ITetromino {
 	const index = Math.floor(rng() * TetriminosArray.length);
-	const piece = { ...TetriminosArray[index] };
+	const piece = TetriminosArray[index] ? { ...TetriminosArray[index] } : { ...TetriminosArray[0] };
 	return piece;
-}
-
-export function generatePieces(
-	state: IGameState,
-	count: number,
-	offset: number = 0
-) {
-	const i =
-		(state.playerGame.currentPieceIndex % PIECES_BUFFER_SIZE) + offset;
-	// console.log('generatePieces', i);
-	for (let j = 0; j < count; j++) {
-		// console.log('in loop');
-		if (state.skipPieceGeneration > 0) {
-			state.skipPieceGeneration--;
-			continue;
-		}
-		state.pieces[i + j] = getNextPiece(state.rng);
-	}
 }
 
 export function checkCollision(
@@ -103,26 +86,26 @@ export function checkCollision(
 	position: IPosition,
 	shape: number[][]
 ): boolean {
-	let isCollision = false;
-	shape.forEach((row: number[], y: number) => {
-		if (position.y + y < 0) return;
-		row.forEach((cell: number, x: number) => {
-			if (cell) {
+	for (let y = 0; y < shape.length; y++) {
+		if (position.y + y < 0) continue;
+
+		for (let x = 0; x < shape[y].length; x++) {
+			if (shape[y][x]) {
 				const _x = x + position.x;
 				const _y = y + position.y;
+
 				if (
 					_x < 0 ||
 					_x >= board.size.columns ||
-					_y >= board.size.rows
+					_y >= board.size.rows ||
+					board.cells[_y][_x].occupied
 				) {
-					isCollision = true;
-				} else if (board.cells[_y][_x].occupied) {
-					isCollision = true;
+					return true;
 				}
 			}
-		});
-	});
-	return isCollision;
+		}
+	}
+	return false;
 }
 
 export function clearOldPosition(
@@ -163,47 +146,12 @@ export function transferPieceToBoard(
 				newCells[_y][_x] = {
 					type: tetromino.type,
 					occupied: fixOnBoard,
-					isDestructible: true,
 					isPreview: false,
 				};
 			}
 		});
 	});
 	return newCells;
-}
-
-function getDropPosition(
-	board: IBoard,
-	piece: ITetromino,
-	shape: number[][]
-): IPosition | null {
-	if (checkCollision(board, piece.position, shape)) return null;
-	let newPos = piece.position;
-	let nextPos = getPosDown(newPos);
-	while (!checkCollision(board, nextPos, shape)) {
-		newPos = nextPos;
-		nextPos = getPosDown(newPos);
-	}
-	return newPos;
-}
-
-export function clearOldDropPosition(
-	tetromino: ITetromino,
-	shape: number[][],
-	board: IBoard
-): ICell[][] {
-	let cells = board.cells;
-	shape.forEach((row: number[], y: number) => {
-		if (tetromino.position.y + y < 0) return;
-		row.forEach((cell: number, x: number) => {
-			const _x = x + tetromino.position.x;
-			const _y = y + tetromino.position.y;
-			if (cell && cells[_y][_x].isPreview) {
-				cells[_y][_x] = { ...defaultCell };
-			}
-		});
-	});
-	return cells;
 }
 
 export function transferPreviewToBoard(
@@ -222,7 +170,6 @@ export function transferPreviewToBoard(
 					newCells[_y][_x] = {
 						type: tetromino.type,
 						occupied: false,
-						isDestructible: true,
 						isPreview: true,
 					};
 				}
@@ -232,30 +179,48 @@ export function transferPreviewToBoard(
 	return newCells;
 }
 
-export function clearDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		clearOldDropPosition(
-			{ ...piece, position: dropPosition },
-			shape,
-			board
-		);
-	}
+export function clearOldDropPosition(
+	position: IPosition,
+	shape: number[][],
+	board: IBoard
+): ICell[][] {
+	let cells = board.cells;
+	shape.forEach((row: number[], y: number) => {
+		if (position.y + y < 0) return;
+		row.forEach((cell: number, x: number) => {
+			const _x = x + position.x;
+			const _y = y + position.y;
+			if (cell && cells[_y][_x].isPreview) {
+				cells[_y][_x] = { ...defaultCell };
+			}
+		});
+	});
+	return cells;
 }
 
-export function setDropPreview(board: IBoard, piece: ITetromino): void {
-	const shape = getShape(piece.type, piece.rotationState);
-	const dropPosition = getDropPosition(board, piece, shape);
-	if (dropPosition) {
-		board.cells = transferPreviewToBoard(
-			board,
-			{ ...piece, position: dropPosition },
-			shape
-		);
-	}
+
+export function clearDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
+	clearOldDropPosition(dropPosition, shape, board);
 }
 
-export function getPieceIndex(currentPieceIndex: number) {
+export function setDropPreview(
+	board: IBoard,
+	shape: number[][],
+	piece: ITetromino
+): void {
+	const dropPosition = getDropPosition(board, piece.position, shape);
+	board.cells = transferPreviewToBoard(
+		board,
+		{ ...piece, position: dropPosition },
+		shape
+	);
+}
+
+export function getPieceIndex(currentPieceIndex: number): number {
 	return currentPieceIndex % PIECES_BUFFER_SIZE;
 }

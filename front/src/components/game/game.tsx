@@ -1,27 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "front/store/hook";
-import { Board, BoardPreview } from "front/components/board/board";
+import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
-import { addInputToQueue } from "front/store/game.slice";
-import { isCommandType, COMMANDS } from "front/types/command.types";
+import { addInputToQueue, resetGame } from "front/store/game.slice";
+import { getCommand, Commands } from "front/types/command.types";
+import { useNavigate } from "react-router-dom";
+import GameModal from "./game-modal";
+import "./game.css";
+import { ILobby } from "front/types/lobby.type";
+import { GameMode } from "front/types/packet.types";
+// import { useGameLoop } from "front/hooks/useGameLoop";
 
-export function Game() {
+export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
 	const [isKeySpaceReleased, setIsKeySpaceReleased] = useState(true);
-	// const game = useAppSelector(state => state.game)
-	
-	// const playerGame = game.playerGame
-	// const gameStarted =game.gameStarted;
-	// const gameOver = playerGame?.gameOver;
-	// const opponentsGames = game.opponentsGames;
-	// const playerGameBoard = playerGame?.board;
-	// const playerGamePieceIndex = playerGame?.currentPieceIndex;
-	// const playerName = playerGame?.player.name;
-	// const pieces = game.pieces;
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
+	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const gameStarted = useAppSelector((state) => state.game.gameStarted);
 	const gameOver = useAppSelector((state) => state.game.playerGame?.gameOver);
-	const opponentsGames = useAppSelector((state) => state.game.opponentsGames);
+	const opponentsGames = useAppSelector(
+		(state) => state.game.opponentsGames
+	)?.filter((game) => !game.gameOver);
+	// const opponentsGames = useAppS elector((state) => state.game.opponentsGames);
+	const gameMode = useAppSelector((state) => state.game.gameMode);
 	const playerGameBoard = useAppSelector(
 		(state) => state.game.playerGame?.board
 	);
@@ -32,8 +35,9 @@ export function Game() {
 		(state) => state.game.playerGame?.player.name
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
+	// const tick = useAppSelector((state) => state.game.tick);
 	const fpsRef = useRef<number>(0);
-	const dispatch = useAppDispatch();
+	// const fps = useGameLoop(gameOver);
 
 	const lastRenderTimeRef = useRef(null);
 	const renderCountRef = useRef<number>(0);
@@ -55,107 +59,149 @@ export function Game() {
 		renderCountRef.current++;
 	}
 
-	//TODO: stop using useEffect
+	useEffect(() => {
+		if (!lobby) navigate("/home");
+	}, [lobby])
+
 	useEffect(() => {
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
 		}
-		const cleanup = gameLoop(fpsRef, dispatch);
+		let cleanup = gameLoop(fpsRef, dispatch);
 		return () => {
-			cleanup();
+			if (cleanup) cleanup();
 		};
 	}, [gameStarted, dispatch, gameOver]);
 
+	useEffect(() => {
+		if (gameOver) {
+		  console.log('GAME OVER');
+		}
+	  }, [gameOver]);
+
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		if (isCommandType(event.code)) {
-			if (event.code === COMMANDS.KEY_UP) {
+		const command: Commands | null = getCommand(event.code);
+		if (command !== null) {
+			if (command === Commands.ROTATE) {
 				if (!isKeyUpReleased) return;
 				setIsKeyUpReleased(false);
-			}
-			if (event.code === COMMANDS.KEY_SPACE) {
+			} else if (command === Commands.HARD_DROP) {
 				if (!isKeySpaceReleased) return;
 				setIsKeySpaceReleased(false);
 			}
-			dispatch(addInputToQueue(event.code as COMMANDS));
+			dispatch(addInputToQueue(command));
 		}
 	};
 
 	const handleKeyRelease = (event: React.KeyboardEvent<HTMLDivElement>) => {
-		const code = event.code;
-		if (code === COMMANDS.KEY_UP) {
-			setIsKeyUpReleased(true);
-		}
-		if (code === COMMANDS.KEY_SPACE) {
-			setIsKeySpaceReleased(true);
+		const command: Commands | null = getCommand(event.code);
+		if (command !== null) {
+			if (command === Commands.ROTATE) {
+				setIsKeyUpReleased(true);
+			} else if (command === Commands.HARD_DROP) {
+				setIsKeySpaceReleased(true);
+			}
 		}
 	};
 
-	const opponentsGame = useMemo(() => opponentsGames, [opponentsGames]);
-	// const half_length = Math.ceil(opponentsGame.length / 2);
-	// const leftSide = opponentsGame.slice(0, half_length);
-	// const rightSide = opponentsGame.slice(half_length);
-	// console.log("rendering");
 	if (!gameStarted) {
 		return <div>Game not started</div>;
 	}
 
-	return (
-		<div>
-			<div style={{ fontSize: "25px", color: "red" }}>
-				FPS: {fpsRef.current.toFixed(2)}
-			</div>
-			<div style={{ fontSize: "25px", color: "blue" }}>
-				Render average: {renderAverage.current}
-			</div>
-			<div
-				className="boards-container flex flex-row content-center items-center gap8 flex-wrap"
-				tabIndex={0}
-				onKeyDown={handleKeyDown}
-				onKeyUp={handleKeyRelease}
-				style={{ outline: "none"}}
-			>
-				{/* {leftSide.map((game, index) => (
-					<BoardPreview
-						key={index}
-						board={game.board}
-						playerName={game.player.name}
-						isGameOver={game.gameOver}
-					/>
-				))} */}
-				{playerGameBoard && (
-					<>
-						<Board
-							board={playerGameBoard}
-							playerName={playerName}
-							isGameOver={gameOver}
-							currentPiece={pieces[playerGamePieceIndex]}
-							nextPieces={pieces.slice(getPieceIndex(playerGamePieceIndex + 1),getPieceIndex(playerGamePieceIndex + 4))}
-						/>
-						{/* <div className="flex flex-col gap4">
-							{pieces
-								.slice(
-									getPieceIndex(playerGamePieceIndex + 1),
-									getPieceIndex(playerGamePieceIndex + 4)
-								)
-								.map((piece, pieceIndex) => (
-									<PiecePreview
-										key={pieceIndex}
-										tetromino={piece}
-									/>
-								))}
-						</div> */}
-					</>
+	const flexClass = "flex flex-row content-evenly items-center gap8";
+	if (lobby) {
+		return (
+			<div className="game-container">
+				{ ((gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) || (gameMode === GameMode.SOLO && gameOver)) && (
+					<GameModal lobby={lobby} gameMode={gameMode} />
 				)}
-				{opponentsGame.map((game, index) => (
-					<BoardPreview
-						key={index}
-						board={game.board}
-						playerName={game.player.name}
-						isGameOver={game.gameOver}
-					/>
-				))}
+				<div
+					className={`game-wrapper ${
+						opponentsGames.length <= 1 ? flexClass : ""
+					}`}
+					tabIndex={0}
+					onKeyDown={handleKeyDown}
+					onKeyUp={handleKeyRelease}
+					style={{
+						outline: "none",
+						position: "relative",
+						marginLeft:
+							opponentsGames.length <= 1
+								? "0"
+								: "calc(100vw / 4)",
+					}}
+				>
+					<div
+						className={`${
+							opponentsGames.length > 1
+								? "game-player-container"
+								: ""
+						}`}
+						style={{
+							left: opponentsGames.length > 0 ? "40%" : "50%",
+						}}
+					>
+						{playerGameBoard && (
+							<>
+								<Board
+									board={playerGameBoard}
+									playerName={playerName}
+									isGameOver={gameOver}
+									nextPieces={pieces.slice(
+										getPieceIndex(playerGamePieceIndex + 1),
+										getPieceIndex(playerGamePieceIndex + 4)
+									)}
+									isOpponentBoards={false}
+									gameMode={gameMode}
+								/>
+							</>
+						)}
+					</div>
+					{opponentsGames.length > 0 && (
+						<div
+							// className="opponents-game-container flex flex-row gap16 flex-wrap"
+							className={`${
+								opponentsGames.length > 1
+									? "opponents-game-container flex flex-row gap16 flex-wrap"
+									: ""
+							}`}
+						>
+							{opponentsGames.map((game, index) => {
+								if (game) {
+									return (
+										<Board
+											key={index}
+											board={game.board}
+											playerName={game.player.name}
+											isGameOver={game.gameOver}
+											nextPieces={
+												game.currentPieceIndex
+													? pieces.slice(
+															getPieceIndex(
+																game.currentPieceIndex +
+																	1
+															),
+															getPieceIndex(
+																game.currentPieceIndex +
+																	4
+															)
+													  )
+													: []
+											}
+											isOpponentBoards={true}
+											opponentsLength={
+												opponentsGames.length
+											}
+											gameMode={gameMode}
+										/>
+									);
+								}
+							})}
+						</div>
+					)}
+				</div>
 			</div>
-		</div>
-	);
+		);
+	}
 }
