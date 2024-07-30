@@ -61,7 +61,7 @@ export class GameService {
 		this.gameSocketMap
 			.getGameFromSocket(socketId)
 			?.getPlayerGame(socketId)
-			.pushInputsInQueue(inputsPacket);
+			?.pushInputsInQueue(inputsPacket);
 	}
 
 	syncWithServer(socket: Socket, data: TickAdjustmentPacketDto) {
@@ -69,6 +69,7 @@ export class GameService {
 		const game = gameLobby?.getPlayerGame(socket.id);
 		const { tick, adjustmentIteration } = data;
 		if (
+			game &&
 			gameLobby &&
 			gameLobby.tick + 1 > tick &&
 			adjustmentIteration === game.adjustmentIteration
