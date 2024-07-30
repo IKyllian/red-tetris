@@ -11,7 +11,6 @@ import { TetriminosArray } from '../type/tetromino.interface';
 import { Scoring } from '../type/scoring.enum';
 
 jest.mock('./board');
-// jest.mock('./piece');
 jest.mock('seedrandom', () => {
 	return () => () => 0.9;
 });
