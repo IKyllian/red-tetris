@@ -10,7 +10,7 @@ import GameModal from "./game-modal";
 import "./game.css";
 import { ILobby } from "front/types/lobby.type";
 import { GameMode } from "front/types/packet.types";
-import { useGameLoop } from "front/hooks/useGameLoop";
+// import { useGameLoop } from "front/hooks/useGameLoop";
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
@@ -36,8 +36,8 @@ export default function Game() {
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
 	// const tick = useAppSelector((state) => state.game.tick);
-	// const fpsRef = useRef<number>(0);
-	const fps = useGameLoop(gameOver);
+	const fpsRef = useRef<number>(0);
+	// const fps = useGameLoop(gameOver);
 
 	const lastRenderTimeRef = useRef(null);
 	const renderCountRef = useRef<number>(0);
@@ -63,16 +63,16 @@ export default function Game() {
 		if (!lobby) navigate("/home");
 	}, [lobby])
 
-	// useEffect(() => {
-	// 	if (gameOver) {
-	// 		console.log("GAME OVER");
-	// 		return;
-	// 	}
-	// 	let cleanup = gameLoop(fpsRef, dispatch);
-	// 	return () => {
-	// 		if (cleanup) cleanup();
-	// 	};
-	// }, [gameStarted, dispatch, gameOver]);
+	useEffect(() => {
+		if (gameOver) {
+			console.log("GAME OVER");
+			return;
+		}
+		let cleanup = gameLoop(fpsRef, dispatch);
+		return () => {
+			if (cleanup) cleanup();
+		};
+	}, [gameStarted, dispatch, gameOver]);
 
 	useEffect(() => {
 		if (gameOver) {

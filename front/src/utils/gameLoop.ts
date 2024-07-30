@@ -1,7 +1,6 @@
 import { updatePlayerGame } from 'front/store/game.slice';
 
 export const gameLoop = (fpsRef: React.MutableRefObject<number>, dispatch) => {
-	// const dispatch = useAppDispatch();
 	let timer: number = 0;
 	let gameFrame: number;
 
