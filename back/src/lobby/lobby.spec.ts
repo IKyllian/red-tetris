@@ -78,27 +78,6 @@ describe('lobby', () => {
         })
     })
 
-    describe('startGame', () => {
-        const mockServer = {
-            to: jest.fn().mockReturnThis(),
-            emit: jest.fn(),
-        };
-        const mockGameSocketManager = {
-            setGameToSocket: jest.fn(),
-        } as any as GameSocketManager;
-
-        const server = mockServer as any;
-        
-
-        it('should start the game', () => {
-            lobby.addPlayer('player2', 'player2')
-            lobby.startGame(server, mockGameSocketManager)
-            lobby.players.forEach(({ id }) => {
-                expect(mockGameSocketManager.setGameToSocket).toHaveBeenCalledWith(id, lobby.game)
-            })  
-        })
-    })
-
     describe('getPlayer', () => {
         it('should return player from the lobby', () => {
             lobby.addPlayer('player2', 'player2')

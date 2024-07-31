@@ -46,7 +46,6 @@ describe('Game', () => {
 
 	it('should return next piece', () => {
 		const piecee = game['getNextPiece']();
-		console.log(piecee);
 
 		expect(piecee.type).toBe(CellType.Z);
 	});
