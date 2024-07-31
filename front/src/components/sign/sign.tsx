@@ -25,7 +25,7 @@ export default function Register() {
 	};
 
 	useEffect(() => {
-		if (player &&isSocketConnected) {
+		if (player && isSocketConnected) {
 			navigate("/home");
 		}
 	}, [player, isSocketConnected])

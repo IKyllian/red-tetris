@@ -27,7 +27,7 @@ export const gameLoop = (fpsRef: React.MutableRefObject<number>, dispatch) => {
 		dispatch(updatePlayerGame(deltaTime));
 		gameFrame = requestAnimationFrame(update);
 	};
-	requestAnimationFrame(update);
+	gameFrame = requestAnimationFrame(update);
 
 	return () => {
 		console.log('cleanup');
