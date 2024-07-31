@@ -43,7 +43,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				<p data-testid='form-error' className="error-message"> {errors.lobbyName.message} </p>
 			)}
 			<button data-testid='form-button' className="button" type="submit">
-				Create game
+				Creer lobby
 			</button>
 		</form>
 	);
@@ -72,7 +72,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				autoComplete="off"
 				className="input"
 				type="text"
-				placeholder="Game Id"
+				placeholder="Lobby Id"
 				style={{ borderColor: "#88afff" }}
 				{...register("lobbyId", { required: true })}
 			/>
@@ -80,7 +80,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				<p data-testid='form-error' className="error-message"> {errors.lobbyId.message} </p>
 			)}
 			<button data-testid='form-button' className="button" type="submit">
-				Join game
+				Rejoindre lobby
 			</button>
 		</form>
 	);

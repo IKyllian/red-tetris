@@ -42,20 +42,18 @@ export default function Header() {
 		}
 	};
 	return (
-		<div className="header-container flex flex-row items-center content-between">
-			<div className="flex flex-row items-center">
-				{TETRIS.map((letter, index) => {
-					return (
-						<span
-							data-testid="logo-letter"
-							key={index}
-							className="header-logo"
-							style={{ color: letter.color }}
-						>
-							{letter.letter}
-						</span>
-					);
-				})}
+		<div className="header-container flex flex-row items-center content-between flex-wrap">
+			<div className="flex flex-row items-center logo">
+				{TETRIS.map((letter, index) => 
+					<span
+						data-testid="logo-letter"
+						key={index}
+						className="header-logo-letter"
+						style={{ color: letter.color }}
+					>
+						{letter.letter}
+					</span>	
+				)}
 			</div>
 			<div data-testid="header-right-container" className="flex flex-row items-center gap12">
 				{lobby?.gameStarted && (
@@ -64,7 +62,7 @@ export default function Header() {
 					</button>
 				)}
 				{player && (
-					<div data-testid="player-name" className="flex flex-row items-center gap16">
+					<div data-testid="player-name" className="flex flex-row items-center gap16 player-name-container">
 						<FaUser />
 						<span className="player-name"> {player.name} </span>
 					</div>

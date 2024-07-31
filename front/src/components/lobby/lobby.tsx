@@ -11,11 +11,6 @@ export default function Lobby() {
 	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	// const lobbyOwner =
-	// 	lobby && !lobby.id
-	// 		? true
-	// 		: lobby?.players.find((player) => player.isLeader)?.id ===
-	// 		  playerConnected.id;
 	const lobbyOwner = lobby?.players.find((player) => player.isLeader)?.id === playerConnected.id;
 	const navigate = useNavigate();
 	
@@ -46,7 +41,7 @@ export default function Lobby() {
 				<div className="flex flex-row">
 					<div className="player-list-container flex flex-col gap16">
 						<div className="flex flex-col gap16">
-							<span className="player-list-title"> Players </span>
+							<span className="player-list-title"> Joueurs </span>
 							<div className="player-list flex flex-col gap8">
 								{lobby?.players?.map((player, index) => (
 									<div
@@ -68,7 +63,7 @@ export default function Lobby() {
 									type="button"
 									onClick={handleClick}
 								>
-									Start Game
+									Lancer partie
 								</button>
 							)}
 							<button
@@ -77,7 +72,7 @@ export default function Lobby() {
 								type="button"
 								onClick={handleLeave}
 							>
-								Leave lobby
+								Quitter lobby
 							</button>
 						</div>
 					</div>

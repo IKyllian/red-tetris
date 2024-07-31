@@ -130,6 +130,11 @@
     border-radius: 5px;
 }
 
+.playerName {
+    text-align: center;
+    font-size: 30px;
+}
+
 .score-container  {
     margin-bottom: 20px;
     margin-right: 10px;
@@ -176,4 +181,16 @@
 
 .tetromino_spec {
     background-color: grey;
+}
+
+
+
+@media screen and (max-width: 650px) {
+    .score-container > span {
+        font-size: 18px;
+    }
+
+    .playerName {
+        font-size: 18px;
+    }
 }

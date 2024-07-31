@@ -17,25 +17,12 @@ export default function LobbyList() {
 	const dispatch = useAppDispatch();
 	useEffect(() => {
 		if (refresh) {
-			// fetch("http://localhost:3000/lobby", { method: "GET" })
-			// 	.then((response) => {
-			// 		if (!response.ok) {
-			// 			throw new Error(
-			// 				`HTTP error! Status: ${response.status}`
-			// 			);
-			// 		}
-			// 		return response.json();
-			// 	})
-			// 	.then((data) => setLobbies(data))
-			// 	.catch((error) => console.error(error))
-			// 	.finally(() => setRefresh(false));
-
-				const fetchData = async () => {
-					const data = await getLobbyList();
-					setLobbies(data);
-					setRefresh(false);
-				}
-				fetchData()
+			const fetchData = async () => {
+				const data = await getLobbyList();
+				setLobbies(data);
+				setRefresh(false);
+			}
+			fetchData()
 		}
 	}, [refresh]);
 
@@ -57,7 +44,7 @@ export default function LobbyList() {
 	return (
 		<div className="page-wrapper flex flex-col content-center items-center gap16">
 			<div className="flex flex-row items-center gap16">
-				<h2>Lobby List</h2>
+				<h2>Liste de lobby</h2>
 				<IoMdRefresh
 					onClick={() => setRefresh(true)}
 					style={{
