@@ -36,9 +36,9 @@ export default function Header() {
 	const dispatch = useAppDispatch();
 	const handleLeave = () => {
 		if (lobby) {
-			dispatch(leaveLobby(lobby.id));
 			dispatch(leaveGame());
 			dispatch(resetGame());
+			dispatch(leaveLobby(lobby.id));
 		}
 	};
 	return (

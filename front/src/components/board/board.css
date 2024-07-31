@@ -1,9 +1,5 @@
 .board {
     display: grid;
-    /* gap: 2px; */
-    /* border: 5px solid var(--main-color); */
-    /* width: 450px;
-    height: 800px; */
     position: relative;
 }
 
@@ -20,9 +16,6 @@
 .board-piece-preview {
     display: grid;
     gap: 2px;
-    /* border: 1px solid red; */
-    /* width: 450px;
-    height: 800px; */
     position: relative;
 }
 
@@ -55,7 +48,6 @@
 .board-box-container {
     display: flex;
     flex-direction: column;
-    /* border: 8px solid black; */
 }
 
 .box-title {
@@ -71,15 +63,12 @@
     border: 1px solid purple;
     border: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
-    /* border-radius: 5px; */
     padding: 2px;
 }
 
 .cell-piece-preview {
     position: relative;
-    /* border-radius: 5px; */
     padding: 2px;
-    /* border: 1px solid rgba(255, 255, 255, 0.05); */
 }
 
 .cell-preview {
@@ -91,18 +80,13 @@
     opacity: 0.2;
 }
 
-.countdown-container > span {
+.countdown-container {
     position: absolute;
-    top: 0;
-    left: -200px;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transform: translate(-50%, -50%);
+    top: 50%;
     font-size: 70px;
     font-weight: bolder;
+    width: 100px;
     z-index: 4;
 }
 
@@ -113,7 +97,6 @@
     left: 0;
     right: 0;
     margin: auto;
-    /* border-radius: 5px; */
     border-top: 4.5px solid rgba(255, 255, 255, 0.811);
     border-left: 4.5px solid #80808066;
     border-bottom: 4.5px solid #616161f4;
@@ -192,5 +175,9 @@
 
     .playerName {
         font-size: 18px;
+    }
+
+    .countdown-container > span {
+        font-size: 40px;
     }
 }

@@ -32,7 +32,7 @@ import {
 	leaveGame,
 	gameOver,
 } from './game.slice';
-import { Socket, io } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 export enum SocketEvent {
 	Connect = 'connect',

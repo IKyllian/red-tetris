@@ -70,17 +70,15 @@ const Board = ({
 	return (
 		<div className="inline-flex" style={{ position: "relative" }} autoFocus={true}>
 			{
-				!isOpponentBoards && count > -1 && 
-				<div data-testid="countdown" className="countdown-container">
-					<span> {count > 0 ? count : "GO"} </span>
-				</div>
+				!isOpponentBoards && count > -1 &&
+				<span className="countdown-container" style={{right: isSolo ? '' : '50%', left: isSolo ? '48%': ''}}> {count > 0 ? count : "GO"} </span>
 			}
-			{
+			{	
 				isSolo &&
 				<div data-testid="score-container" className="score-container flex gap16">
 					<span> Score: {score} </span>
 					<span> Level: {level} </span>
-				</div>
+				</div>		
 			}
 			<div className="flex flex-col">
 				<div

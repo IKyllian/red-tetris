@@ -11,6 +11,7 @@ import {
 import { generatePieces } from 'front/utils/piece-generation.utils'
 import { GameMode } from 'front/types/packet.types';
 import { current } from 'immer';
+import { handleInput } from './handle-inputs.utils';
 
 export const PIECES_BUFFER_SIZE = 100;
 export const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
@@ -153,7 +154,7 @@ export function softDrop(state: IGameState) {
 		default:
 			if (
 				state.tickToMoveDown >=
-				getFramesPerGridCell(state.playerGame.level)
+				getFramesPerGridCell(state?.playerGame?.level)
 			) {
 				moveDown(state, true);
 			} else {
