@@ -1,7 +1,7 @@
 import { LeaderboardService } from "../leaderboard/leaderboard.service";
 import { Player } from "./player";
 import { BattleRoyal } from "./battleRoyal";
-import { Lobby } from "..//lobby/lobby";
+import { Lobby } from "../lobby/lobby";
 import { Server } from 'socket.io';
 import { SocketEvent } from '../type/event.enum';
 import { GameMode } from '../type/game.type';
