@@ -2,15 +2,12 @@ import { IGameState } from 'front/store/game.slice';
 import { IGame } from 'front/types/board.types';
 import { cloneDeep, isEqual } from 'lodash';
 import { compareCells, getFramesPerGridCell } from './board.utils';
-import { moveDown } from 'front/utils/piece-move.utils'
-import {
-	getShape,
-	setDropPreview,
-	transferPieceToBoard,
-} from './piece.utils';
-import { generatePieces } from 'front/utils/piece-generation.utils'
+import { moveDown } from 'front/utils/piece-move.utils';
+import { getShape, setDropPreview, transferPieceToBoard } from './piece.utils';
+import { generatePieces } from 'front/utils/piece-generation.utils';
 import { GameMode } from 'front/types/packet.types';
 import { current } from 'immer';
+import { handleInput } from './handle-inputs.utils';
 
 export const PIECES_BUFFER_SIZE = 100;
 export const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
