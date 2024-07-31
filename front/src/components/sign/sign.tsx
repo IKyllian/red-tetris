@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "front/store/hook";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { sign } from "front/store/player.slice";
 import { useNavigate } from "react-router-dom";
 import "./sign.css";
+import { useEffect } from "react";
 
 interface FormValues {
 	name: string;
@@ -16,11 +17,18 @@ export default function Register() {
 	} = useForm<FormValues>();
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+	const { isSocketConnected } = useAppSelector(state => state.socket)
+	const player = useAppSelector(state => state.player)
 
 	const onSubmit = (data: FormValues): void => {
 		dispatch(sign(data.name));
-		navigate("/home");
 	};
+
+	useEffect(() => {
+		if (player &&isSocketConnected) {
+			navigate("/home");
+		}
+	}, [player, isSocketConnected])
 
 	return (
 		<div className="form-container flex flex-col content-center items-center">

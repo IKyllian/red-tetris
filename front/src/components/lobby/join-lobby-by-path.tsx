@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch } from "front/store/hook";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { sign } from "front/store/player.slice";
 import { useEffect } from "react";
 import { joinLobby } from "front/store/lobby.slice";
@@ -8,24 +8,26 @@ export default function JoinLobbyByPath() {
 	const params = useParams();
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+	const { isSocketConnected } = useAppSelector(state => state.socket)
 	console.log("Params = ", params);
 
 	useEffect(() => {
 		const { lobbyId, playerName } = params;
-		console.log("join by path: ", lobbyId, playerName);
-		if (lobbyId && playerName) {
-			dispatch(sign(playerName));
-			dispatch(
-				joinLobby({
-					lobbyId,
-					playerName,
-				})
-			);
-			navigate("/lobby");
-		} else {
-			navigate('/sign')
+		if (isSocketConnected) {
+			if (isSocketConnected && lobbyId && playerName) {
+				dispatch(sign(playerName));
+				dispatch(
+					joinLobby({
+						lobbyId,
+						playerName,
+					})
+				);
+				navigate("/lobby");
+			} else {
+				navigate('/')
+			}
 		}
-	}, []);
+	}, [isSocketConnected]);
 
 	return <> </>;
 }
