@@ -9,13 +9,13 @@ export class LobbyService {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
 	private lobbys: Map<string, Lobby> = new Map();
 
-	public createLobby(socket: Socket, playerName: string, lobbyName: string) {
+	public createLobby(socket: Socket, playerName: string, lobbyName: string, lobbyId?: string) {
 		if (lobbyName.length === 0) {
 			lobbyName = 'Lobby';
 		} else if (lobbyName.length > 20) {
 			lobbyName = lobbyName.substring(0, 20);
 		}
-		const lobby = new Lobby(lobbyName, playerName, socket.id);
+		const lobby = new Lobby(lobbyName, playerName, socket.id, lobbyId);
 		this.lobbys.set(lobby.id, lobby);
 		socket.join(lobby.id);
 		this.socketRoomMap.set(socket.id, lobby.id);
@@ -26,9 +26,13 @@ export class LobbyService {
 		socket: Socket,
 		playerName: string,
 		lobbyId: string,
+		createLobbyIfNotExists: boolean = false,
 		server: Server
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
+		if (!lobby && createLobbyIfNotExists) {
+			this.createLobby(socket, playerName, `Lobby de ${playerName}`, lobbyId)
+		}
 		if (
 			lobby &&
 			lobby.gameStarted === false &&

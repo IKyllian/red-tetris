@@ -5,28 +5,30 @@ import { useEffect } from "react";
 import { joinLobby } from "front/store/lobby.slice";
 
 export default function JoinLobbyByPath() {
-	const params = useParams();
+	const { lobbyId, playerName } = useParams();
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { isSocketConnected } = useAppSelector(state => state.socket)
+	const lobby = useAppSelector(state => state.lobby)
 
 	useEffect(() => {
-		const { lobbyId, playerName } = params;
 		if (isSocketConnected) {
-			if (isSocketConnected && lobbyId && playerName) {
+			if (lobby) {
+				navigate("/lobby");
+			} else if (lobbyId && playerName) {
 				dispatch(sign(playerName));
 				dispatch(
 					joinLobby({
 						lobbyId,
 						playerName,
+						createLobbyIfNotExists: true
 					})
 				);
-				navigate("/lobby");
 			} else {
 				navigate('/')
 			}
 		}
-	}, [isSocketConnected]);
+	}, [isSocketConnected, lobby]);
 
 	return <> </>;
 }
