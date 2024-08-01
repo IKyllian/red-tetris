@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LobbyController } from './lobby.controller';
-import { ILobby } from '../type/lobby.interface';
-import { LobbyService } from './lobby.service';
+import { LobbyController } from '../../lobby/lobby.controller';
+import { LobbyService } from '../../lobby/lobby.service';
+import { ILobby } from '../../type/lobby.interface';
 
 describe('LobbyController', () => {
 	let controller: LobbyController;
@@ -25,10 +25,6 @@ describe('LobbyController', () => {
 		controller = module.get<LobbyController>(LobbyController);
 		service = module.get<LobbyService>(LobbyService);
 	});
-
-	// afterEach(() => {
-	// 	jest.clearAllMocks();
-	// });
 
 	it('should be defined', () => {
 		expect(controller).toBeDefined();
