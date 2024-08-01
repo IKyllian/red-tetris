@@ -38,41 +38,33 @@ describe('join lobby by path', () => {
         vi.clearAllMocks();
     });
 
-    it('should join a lobby', () => {
+    it('should send event to join or create lobby', () => {
         const mockParams = {
             lobbyId: 'qwea',
-            playerName: 'Joe'
+            playerName: 'Joe',
         };
         (useParams as Mock).mockReturnValue(mockParams);
 
         render(<JoinLobbyByPath />)
         expect(mockDispatch).toHaveBeenCalledWith(sign(mockParams.playerName));
-        expect(mockDispatch).toHaveBeenCalledWith(joinLobby({lobbyId: mockParams.lobbyId, playerName: mockParams.playerName}));
+        expect(mockDispatch).toHaveBeenCalledWith(joinLobby({lobbyId: mockParams.lobbyId, playerName: mockParams.playerName, createLobbyIfNotExists: true}));
+    })
+    it('should join the lobby', () => {
+        const mockState = {
+            player: {
+                name: 'Joe',
+                id: 'qwe'
+            },
+            socket: {
+                isSocketConnected: true
+            },
+            lobby: {
+                id: 'test'
+            }
+        };
+        (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
+        render(<JoinLobbyByPath />)
         expect(mockNavigate).toHaveBeenCalledWith('/lobby');
-    })
-    it('should redirect to / because no lobbyId', () => {
-        const mockParams = {
-            playerName: 'Joe'
-        };
-        (useParams as Mock).mockReturnValue(mockParams);
-
-        render(<JoinLobbyByPath />)
-        expect(mockNavigate).toHaveBeenCalledWith('/');
-    })
-    it('should redirect to / because no playerName', () => {
-        const mockParams = {
-            lobbyId: 'qwea'
-        };
-        (useParams as Mock).mockReturnValue(mockParams);
-
-        render(<JoinLobbyByPath />)
-        expect(mockNavigate).toHaveBeenCalledWith('/');
-    })
-    it('should redirect to / because no params', () => {
-        (useParams as Mock).mockReturnValue({});
-
-        render(<JoinLobbyByPath />)
-        expect(mockNavigate).toHaveBeenCalledWith('/');
     })
 
     it('should not join a lobby because socket not conected', () => {
@@ -88,21 +80,5 @@ describe('join lobby by path', () => {
         (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
         render(<JoinLobbyByPath />)
         expect(mockDispatch).not.toHaveBeenCalled();
-    })
-
-    it('should not redirect to / because socket not connected', () => {
-        const mockState = {
-            player: {
-                name: 'Joe',
-                id: 'qwe'
-            },
-            socket: {
-                isSocketConnected: false
-            }
-        };
-        (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
-        (useParams as Mock).mockReturnValue({});
-        render(<JoinLobbyByPath />)
-        expect(mockNavigate).not.toHaveBeenCalled();
     })
 })

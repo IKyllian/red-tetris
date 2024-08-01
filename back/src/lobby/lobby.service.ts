@@ -26,8 +26,8 @@ export class LobbyService {
 		socket: Socket,
 		playerName: string,
 		lobbyId: string,
-		createLobbyIfNotExists: boolean = false,
-		server: Server
+		server: Server,
+		createLobbyIfNotExists: boolean = false
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
 		if (!lobby && createLobbyIfNotExists) {

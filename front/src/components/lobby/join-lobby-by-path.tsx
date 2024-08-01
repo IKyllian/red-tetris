@@ -12,10 +12,10 @@ export default function JoinLobbyByPath() {
 	const lobby = useAppSelector(state => state.lobby)
 
 	useEffect(() => {
-		if (isSocketConnected) {
+		if (isSocketConnected && lobbyId && playerName) {
 			if (lobby) {
 				navigate("/lobby");
-			} else if (lobbyId && playerName) {
+			} else {
 				dispatch(sign(playerName));
 				dispatch(
 					joinLobby({
@@ -24,8 +24,6 @@ export default function JoinLobbyByPath() {
 						createLobbyIfNotExists: true
 					})
 				);
-			} else {
-				navigate('/')
 			}
 		}
 	}, [isSocketConnected, lobby]);
