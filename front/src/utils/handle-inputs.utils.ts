@@ -8,7 +8,6 @@ import { Commands } from 'front/types/command.types';
 import { rotate, moveDown, changeStatePiecePosition, hardDrop } from 'front/utils/piece-move.utils'
 
 export function handleInput(input: Commands, state: IGameState): void {
-	// console.log('GOOD STATE = ', current(state));
 	switch (input) {
 		case Commands.ROTATE:
 			rotate(state);

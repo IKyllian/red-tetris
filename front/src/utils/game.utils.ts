@@ -33,56 +33,56 @@ export function handleServerReconciliation(state: IGameState) {
 				serverGameState.piece
 			)
 		) {
-			if (
-				!compareCells(
-					state.clientStateBuffer[index].game.board.cells,
-					serverGameState.board.cells,
-					state.clientStateBuffer[index].game.piece
-				)
-			) {
-				console.log('board different');
-			}
-			if (serverGameState.gameOver) {
-				console.log('game over from server update');
-			}
-			if (
-				!isEqual(
-					state.clientStateBuffer[index].game.piece,
-					serverGameState.piece
-				)
-			) {
-				console.log('piece different');
-			}
-			console.log(
-				'-----------------------------------------------------'
-			);
-			const clientState = { ...state.clientStateBuffer[index].game };
-			const clientTick = state.clientStateBuffer[index].tick;
-			clientState.piece = { ...clientState.piece };
-			clientState.piece.position = { ...clientState.piece.position };
-			clientState.board = { ...clientState.board };
-			clientState.board.cells = clientState.board.cells.map((row) =>
-				row.map((cell) => ({ ...cell }))
-			);
-			const serverState = { ...serverGameState };
-			serverState.piece = { ...serverState.piece };
-			serverState.piece.position = { ...serverState.piece.position };
-			serverState.board = { ...serverState.board };
-			serverState.board.cells = serverState.board.cells.map((row) =>
-				row.map((cell) => ({ ...cell }))
-			);
-			console.log(
-				'client tick: ',
-				clientTick,
-				'clientState',
-				clientState
-			);
-			console.log(
-				'server tick: ',
-				state.lastServerState.tick,
-				'serverGameState',
-				serverState
-			);
+			// if (
+			// 	!compareCells(
+			// 		state.clientStateBuffer[index].game.board.cells,
+			// 		serverGameState.board.cells,
+			// 		state.clientStateBuffer[index].game.piece
+			// 	)
+			// ) {
+			// 	console.log('board different');
+			// }
+			// if (serverGameState.gameOver) {
+			// 	console.log('game over from server update');
+			// }
+			// if (
+			// 	!isEqual(
+			// 		state.clientStateBuffer[index].game.piece,
+			// 		serverGameState.piece
+			// 	)
+			// ) {
+			// 	console.log('piece different');
+			// }
+			// console.log(
+			// 	'-----------------------------------------------------'
+			// );
+			// const clientState = { ...state.clientStateBuffer[index].game };
+			// const clientTick = state.clientStateBuffer[index].tick;
+			// clientState.piece = { ...clientState.piece };
+			// clientState.piece.position = { ...clientState.piece.position };
+			// clientState.board = { ...clientState.board };
+			// clientState.board.cells = clientState.board.cells.map((row) =>
+			// 	row.map((cell) => ({ ...cell }))
+			// );
+			// const serverState = { ...serverGameState };
+			// serverState.piece = { ...serverState.piece };
+			// serverState.piece.position = { ...serverState.piece.position };
+			// serverState.board = { ...serverState.board };
+			// serverState.board.cells = serverState.board.cells.map((row) =>
+			// 	row.map((cell) => ({ ...cell }))
+			// );
+			// console.log(
+			// 	'client tick: ',
+			// 	clientTick,
+			// 	'clientState',
+			// 	clientState
+			// );
+			// console.log(
+			// 	'server tick: ',
+			// 	state.lastServerState.tick,
+			// 	'serverGameState',
+			// 	serverState
+			// );
 
 			// state.clientStateBuffer[index] = { ...serverGameState };
 			state.clientStateBuffer[index] = {

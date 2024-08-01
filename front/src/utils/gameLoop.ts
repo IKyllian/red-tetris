@@ -16,7 +16,6 @@ export const gameLoop = (dispatch) => {
 	gameFrame = requestAnimationFrame(update);
 
 	return () => {
-		console.log('cleanup');
 		cancelAnimationFrame(gameFrame);
 	};
 };

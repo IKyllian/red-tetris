@@ -9,7 +9,6 @@ export default function JoinLobbyByPath() {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { isSocketConnected } = useAppSelector(state => state.socket)
-	console.log("Params = ", params);
 
 	useEffect(() => {
 		const { lobbyId, playerName } = params;
