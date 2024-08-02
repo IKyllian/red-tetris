@@ -91,7 +91,7 @@ describe('LobbyService', () => {
 			);
 		});
 
-		it('should not allow a player to join a non-existent lobby', () => {
+		it('should not allow a player to join a non-existent lobby if createLobbyIfNotExists is false', () => {
 			const newSocket = {
 				...mockSocket,
 				id: 'newSocketId',
@@ -106,6 +106,30 @@ describe('LobbyService', () => {
 
 			expect(newSocket.join).not.toHaveBeenCalled();
 			expect(service.getLobby(newSocket.id)).toBeUndefined();
+		});
+
+		it('should allow a player to create a non-existent lobby if createLobbyIfNotExists is true', () => {
+			const newSocket = {
+				...mockSocket,
+				id: 'newSocketId',
+			} as unknown as Socket;
+
+			const lobbyId = 'nonExistentLobbyId'
+			service.joinLobby(
+				newSocket,
+				'Player2',
+				lobbyId,
+				server,
+				true
+			);
+
+
+			expect(service.getLobby(newSocket.id)).toBeDefined();
+			expect(newSocket.join).toHaveBeenCalledWith(lobbyId);
+			expect(socket.emit).toHaveBeenCalledWith(
+				SocketEvent.UpdateLobby,
+				expect.any(Object)
+			);
 		});
 
 		it('should not allow a player to join a full lobby', () => {
