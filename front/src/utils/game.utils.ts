@@ -6,7 +6,6 @@ import { moveDown } from 'front/utils/piece-move.utils';
 import { getShape, setDropPreview, transferPieceToBoard } from './piece.utils';
 import { generatePieces } from 'front/utils/piece-generation.utils';
 import { GameMode } from 'front/types/packet.types';
-import { current } from 'immer';
 import { handleInput } from './handle-inputs.utils';
 
 export const PIECES_BUFFER_SIZE = 100;
@@ -15,7 +14,6 @@ export const BUFFER_SIZE = 1024;
 
 export function handleServerReconciliation(state: IGameState) {
 	const index = state.lastServerState.tick % BUFFER_SIZE;
-	//TODO check if server tick too late, with buffer size
 	if (
 		state.clientStateBuffer[index] &&
 		state.clientStateBuffer[index].tick === state.lastServerState.tick
@@ -33,63 +31,11 @@ export function handleServerReconciliation(state: IGameState) {
 				serverGameState.piece
 			)
 		) {
-			// if (
-			// 	!compareCells(
-			// 		state.clientStateBuffer[index].game.board.cells,
-			// 		serverGameState.board.cells,
-			// 		state.clientStateBuffer[index].game.piece
-			// 	)
-			// ) {
-			// 	console.log('board different');
-			// }
-			// if (serverGameState.gameOver) {
-			// 	console.log('game over from server update');
-			// }
-			// if (
-			// 	!isEqual(
-			// 		state.clientStateBuffer[index].game.piece,
-			// 		serverGameState.piece
-			// 	)
-			// ) {
-			// 	console.log('piece different');
-			// }
-			// console.log(
-			// 	'-----------------------------------------------------'
-			// );
-			// const clientState = { ...state.clientStateBuffer[index].game };
-			// const clientTick = state.clientStateBuffer[index].tick;
-			// clientState.piece = { ...clientState.piece };
-			// clientState.piece.position = { ...clientState.piece.position };
-			// clientState.board = { ...clientState.board };
-			// clientState.board.cells = clientState.board.cells.map((row) =>
-			// 	row.map((cell) => ({ ...cell }))
-			// );
-			// const serverState = { ...serverGameState };
-			// serverState.piece = { ...serverState.piece };
-			// serverState.piece.position = { ...serverState.piece.position };
-			// serverState.board = { ...serverState.board };
-			// serverState.board.cells = serverState.board.cells.map((row) =>
-			// 	row.map((cell) => ({ ...cell }))
-			// );
-			// console.log(
-			// 	'client tick: ',
-			// 	clientTick,
-			// 	'clientState',
-			// 	clientState
-			// );
-			// console.log(
-			// 	'server tick: ',
-			// 	state.lastServerState.tick,
-			// 	'serverGameState',
-			// 	serverState
-			// );
-
 			// state.clientStateBuffer[index] = { ...serverGameState };
 			state.clientStateBuffer[index] = {
 				tick: state.lastServerState.tick,
 				game: cloneDeep(serverGameState),
 			};
-			// console.log(current(state.))
 			state.tickToMoveDown = serverGameState.tickToMoveDown;
 			let tickToProcess = state.lastServerState.tick + 1;
 			const pieceDiff =

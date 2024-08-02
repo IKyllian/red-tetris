@@ -23,19 +23,6 @@ export class Board {
 		return builtRows;
 	};
 
-	// public clearOldPosition(tetromino: Piece, shape: number[][]) {
-	// 	shape.forEach((row: number[], y: number) => {
-	// 		if (tetromino.position.y + y < 0) return;
-	// 		row.forEach((cell: number, x: number) => {
-	// 			if (cell) {
-	// 				const _x = x + tetromino.position.x;
-	// 				const _y = y + tetromino.position.y;
-	// 				this.cells[_y][_x] = { ...defaultCell };
-	// 			}
-	// 		});
-	// 	});
-	// }
-
 	public transferPieceToBoard(
 		tetromino: Piece,
 		shape: number[][],
@@ -46,7 +33,6 @@ export class Board {
 			row.forEach((cell: number, x: number) => {
 				if (cell) {
 					// cell is 0 or 1
-					// console.log("X = ", x, " - Position X = ", position.x," - Y = ", y, " Position Y = ", position.y);
 					const _x = x + tetromino.position.x;
 					const _y = y + tetromino.position.y;
 					if (this.cells[_y][_x].occupied) {

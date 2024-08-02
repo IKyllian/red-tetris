@@ -2,8 +2,7 @@ import { SocketEvent } from '../type/event.enum';
 import { Socket, Server } from 'socket.io';
 import { ILobby } from '../type/lobby.interface';
 import { Lobby } from './lobby';
-import { Injectable } from '@nestjs/common';
-
+import { BadRequestException, Injectable } from '@nestjs/common';
 @Injectable()
 export class LobbyService {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
@@ -32,8 +31,7 @@ export class LobbyService {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
 		if (!lobby && createLobbyIfNotExists) {
 			this.createLobby(socket, playerName, `Lobby de ${playerName}`, lobbyId)
-		}
-		if (
+		} else if (
 			lobby &&
 			lobby.gameStarted === false &&
 			lobby.players.length < lobby.maxPlayers
@@ -42,6 +40,9 @@ export class LobbyService {
 			this.socketRoomMap.set(socket.id, lobby.id);
 			socket.join(lobby.id);
 			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
+		} else {
+			throw new BadRequestException("Unable to join lobby")
+			// throw new WsException('Unable to join lobby.');
 		}
 	}
 

@@ -74,6 +74,10 @@ const socketMiddleware: Middleware = (store) => {
 					console.error(message);
 				});
 
+				// socket.on("exception", (data: {message: string, status: string}) => {
+				// 	console.error(data.message);
+				// });
+
 				// Handle disconnect event
 				socket.on(SocketEvent.Disconnect, (reason) => {
 					console.error(reason);

@@ -34,26 +34,6 @@ export default function Game() {
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
 
-	// const lastRenderTimeRef = useRef(null);
-	// const renderCountRef = useRef<number>(0);
-	// const renderArrayRef = useRef<number[]>([]);
-	// const renderAverage = useRef<number>(0);
-
-	// const now = performance.now();
-	// if (!lastRenderTimeRef.current) {
-	// 	lastRenderTimeRef.current = now;
-	// }
-	// const elapsed = now - lastRenderTimeRef.current;
-	// if (elapsed >= 1000) {
-	// 	lastRenderTimeRef.current = now;
-	// 	renderArrayRef.current.push(renderCountRef.current);
-	// 	const sum = renderArrayRef.current.reduce((a, b) => a + b, 0);
-	// 	renderAverage.current = sum / renderArrayRef.current.length;
-	// 	renderCountRef.current = 0;
-	// } else {
-	// 	renderCountRef.current++;
-	// }
-
 	useEffect(() => {
 		if (!lobby) navigate("/home");
 	}, [lobby]);

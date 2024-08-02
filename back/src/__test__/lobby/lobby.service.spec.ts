@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SocketEvent } from '../type/event.enum';
 import { Socket, Server } from 'socket.io';
-import { LobbyService } from './lobby.service';
+import { LobbyService } from '../../lobby/lobby.service';
+import { SocketEvent } from '../../type/event.enum';
 
 describe('LobbyService', () => {
 	let service: LobbyService;

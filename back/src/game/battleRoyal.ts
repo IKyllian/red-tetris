@@ -161,7 +161,6 @@ export class BattleRoyal {
 				return;
 			}
 			if (this.tick && this.tick % 1800 === 0) {
-				console.log('Gravity increased at tick: ', this.tick);
 				this.gravity += 0.005;
 			}
 			this.timer -= MIN_TIME_BETWEEN_TICKS;

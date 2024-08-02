@@ -1,17 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Gateway } from './gateway';
-import { LobbyService } from '../lobby/lobby.service';
-import { GameService } from '../game/game.service';
-import { GatewayService } from './gateway.service';
 import { Socket, Server } from 'socket.io';
-import { SocketEvent } from '../type/event.enum';
+import { GameService } from '../../game/game.service';
+import { Gateway } from '../../gateway/gateway';
+import { GatewayService } from '../../gateway/gateway.service';
+import { LobbyService } from '../../lobby/lobby.service';
 import {
 	CreateLobbyDto,
 	JoinLobbyDto,
 	StartGameDto,
 	InputsPacketDto,
 	TickAdjustmentPacketDto,
-} from '../utils/dto/gateway.dto';
+} from '../../utils/dto/gateway.dto';
 
 describe('Gateway', () => {
 	let gateway: Gateway;
@@ -117,6 +116,7 @@ describe('Gateway', () => {
 			const data: JoinLobbyDto = {
 				playerName: 'Player1',
 				lobbyId: 'lobbyId',
+				createLobbyIfNotExists: false
 			};
 
 			gateway.joinLobby(socket, data);
@@ -127,7 +127,8 @@ describe('Gateway', () => {
 				socket,
 				data.playerName,
 				data.lobbyId,
-				server
+				server,
+				data.createLobbyIfNotExists
 			);
 		});
 	});

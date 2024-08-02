@@ -62,6 +62,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 			joinLobby({
 				lobbyId: data.lobbyId,
 				playerName: playerName,
+				createLobbyIfNotExists: false
 			})
 		);
 	};

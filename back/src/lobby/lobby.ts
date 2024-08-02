@@ -9,7 +9,7 @@ export class Lobby {
 	public gameStarted: boolean = false;
 	public players: Player[] = [];
 	public game: BattleRoyal;
-	public readonly maxPlayers = 10;
+	public readonly maxPlayers = 1;
 
 	constructor(name: string, playerName: string, playerId: string, lobbyId?: string) {
 		this.name = name;

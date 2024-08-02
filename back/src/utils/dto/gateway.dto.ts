@@ -1,5 +1,6 @@
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Commands } from '../../type/command.types';
+import { Optional } from '@nestjs/common';
 
 export class CreateLobbyDto {
 	@IsString()
