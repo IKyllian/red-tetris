@@ -139,7 +139,6 @@ export const gameSlice = createSlice({
 			if (state.gameMode === GameMode.BATTLEROYAL) {
 				state.opponentsGames = action.payload.opponentsGames;
 			}
-			//TODO not store seed?
 			state.seed = action.payload.seed;
 			state.rng = seedrandom(state.seed);
 			generatePieces(state, 4);
@@ -192,9 +191,11 @@ export const gameSlice = createSlice({
 				const index = state.opponentsGames.findIndex(
 					(g) => g.player.id === gamePacket.state.player.id
 				);
+				if (index === -1) {
+					continue;
+				}
 
 				if (
-					index !== -1 &&
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
@@ -235,17 +236,6 @@ export const gameSlice = createSlice({
 				state.adjustmentIteration = state.serverAdjustmentIteration;
 				state.inputQueue.length = 0;
 				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
-
-				console.log('adjusting tick: ', state.tickAdjustment);
-				// const tickToCatchUp = state.tick + state.tickAdjustment;
-				// while (state.tick < tickToCatchUp) {
-				// 	softDrop(state);
-				// 	state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
-				// 		tick: state.tick,
-				// 		game: cloneDeep(state.playerGame),
-				// 	};
-				// 	state.tick++;
-				// }
 			}
 
 			// server reconciliation
@@ -275,7 +265,7 @@ export const gameSlice = createSlice({
 			} else if (state.countdown !== -1) {
 				state.countdown = -1;
 			}
-			//------------------------------------------------------------------
+			// update state
 			while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
 				for (let i = 0; i < state.indestructibleQueue.length; i++) {
 					const indestructible = state.indestructibleQueue[i];
@@ -318,7 +308,6 @@ export const gameSlice = createSlice({
 				}
 
 				state.tick++;
-				// console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},
@@ -332,7 +321,6 @@ export const gameSlice = createSlice({
 			state,
 			action: { payload: ITickAdjustmentPacket }
 		) {
-			console.log('tick adjustement: ', action.payload.tickAdjustment);
 			if (
 				state.adjustmentIteration != action.payload.adjustmentIteration
 			) {
