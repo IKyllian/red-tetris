@@ -53,7 +53,7 @@ export enum SocketEvent {
 	IndestructibleLine = 'indestructible-line',
 	SyncWithServer = 'sync',
 	// On events
-	Error = 'error',
+	Exception = 'exception',
 	SetName = 'set-name',
 }
 
@@ -70,13 +70,12 @@ const socketMiddleware: Middleware = (store) => {
 				});
 
 				// handle all Error events
-				socket.on(SocketEvent.Error, (message) => {
-					console.error(message);
-				});
-
-				// socket.on("exception", (data: {message: string, status: string}) => {
-				// 	console.error(data.message);
-				// });
+				socket.on(
+					SocketEvent.Exception,
+					(data: { message: string; statusCode: number }) => {
+						console.error(data.message, data.statusCode);
+					}
+				);
 
 				// Handle disconnect event
 				socket.on(SocketEvent.Disconnect, (reason) => {

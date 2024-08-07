@@ -8,7 +8,12 @@ export class LobbyService {
 	private socketRoomMap: Map<string, string> = new Map(); // Map<socketId, roomName>
 	private lobbys: Map<string, Lobby> = new Map();
 
-	public createLobby(socket: Socket, playerName: string, lobbyName: string, lobbyId?: string) {
+	public createLobby(
+		socket: Socket,
+		playerName: string,
+		lobbyName: string,
+		lobbyId?: string
+	) {
 		if (lobbyName.length === 0) {
 			lobbyName = 'Lobby';
 		} else if (lobbyName.length > 20) {
@@ -30,7 +35,12 @@ export class LobbyService {
 	) {
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
 		if (!lobby && createLobbyIfNotExists) {
-			this.createLobby(socket, playerName, `Lobby de ${playerName}`, lobbyId)
+			this.createLobby(
+				socket,
+				playerName,
+				`Lobby de ${playerName}`,
+				lobbyId
+			);
 		} else if (
 			lobby &&
 			lobby.gameStarted === false &&
@@ -41,8 +51,7 @@ export class LobbyService {
 			socket.join(lobby.id);
 			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
 		} else {
-			throw new BadRequestException("Unable to join lobby")
-			// throw new WsException('Unable to join lobby.');
+			throw new BadRequestException('Unable to join lobby');
 		}
 	}
 
