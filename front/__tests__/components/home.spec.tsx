@@ -107,7 +107,8 @@ describe('Home', () => {
 
             expect(mockDispatch).toHaveBeenCalledWith(joinLobby({
                 playerName: mockState.player.name,
-                lobbyId
+                lobbyId,
+				createLobbyIfNotExists: false
             }))
         })
 

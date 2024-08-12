@@ -37,6 +37,7 @@ export default function LobbyList() {
 			joinLobby({
 				lobbyId,
 				playerName,
+				createLobbyIfNotExists: false
 			})
 		);
 	};

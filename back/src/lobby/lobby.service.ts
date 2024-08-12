@@ -51,7 +51,8 @@ export class LobbyService {
 			socket.join(lobby.id);
 			server.to(lobby.id).emit(SocketEvent.UpdateLobby, lobby.getInfo());
 		} else {
-			throw new BadRequestException('Unable to join lobby');
+			const message = !lobby ? "le lobby n'existe pas" : lobby.gameStarted ? "game en cours" : "lobby complet"
+			throw new BadRequestException('lobbyError', { cause: new Error(), description: `Impossible de rejoindre: ${message}` });
 		}
 	}
 

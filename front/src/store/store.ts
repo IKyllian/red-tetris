@@ -4,6 +4,7 @@ import SocketReducer from 'front/store/socket.slice';
 import socketMiddleware from 'front/store/socketMiddleware';
 import LobbyReducer from 'front/store/lobby.slice';
 import GameReducer from 'front/store/game.slice';
+import AlertReducer from 'front/store/alert.slice';
 
 export const store = configureStore({
 	reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
 		socket: SocketReducer,
 		lobby: LobbyReducer,
 		game: GameReducer,
+		alerts: AlertReducer
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({ serializableCheck: false }).concat(

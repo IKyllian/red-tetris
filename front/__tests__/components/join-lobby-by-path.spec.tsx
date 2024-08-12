@@ -81,4 +81,28 @@ describe('join lobby by path', () => {
         render(<JoinLobbyByPath />)
         expect(mockDispatch).not.toHaveBeenCalled();
     })
+
+    it('should redirect to home because lobby error', () => {
+        const mockState = {
+            player: {
+                name: 'Joe',
+                id: 'qwe'
+            },
+            socket: {
+                isSocketConnected: false
+            },
+            alerts: {
+                alerts: [
+                    {
+                        id: 1,
+                        type: 3,
+                        message: 'Test Alert'
+                    }
+                ]
+            }
+        };
+        (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
+        render(<JoinLobbyByPath />)
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+    })
 })

@@ -33,6 +33,7 @@ import {
 	gameOver,
 } from './game.slice';
 import { Socket } from 'socket.io-client';
+import { addAlert, AlertType } from 'front/store/alert.slice';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -72,8 +73,13 @@ const socketMiddleware: Middleware = (store) => {
 				// handle all Error events
 				socket.on(
 					SocketEvent.Exception,
-					(data: { message: string; statusCode: number }) => {
+					(data: { message: string; statusCode: number, error: string }) => {
 						console.error(data.message, data.statusCode);
+						if (data.message === 'lobbyError') {
+							store.dispatch(addAlert({ message: data.error, type: AlertType.LOBBY_ERROR}))
+						} else {
+							store.dispatch(addAlert({ message: data.error, type: AlertType.ERROR}))
+						}
 					}
 				);
 
