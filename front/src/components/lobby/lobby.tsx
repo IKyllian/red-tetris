@@ -11,7 +11,7 @@ export default function Lobby() {
 	const lobby: ILobby | null = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
 	const playerConnected = useAppSelector((state) => state.player);
-	const lobbyOwner = lobby?.players.find((player) => player.isLeader)?.id === playerConnected.id;
+	const lobbyOwner = lobby?.players?.find((player) => player.isLeader)?.id === playerConnected.id;
 	const navigate = useNavigate();
 	
 	useEffect(() => {
