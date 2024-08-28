@@ -56,8 +56,8 @@ describe('Board Component', () => {
             gridTemplateColumns: `repeat(${mockBoard.size.columns}, 1fr)`,
             width: `${boardSize.width}px`,
             height: `${boardSize.height}px`,
-            minWidth: "73px",
-            minHeight: "156px",
+            minWidth: "110px",
+            minHeight: "190px",
         };
 
         await act(async () => {

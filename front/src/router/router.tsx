@@ -37,9 +37,7 @@ export const router = createBrowserRouter([
 	{
 		path: "/:lobbyId/:playerName",
 		element: (
-			// <PrivateRoute>
 			<JoinLobbyByPath />
-			// </PrivateRoute>
 		),
 	},
 	{
@@ -66,4 +64,8 @@ export const router = createBrowserRouter([
 			</PrivateRoute>
 		),
 	},
+	{
+		path: "*",
+        element: <h1>404 - Page not found</h1>,
+	}
 ]);

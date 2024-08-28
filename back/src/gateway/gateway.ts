@@ -73,7 +73,8 @@ export class Gateway
 			socket,
 			data.playerName,
 			data.lobbyId,
-			this.server
+			this.server,
+			data.createLobbyIfNotExists
 		);
 	}
 

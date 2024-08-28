@@ -1,15 +1,12 @@
 .header-container {
     width: 100vw;
-    /* background-color: var(--main-color); */
-    /* background-color: #556680; */
     height: var(--main-header-height);
     padding: 0 10px;
 }
 
-.header-logo {
+.header-logo-letter {
     font-size: 40px;
     text-transform: uppercase;
-    /* color: white; */
     font-weight: bold;
 }
 
@@ -17,4 +14,10 @@
     text-transform: uppercase;
     font-size: 18px;
     color: white;
+}
+
+@media screen and (max-width: 650px) {
+    .player-name-container {
+        display: none !important
+    }
 }

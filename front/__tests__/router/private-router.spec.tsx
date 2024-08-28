@@ -23,6 +23,14 @@ vi.mock('front/components/header/header', () => ({
   },
 }))
 
+const mockAlert = vi.fn() 
+vi.mock('front/components/alert/alert', () => ({ 
+  default: (props) => {
+    mockAlert(props)
+    return <div>Mocked Alert</div>
+  },
+}))
+
 const mockStore = configureStore([])
 
 describe('Private Route', () => {
@@ -66,6 +74,7 @@ describe('Private Route', () => {
             </Provider>
         );
         expect(getByText('Mocked Header')).toBeInTheDocument();
+        expect(getByText('Mocked Alert')).toBeInTheDocument();
         expect(getByText('Private Content')).toBeInTheDocument();
         expect(Navigate).not.toHaveBeenCalled();
     })  
