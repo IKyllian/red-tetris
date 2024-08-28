@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Socket, Server } from 'socket.io';
 import { LobbyService } from '../../lobby/lobby.service';
 import { SocketEvent } from '../../type/event.enum';
+import { BadRequestException } from '@nestjs/common';
 
 describe('LobbyService', () => {
 	let service: LobbyService;
@@ -97,15 +98,13 @@ describe('LobbyService', () => {
 				id: 'newSocketId',
 			} as unknown as Socket;
 
-			service.joinLobby(
+			
+			expect(() => service.joinLobby(
 				newSocket,
 				'Player2',
 				'nonExistentLobbyId',
 				server
-			);
-
-			expect(newSocket.join).not.toHaveBeenCalled();
-			expect(service.getLobby(newSocket.id)).toBeUndefined();
+			)).toThrow(BadRequestException)
 		});
 
 		it('should allow a player to create a non-existent lobby if createLobbyIfNotExists is true', () => {
@@ -140,7 +139,7 @@ describe('LobbyService', () => {
 
 			const lobby = service.getLobby(socket.id);
 
-			for (let i = 0; i < lobby.maxPlayers + 2; i++) {
+			for (let i = 0; i < lobby.maxPlayers - 1; i++) {
 				service.joinLobby(
 					{
 						...mockSocket,
@@ -151,7 +150,17 @@ describe('LobbyService', () => {
 					server
 				);
 			}
-			expect(lobby.players).toHaveLength(lobby.maxPlayers);
+			
+
+			expect(() => service.joinLobby(
+				{
+					...mockSocket,
+					id: `newSocketId${lobby.maxPlayers}`,
+				} as unknown as Socket,
+				`Player${lobby.maxPlayers}`,
+				lobby.id,
+				server
+			)).toThrow(BadRequestException)
 		});
 
 		it('should not allow a player to join a lobby if the game has already started', () => {
@@ -168,8 +177,7 @@ describe('LobbyService', () => {
 				id: 'newSocketId',
 			} as unknown as Socket;
 
-			service.joinLobby(newSocket, 'Player2', lobby.id, server);
-			expect(service.getLobby(newSocket.id)).toBeUndefined();
+			expect(() => service.joinLobby(newSocket, 'Player2', lobby.id, server)).toThrow(BadRequestException)
 		});
 	});
 
