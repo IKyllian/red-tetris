@@ -41,8 +41,7 @@ export class Game {
 	private gameMode: GameMode;
 	private inputsQueue: IInputsPacket[] = [];
 	private linesCleared: number = 0;
-	public board: Board; //todo private
-	// private currentPiece: Piece;
+	public board: Board;
 	private tickToMoveDown: number = 0;
 	private rng: seedrandom.PRNG;
 	private lineScores = [
@@ -51,8 +50,6 @@ export class Game {
 		Scoring.ThreeLines,
 		Scoring.FourLines,
 	];
-
-	private tick: number; //TODO delete
 
 	constructor(player: Player, seed: string, gameMode: GameMode) {
 		this.gameMode = gameMode;
@@ -81,8 +78,6 @@ export class Game {
 	}
 
 	public updateState(tick: number, gravity?: number) {
-		//TODO find better way?
-		this.tick = tick;
 		this.boardChanged = false;
 		this.positionChanged = false;
 		if (this.gameOver) {
@@ -95,7 +90,6 @@ export class Game {
 		for (let i = 0; i < this.indestructibleQueue.length; i++) {
 			const indestructible = this.indestructibleQueue[i];
 			if (indestructible.tick === tick) {
-				console.log('add indestructible lines at tick: ', tick);
 				this.addIndestructibleLines(indestructible.nb);
 				this.indestructibleQueue.splice(i, 1);
 				i--;
@@ -143,34 +137,15 @@ export class Game {
 				) {
 					this.adjustmentIteration++;
 					this.tickAdjustment = -1;
-					// this.tickAdjustment = (packet.tick - tick - 5) * -1;
-					console.log('adjustment minus: ', this.tickAdjustment);
 				}
 				break;
 			} else if (packet.tick === tick) {
-				if (this.player.isLeader) {
-					console.log(
-						'tick: ',
-						tick,
-						'input processed: ',
-						packet.inputs.length
-					);
-				}
 				this.handleInputs(packet.inputs);
-				// console.log(
-				// 	'inputs processed: ',
-				// 	packet.inputs,
-				// 	' - tick: ',
-				// 	tick,
-				// 	' - client tick: ',
-				// 	packet.tick
-				// );
 				this.inputsQueue.shift();
 			} else if (tick > packet.tick) {
 				if (this.adjustmentIteration === packet.adjustmentIteration) {
 					this.adjustmentIteration++;
 					this.tickAdjustment = tick - packet.tick + 15;
-					console.log('adjustment: ', this.tickAdjustment);
 				}
 				this.inputsQueue.shift();
 			}
@@ -179,7 +154,6 @@ export class Game {
 
 	public handleInputs(commands: Commands[]) {
 		for (const command of commands) {
-			//TODO check if old position is not the same as new position to not emit useless data
 			if (this.gameOver) return;
 
 			switch (command) {
@@ -212,7 +186,7 @@ export class Game {
 				default:
 					this.linesCleared += linesCleared;
 					if (this.linesCleared >= Scoring.NbOfLinesForNextLevel) {
-						this.linesCleared -= Scoring.NbOfLinesForNextLevel; //TODO Not sure
+						this.linesCleared -= Scoring.NbOfLinesForNextLevel;
 						this.level++;
 						this.linesCleared = 0;
 					}
@@ -239,7 +213,7 @@ export class Game {
 		this.piece = this.getNextPiece();
 		const newShape = this.piece.getShape();
 		if (this.board.checkCollision(this.piece.position, newShape)) {
-			//Todo: Transfer piece to board?
+			this.board.transferPieceToBoard(this.piece, newShape, true);
 			this.gameOver = true;
 		}
 	}
@@ -260,7 +234,6 @@ export class Game {
 	}
 
 	public hardDrop() {
-		//TODO get drop position and add score
 		this.tickToMoveDown = 0;
 		let nextPos = this.getPosDown(this.piece.position);
 		const shape = this.piece.getShape();
@@ -280,9 +253,7 @@ export class Game {
 		const shape = this.piece.getShape();
 		if (!this.board.checkCollision(newPosition, shape)) {
 			this.positionChanged = true;
-			// this.board.clearOldPosition(this.piece, shape);
 			this.piece.position = newPosition;
-			// this.board.transferPieceToBoard(this.piece, shape, false);
 		}
 	}
 

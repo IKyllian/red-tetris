@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LeaderboardService } from './leaderboard.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Leaderboard } from '../entity/leaderboard.entity';
+import { Leaderboard } from '../../entity/leaderboard.entity';
+import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 import { Repository } from 'typeorm';
 
 describe('LeaderboardService', () => {

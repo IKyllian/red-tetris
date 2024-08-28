@@ -1,14 +1,15 @@
 import { describe, expect, beforeEach, Mock, vi, it } from "vitest";
 import { render, fireEvent } from '@testing-library/react';
 import Register from "front/components/sign/sign";
-import { useAppDispatch } from "front/store/hook";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { useNavigate } from "react-router-dom";
 import React from 'react'
 import { sign } from 'front/store/player.slice';
 import { useForm } from "react-hook-form";
 
 vi.mock('front/store/hook', () => ({
-    useAppDispatch: vi.fn()
+    useAppDispatch: vi.fn(),
+    useAppSelector: vi.fn(),
 }));
   
 // Mock the useNavigate hook
@@ -24,7 +25,17 @@ describe("Register Component", () => {
     const mockNavigate = vi.fn();
     const mockDispatch = vi.fn();
 
+    const mockState = {
+        player: {
+            name: 'Joe',
+            id: 'qwe'
+        },
+        socket: {
+            isSocketConnected: true
+        }
+    };
     beforeEach(() => {
+        (useAppSelector as Mock).mockImplementation((selector) => selector(mockState));
         (useNavigate as Mock).mockReturnValue(mockNavigate);
         (useAppDispatch as Mock).mockReturnValue(mockDispatch);
         vi.clearAllMocks();

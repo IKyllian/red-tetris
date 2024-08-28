@@ -1,5 +1,6 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Commands } from '../../type/command.types';
+import { Optional } from '@nestjs/common';
 
 export class CreateLobbyDto {
 	@IsString()
@@ -14,6 +15,8 @@ export class JoinLobbyDto {
 	@IsString()
 	@IsNotEmpty()
 	lobbyId: string;
+	@IsBoolean()
+	createLobbyIfNotExists: boolean;
 }
 
 export class StartGameDto {

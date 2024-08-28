@@ -11,10 +11,10 @@ export class Lobby {
 	public game: BattleRoyal;
 	public readonly maxPlayers = 10;
 
-	constructor(name: string, playerName: string, playerId: string) {
+	constructor(name: string, playerName: string, playerId: string, lobbyId?: string) {
 		this.name = name;
 		this.players.push(new Player(playerName, playerId, true));
-		this.id = this.createRandomId();
+		this.id = lobbyId ?? this.createRandomId();
 	}
 
 	private createRandomId(length: number = 5) {

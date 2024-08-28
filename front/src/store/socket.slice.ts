@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 interface SocketState {
-    isConnected: boolean;
+    isSocketConnected: boolean;
 }
 const defaultSocket: SocketState = {
-    isConnected: false
+    isSocketConnected: false
 };
 
 export const socketSlice = createSlice({
@@ -13,10 +13,10 @@ export const socketSlice = createSlice({
     reducers: {
         initSocket: () => {},
         connectionEstablished: (state) => {
-            state.isConnected = true;
+            state.isSocketConnected = true;
         },
         connectionLost: (state) => {
-            state.isConnected = false;
+            state.isSocketConnected = false;
         },
     }
 })

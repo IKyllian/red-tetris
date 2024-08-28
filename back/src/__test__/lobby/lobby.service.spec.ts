@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SocketEvent } from '../type/event.enum';
 import { Socket, Server } from 'socket.io';
-import { LobbyService } from './lobby.service';
+import { LobbyService } from '../../lobby/lobby.service';
+import { SocketEvent } from '../../type/event.enum';
+import { BadRequestException } from '@nestjs/common';
 
 describe('LobbyService', () => {
 	let service: LobbyService;
@@ -91,21 +92,43 @@ describe('LobbyService', () => {
 			);
 		});
 
-		it('should not allow a player to join a non-existent lobby', () => {
+		it('should not allow a player to join a non-existent lobby if createLobbyIfNotExists is false', () => {
 			const newSocket = {
 				...mockSocket,
 				id: 'newSocketId',
 			} as unknown as Socket;
 
-			service.joinLobby(
+			
+			expect(() => service.joinLobby(
 				newSocket,
 				'Player2',
 				'nonExistentLobbyId',
 				server
+			)).toThrow(BadRequestException)
+		});
+
+		it('should allow a player to create a non-existent lobby if createLobbyIfNotExists is true', () => {
+			const newSocket = {
+				...mockSocket,
+				id: 'newSocketId',
+			} as unknown as Socket;
+
+			const lobbyId = 'nonExistentLobbyId'
+			service.joinLobby(
+				newSocket,
+				'Player2',
+				lobbyId,
+				server,
+				true
 			);
 
-			expect(newSocket.join).not.toHaveBeenCalled();
-			expect(service.getLobby(newSocket.id)).toBeUndefined();
+
+			expect(service.getLobby(newSocket.id)).toBeDefined();
+			expect(newSocket.join).toHaveBeenCalledWith(lobbyId);
+			expect(socket.emit).toHaveBeenCalledWith(
+				SocketEvent.UpdateLobby,
+				expect.any(Object)
+			);
 		});
 
 		it('should not allow a player to join a full lobby', () => {
@@ -116,7 +139,7 @@ describe('LobbyService', () => {
 
 			const lobby = service.getLobby(socket.id);
 
-			for (let i = 0; i < lobby.maxPlayers + 2; i++) {
+			for (let i = 0; i < lobby.maxPlayers - 1; i++) {
 				service.joinLobby(
 					{
 						...mockSocket,
@@ -127,7 +150,17 @@ describe('LobbyService', () => {
 					server
 				);
 			}
-			expect(lobby.players).toHaveLength(lobby.maxPlayers);
+			
+
+			expect(() => service.joinLobby(
+				{
+					...mockSocket,
+					id: `newSocketId${lobby.maxPlayers}`,
+				} as unknown as Socket,
+				`Player${lobby.maxPlayers}`,
+				lobby.id,
+				server
+			)).toThrow(BadRequestException)
 		});
 
 		it('should not allow a player to join a lobby if the game has already started', () => {
@@ -144,8 +177,7 @@ describe('LobbyService', () => {
 				id: 'newSocketId',
 			} as unknown as Socket;
 
-			service.joinLobby(newSocket, 'Player2', lobby.id, server);
-			expect(service.getLobby(newSocket.id)).toBeUndefined();
+			expect(() => service.joinLobby(newSocket, 'Player2', lobby.id, server)).toThrow(BadRequestException)
 		});
 	});
 

@@ -3,7 +3,7 @@ import socketReducer, { initSocket, connectionEstablished, connectionLost } from
 
 describe('reducer/socket', () => {
     const initialState = {
-        isConnected: false
+        isSocketConnected: false
     }
     describe('on init socket', () => {
         it('should not update the store', () => {
@@ -12,14 +12,14 @@ describe('reducer/socket', () => {
         })    
     })
     describe('on connectionEstablished', () => {
-        it('should update isConnected', () => {
+        it('should update isSocketConnected', () => {
             const newState = socketReducer(initialState, connectionEstablished())
-            expect(newState).toEqual({isConnected: true})
+            expect(newState).toEqual({isSocketConnected: true})
         })
     })
     describe('on connectionLost', () => {
-        it('should update isConnected', () => {
-            const newState = socketReducer({isConnected: true}, connectionLost())
+        it('should update isSocketConnected', () => {
+            const newState = socketReducer({isSocketConnected: true}, connectionLost())
             expect(newState).toEqual(initialState)
         })
     })
