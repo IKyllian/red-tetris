@@ -7,7 +7,8 @@ let socketConnection: Socket | undefined;
 class SocketFactory {
 	public static Instance() {
 		if (!socketConnection) {
-			socketConnection = io(`${process.env.IP}:3000`);
+			console.info('process.env.VITE_IP = ', import.meta.env.VITE_IP)
+			socketConnection = io(`${import.meta.env.VITE_IP}:3000`);
 		}
 		return socketConnection;
 	}

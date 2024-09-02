@@ -4,7 +4,7 @@ import { Mock, describe, expect, it, vi } from 'vitest';
 import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
 import { getLeaderboard } from 'front/api/leaderboard.api';
 
-const url = `${process.env.IP}:3000/leaderboard`
+const url = `${import.meta.env.VITE_IP}:3000/leaderboard`
 describe("api/leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {

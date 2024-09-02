@@ -27,7 +27,7 @@ import { GatewayService } from './gateway.service';
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
 	cors: {
-		origin: `${process.env.IP}:3000`,
+		origin: '*',
 	},
 })
 export class Gateway

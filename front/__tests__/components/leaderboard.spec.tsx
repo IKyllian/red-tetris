@@ -6,7 +6,7 @@ import { getLeaderboard } from "front/api/leaderboard.api";
 import { IPlayerScore } from 'front/types/leaderboard.type';
 import { createFetchResponse } from "../fetch-utils";
 
-const url = `${process.env.IP}:3000/leaderboard`
+const url = `${import.meta.env.VITE_IP}:3000/leaderboard`
 describe("Leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {

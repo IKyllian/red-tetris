@@ -1,7 +1,7 @@
 import { ILobby } from "front/types/lobby.type";
 
 export async function getLobbyList(): Promise<ILobby[]> {
-    const response = await fetch(`${process.env.IP}:3000/lobby`, {
+    const response = await fetch(`${import.meta.env.VITE_IP}:3000/lobby`, {
         method: "GET"
     });
     

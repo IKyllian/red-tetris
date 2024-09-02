@@ -4,7 +4,7 @@ import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
 import { getLobbyList } from 'front/api/lobby.api';
 import { ILobby } from 'front/types/lobby.type';
 
-const url = `${process.env.IP}:3000/lobby`
+const url = `${import.meta.env.VITE_IP}:3000/lobby`
 describe("api/lobby", () => {
     const lobby: ILobby[] = [
         {

@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { useNavigate } from "react-router-dom";
 import { joinLobby } from 'front/store/lobby.slice';
 
-const url = `${process.env.IP}:3000/lobby`
+const url = `${import.meta.env.VITE_IP}:3000/lobby`
 
 // Mock useAppSelector and useAppDispatch
 vi.mock('front/store/hook', () => ({

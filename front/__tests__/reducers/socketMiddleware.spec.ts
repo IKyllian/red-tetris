@@ -15,7 +15,7 @@ const leaveLobby = createAction<string>('lobby/leaveLobby');
 const sendStartGame = createAction<{playerName: string}>('lobby/sendStartGame');
 const sendInputs = createAction<IInputsPacket>('game/sendInputs');
 
-const url = `${process.env.IP}:3000`
+const url = `${import.meta.env.VITE_IP}:3000`
 // TODO: use mock of socket factory ?
 vi.mock('socket.io-client', () => ({
     io: vi.fn(() => mockSocket)
