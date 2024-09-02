@@ -16,12 +16,11 @@ import {
 	setDropPreview,
 	transferPieceToBoard,
 } from './piece.utils';
-import { generatePieces } from 'front/utils/piece-generation.utils'
+import { generatePieces } from 'front/utils/piece-generation.utils';
 import { checkForLines } from './board.utils';
 import { IGameState } from '../store/game.slice';
 
 export function rotate(state: IGameState): void {
-	// const piece = state.playerGame.piece;
 	if (state.playerGame) {
 		const board = state.playerGame.board;
 		if (state.playerGame.piece.type === CellType.O) return;
@@ -31,7 +30,8 @@ export function rotate(state: IGameState): void {
 		);
 		const newRotation = (state.playerGame.piece.rotationState + 1) % 4;
 		const newShape = getShape(state.playerGame.piece.type, newRotation);
-		const srs = state.playerGame.piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
+		const srs =
+			state.playerGame.piece.type === CellType.I ? I_SRS : JLTSZ_SRS;
 		for (let position of srs[state.playerGame.piece.rotationState]) {
 			const newPosition = {
 				x: state.playerGame.piece.position.x + position.x,
@@ -62,7 +62,7 @@ export function moveDown(state: IGameState, isSoftDrop: boolean = false): void {
 			y: state.playerGame.piece.position.y + 1,
 		};
 		state.tickToMoveDown = 0;
-	
+
 		const shape = getShape(
 			state.playerGame.piece.type,
 			state.playerGame.piece.rotationState
@@ -74,7 +74,7 @@ export function moveDown(state: IGameState, isSoftDrop: boolean = false): void {
 			if (!isSoftDrop) {
 				state.playerGame.score += 1;
 			}
-	
+
 			// setDropPreview(state.playerGame.board, state.playerGame.piece, shape);
 			state.playerGame.piece.position = newPosition;
 			state.playerGame.board.cells = transferPieceToBoard(
@@ -115,7 +115,7 @@ export function changeStatePiecePosition(
 			state.playerGame.piece.type,
 			state.playerGame.piece.rotationState
 		);
-	
+
 		if (!checkCollision(board, newPos, shape)) {
 			clearDropPreview(board, shape, state.playerGame.piece);
 			clearOldPosition(state.playerGame.piece, shape, board);
@@ -148,22 +148,14 @@ function handlePieceDown(state: IGameState, shape: number[][]): void {
 		state.playerGame.piece.rotationState
 	);
 	const linesCleared = checkForLines(state.playerGame.board);
-	console.log('lines cleared: ', linesCleared);
 
 	setDropPreview(state.playerGame.board, newShape, state.playerGame.piece);
 	if (linesCleared > 0) {
 		state.playerGame.linesCleared += linesCleared;
-		console.log('toto lines cleared: ', state.playerGame.linesCleared);
 		if (state.playerGame.linesCleared >= NbOfLinesForNextLevel) {
-			state.playerGame.linesCleared -= NbOfLinesForNextLevel; //TODO Not sure
+			state.playerGame.linesCleared -= NbOfLinesForNextLevel;
 			state.playerGame.level++;
 			state.playerGame.linesCleared = 0;
-			console.log(
-				'level up at tick: ',
-				state.tick,
-				' - level: ',
-				state.playerGame.level
-			);
 		}
 		state.playerGame.score +=
 			Scoring[linesCleared - 1] * (state.playerGame.level + 1);

@@ -97,7 +97,7 @@ describe('Home', () => {
             const lobbyId = 'TestLobby'
             const { findByTestId, getByPlaceholderText } = render(<JoinGameButton playerName={mockState.player.name}  />)
 
-            const input = getByPlaceholderText('Game Id');
+            const input = getByPlaceholderText('Lobby Id');
             const joinGameButton = await findByTestId('form-button');
             const form = await findByTestId('form');
 
@@ -107,7 +107,8 @@ describe('Home', () => {
 
             expect(mockDispatch).toHaveBeenCalledWith(joinLobby({
                 playerName: mockState.player.name,
-                lobbyId
+                lobbyId,
+				createLobbyIfNotExists: false
             }))
         })
 

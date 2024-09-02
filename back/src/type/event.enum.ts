@@ -19,8 +19,6 @@ export enum SocketEvent {
 	GameOver = 'game-over',
 	IndestructibleLine = 'indestructible-line',
 	SyncWithServer = 'sync',
-	// On events
-	Error = 'error',
 }
 
 export interface IInputsPacket {

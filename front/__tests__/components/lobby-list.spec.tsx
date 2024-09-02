@@ -9,6 +9,8 @@ import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { useNavigate } from "react-router-dom";
 import { joinLobby } from 'front/store/lobby.slice';
 
+const url = `${process.env.IP}:3000/lobby`
+
 // Mock useAppSelector and useAppDispatch
 vi.mock('front/store/hook', () => ({
     useAppSelector: vi.fn(),
@@ -62,7 +64,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>(lobbyList))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/lobby", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(lobbyListData).toStrictEqual(lobbyList)
 
         const { findAllByTestId } = render(
@@ -81,7 +83,7 @@ describe("Looby-list", () => {
             expect(item).toHaveStyle('cursor: pointer')
 
             fireEvent.click(item);
-            expect(mockDispatch).toHaveBeenCalledWith(joinLobby({lobbyId: lobby.id, playerName: mockState.player.name}))
+            expect(mockDispatch).toHaveBeenCalledWith(joinLobby({lobbyId: lobby.id, playerName: mockState.player.name, createLobbyIfNotExists: false}))
         }
     })
     it('Should render Lobby list component with 1 lobby not joinable', async () => {
@@ -105,7 +107,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>(lobbyStarted))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/lobby", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(lobbyListData).toStrictEqual(lobbyStarted)
 
         const { findAllByTestId } = render(
@@ -131,7 +133,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>([]))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/lobby", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(lobbyListData).toStrictEqual([])
 
         const { findAllByTestId } = render(

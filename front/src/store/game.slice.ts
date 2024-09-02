@@ -16,15 +16,11 @@ import {
 	transferPieceToBoard,
 	setDropPreview,
 } from 'front/utils/piece.utils';
-import { generatePieces } from 'front/utils/piece-generation.utils'
+import { generatePieces } from 'front/utils/piece-generation.utils';
 import { ITetromino } from 'front/types/tetrominoes.type';
-import {
-	handleInput
-} from 'front/utils/handle-inputs.utils';
+import { handleInput } from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
-import {
-	addIndestructibleLines,
-} from 'front/utils/board.utils';
+import { addIndestructibleLines } from 'front/utils/board.utils';
 import SocketFactory from 'front/store/socketFactory';
 import { SocketEvent } from 'front/store/socketMiddleware';
 import { cloneDeep } from 'lodash';
@@ -143,7 +139,6 @@ export const gameSlice = createSlice({
 			if (state.gameMode === GameMode.BATTLEROYAL) {
 				state.opponentsGames = action.payload.opponentsGames;
 			}
-			//TODO not store seed?
 			state.seed = action.payload.seed;
 			state.rng = seedrandom(state.seed);
 			generatePieces(state, 4);
@@ -196,9 +191,11 @@ export const gameSlice = createSlice({
 				const index = state.opponentsGames.findIndex(
 					(g) => g.player.id === gamePacket.state.player.id
 				);
+				if (index === -1) {
+					continue;
+				}
 
 				if (
-					index !== -1 &&
 					state.opponentsGames[index] &&
 					gamePacket.updateType === UpdateType.POSITION
 				) {
@@ -239,17 +236,6 @@ export const gameSlice = createSlice({
 				state.adjustmentIteration = state.serverAdjustmentIteration;
 				state.inputQueue.length = 0;
 				state.timer += state.tickAdjustment * MIN_TIME_BETWEEN_TICKS;
-
-				console.log('adjusting tick: ', state.tickAdjustment);
-				// const tickToCatchUp = state.tick + state.tickAdjustment;
-				// while (state.tick < tickToCatchUp) {
-				// 	softDrop(state);
-				// 	state.clientStateBuffer[state.tick % BUFFER_SIZE] = {
-				// 		tick: state.tick,
-				// 		game: cloneDeep(state.playerGame),
-				// 	};
-				// 	state.tick++;
-				// }
 			}
 
 			// server reconciliation
@@ -271,7 +257,6 @@ export const gameSlice = createSlice({
 						tick: state.tick,
 						adjustmentIteration: state.adjustmentIteration,
 					};
-					// console.log('sync with server', data);
 					instance.emit(SocketEvent.SyncWithServer, { data });
 					state.tick++;
 					state.timer -= MIN_TIME_BETWEEN_TICKS;
@@ -280,32 +265,17 @@ export const gameSlice = createSlice({
 			} else if (state.countdown !== -1) {
 				state.countdown = -1;
 			}
-			//------------------------------------------------------------------
-			const now = performance.now();
+			// update state
 			while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
-				// if (state.tick === 500) {
-				// 	state.playerGame.gameOver = true;
-				// 	// 	console.log('force reconcile');
-				// 	// 	hardDrop(state);
-				// 	// 	state.forceReconcileTimer = now;
-				// 	// 	state.render = false;
-				// }
 				for (let i = 0; i < state.indestructibleQueue.length; i++) {
 					const indestructible = state.indestructibleQueue[i];
 					if (indestructible.tick === state.tick) {
-						console.log('add indestructible lines');
 						addIndestructibleLines(state, indestructible.nb);
 						state.indestructibleQueue.splice(i, 1);
 						i--;
 					}
 				}
 				if (state.inputQueue.length > 0) {
-					// console.log(
-					// 	'tick: ',
-					// 	state.tick,
-					// 	'input processed: ',
-					// 	state.inputQueue.length
-					// );
 					state.inputQueue.forEach((input) => {
 						handleInput(input, state);
 					});
@@ -319,11 +289,9 @@ export const gameSlice = createSlice({
 						adjustmentIteration: state.adjustmentIteration,
 						inputs: [...state.inputQueue],
 					};
-					// if (state.tick % 100 !== 0 || state.tick % 150 === 0) {
 					instance.emit(SocketEvent.CommandPressed, {
 						data: data,
 					});
-					// }
 					state.inputQueue.length = 0;
 				}
 				softDrop(state);
@@ -340,7 +308,6 @@ export const gameSlice = createSlice({
 				}
 
 				state.tick++;
-				// console.log('one tick');
 				state.timer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		},
@@ -354,7 +321,6 @@ export const gameSlice = createSlice({
 			state,
 			action: { payload: ITickAdjustmentPacket }
 		) {
-			console.log('tick adjustement: ', action.payload.tickAdjustment);
 			if (
 				state.adjustmentIteration != action.payload.adjustmentIteration
 			) {

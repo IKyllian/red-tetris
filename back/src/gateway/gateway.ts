@@ -27,7 +27,7 @@ import { GatewayService } from './gateway.service';
 @UsePipes(new ValidationPipe())
 @WebSocketGateway({
 	cors: {
-		origin: '*',
+		origin: `${process.env.IP}:3000`,
 	},
 })
 export class Gateway
@@ -73,7 +73,8 @@ export class Gateway
 			socket,
 			data.playerName,
 			data.lobbyId,
-			this.server
+			this.server,
+			data.createLobbyIfNotExists
 		);
 	}
 

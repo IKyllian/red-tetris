@@ -7,7 +7,7 @@ let socketConnection: Socket | undefined;
 class SocketFactory {
 	public static Instance() {
 		if (!socketConnection) {
-			socketConnection = io('http://localhost:3000');
+			socketConnection = io(`${process.env.IP}:3000`);
 		}
 		return socketConnection;
 	}

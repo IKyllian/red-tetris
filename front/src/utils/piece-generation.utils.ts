@@ -1,6 +1,6 @@
-import { IGameState } from "front/store/game.slice";
-import { PIECES_BUFFER_SIZE } from "front/utils/game.utils";
-import { getNextPiece } from "front/utils/piece.utils";
+import { IGameState } from 'front/store/game.slice';
+import { PIECES_BUFFER_SIZE } from 'front/utils/game.utils';
+import { getNextPiece } from 'front/utils/piece.utils';
 
 export function generatePieces(
 	state: IGameState,
@@ -8,7 +8,7 @@ export function generatePieces(
 	offset: number = 0
 ) {
 	const i =
-		(state.playerGame.currentPieceIndex % PIECES_BUFFER_SIZE) + offset;
+		(state.playerGame.currentPieceIndex + offset) % PIECES_BUFFER_SIZE;
 	for (let j = 0; j < count; j++) {
 		if (state.skipPieceGeneration > 0) {
 			state.skipPieceGeneration--;

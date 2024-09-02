@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LeaderboardController } from './leaderboard.controller';
-import { LeaderboardService } from './leaderboard.service';
+import { LeaderboardController } from '../../leaderboard/leaderboard.controller';
+import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 
 describe('LeaderboardController', () => {
 	let controller: LeaderboardController;

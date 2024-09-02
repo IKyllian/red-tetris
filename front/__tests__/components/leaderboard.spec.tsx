@@ -6,6 +6,7 @@ import { getLeaderboard } from "front/api/leaderboard.api";
 import { IPlayerScore } from 'front/types/leaderboard.type';
 import { createFetchResponse } from "../fetch-utils";
 
+const url = `${process.env.IP}:3000/leaderboard`
 describe("Leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {
@@ -23,7 +24,7 @@ describe("Leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<IPlayerScore[]>(leaderboard))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/leaderboard", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(leaderboardData).toStrictEqual(leaderboard)
 
         const { findAllByTestId } = render(
@@ -48,7 +49,7 @@ describe("Leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<IPlayerScore[]>([]))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/leaderboard", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(leaderboardData).toStrictEqual([])
 
         const { findAllByTestId } = render(

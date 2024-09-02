@@ -98,10 +98,6 @@ export class SoloGame {
 				this.timer -= MIN_TIME_BETWEEN_TICKS;
 				continue;
 			}
-			// if (this.tick === 90) {
-			// 	console.log('starting game');
-			// }
-			// console.log('tick: ', this.tick, ' - gravity: ', this.gravity);
 			this.game.updateState(this.tick);
 			if (this.game.gameOver && this.game.boardChanged) {
 				this.ranking.push(this.game.player);

@@ -75,3 +75,14 @@
     /* color: white; */
     border-radius: 5px;
 }
+
+:root {
+    --successLight: #c3f4aa;
+    --successDark: rgb(5, 65, 8);
+
+    --errorLight: #f4aaaa;
+    --errorDark: rgb(65, 5, 5);
+
+    --warningLight: #f4f3aa;
+    --warningDark: rgb(65, 61, 5);
+}

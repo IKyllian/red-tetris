@@ -1,21 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GameService } from './game.service';
-import { GatewayService } from '../gateway/gateway.service';
-import { LobbyService } from '../lobby/lobby.service';
-import { LeaderboardService } from '../leaderboard/leaderboard.service';
-import { GameSocketManager } from './game-socket-manager';
-import { BattleRoyal } from './battleRoyal';
-import { SoloGame } from './solo-game';
 import { Socket } from 'socket.io';
+import { BattleRoyal } from '../../game/battleRoyal';
+import { GameSocketManager } from '../../game/game-socket-manager';
+import { GameService } from '../../game/game.service';
+import { SoloGame } from '../../game/solo-game';
+import { GatewayService } from '../../gateway/gateway.service';
+import { LeaderboardService } from '../../leaderboard/leaderboard.service';
+import { LobbyService } from '../../lobby/lobby.service';
+import { ITickAdjustmentPacket, SocketEvent } from '../../type/event.enum';
 import {
 	InputsPacketDto,
 	TickAdjustmentPacketDto,
-} from '../utils/dto/gateway.dto';
-import { SocketEvent } from '../type/event.enum';
-import { ITickAdjustmentPacket } from '../type/event.enum';
+} from '../../utils/dto/gateway.dto';
 
-jest.mock('./battleRoyal');
-jest.mock('./solo-game');
+jest.mock('../../game/battleRoyal');
+jest.mock('../../game/solo-game');
 
 describe('GameService', () => {
 	let gameService: GameService;

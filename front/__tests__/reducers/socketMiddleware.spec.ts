@@ -15,6 +15,7 @@ const leaveLobby = createAction<string>('lobby/leaveLobby');
 const sendStartGame = createAction<{playerName: string}>('lobby/sendStartGame');
 const sendInputs = createAction<IInputsPacket>('game/sendInputs');
 
+const url = `${process.env.IP}:3000`
 // TODO: use mock of socket factory ?
 vi.mock('socket.io-client', () => ({
     io: vi.fn(() => mockSocket)
@@ -50,9 +51,9 @@ describe('socket middleware', () => {
       store.dispatch(initSocket());
     });
     it('should initialize socket and set up listeners on initSocket action', () => {
-        expect(io).toHaveBeenCalledWith('http://localhost:3000'); // Ensure socket.io-client is initialized with correct endpoint
+        expect(io).toHaveBeenCalledWith(url); // Ensure socket.io-client is initialized with correct endpoint
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Connect , expect.any(Function)); // Ensure socket event listeners are set up
-        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Error, expect.any(Function));
+        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Exception, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Disconnect, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.UpdateLobby, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GamesUpdate, expect.any(Function));
@@ -78,7 +79,7 @@ describe('socket middleware', () => {
     });
 
     it('should handle joinLobby action and emit JoinLobby', () => {
-        const payload = { lobbyId: 'fAZ4', playerName: 'Test' };
+        const payload = { lobbyId: 'fAZ4', playerName: 'Test',  createLobbyIfNotExists: false };
         store.dispatch(joinLobby(payload));
 
         expect(mockSocket.emit).toHaveBeenCalledWith(SocketEvent.JoinLobby, { data: payload });

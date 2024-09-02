@@ -63,24 +63,22 @@ const Board = ({
 		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
 		width: `${boardSize.width}px`,
 		height: `${boardSize.height}px`,
-		minWidth: "73px",
-		minHeight: "156px",
+		minWidth: "110px",
+		minHeight: "190px",
 	}), [board.size.rows, board.size.columns, boardSize]);
 
 	return (
 		<div className="inline-flex" style={{ position: "relative" }} autoFocus={true}>
 			{
-				!isOpponentBoards && count > -1 && 
-				<div data-testid="countdown" className="countdown-container">
-					<span> {count > 0 ? count : "GO"} </span>
-				</div>
+				!isOpponentBoards && count > -1 &&
+				<span data-testid="countdown" className="countdown-container" data-isSolo={+isSolo}> {count > 0 ? count : "GO"} </span>
 			}
-			{
+			{	
 				isSolo &&
 				<div data-testid="score-container" className="score-container flex gap16">
 					<span> Score: {score} </span>
 					<span> Level: {level} </span>
-				</div>
+				</div>		
 			}
 			<div className="flex flex-col">
 				<div
@@ -112,20 +110,12 @@ const Board = ({
 					)}
 				</div>
 				<span
-					style={{
-						fontSize: "1em",
-						color: "red",
-						textAlign: "center",
-					}}
+					className="playerName"
 				>
 					{playerName}
 				</span>
 			</div>
-			{!isOpponentBoards && nextPieces.length > 0
-				// || (isOpponentBoards &&
-				// 	nextPieces.length > 0 &&
-				// 	opponentsLength <= 4))
-				&& (
+			{!isOpponentBoards && nextPieces.length > 0 && (
 				<div data-testid="next-pieces-container" className="board-box-container">
 					<div className="box-title"> NEXT </div>
 					<div className="flex flex-col box-border">

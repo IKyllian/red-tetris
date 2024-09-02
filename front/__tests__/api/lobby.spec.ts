@@ -4,6 +4,7 @@ import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
 import { getLobbyList } from 'front/api/lobby.api';
 import { ILobby } from 'front/types/lobby.type';
 
+const url = `${process.env.IP}:3000/lobby`
 describe("api/lobby", () => {
     const lobby: ILobby[] = [
         {
@@ -21,13 +22,13 @@ describe("api/lobby", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse(lobby))
         const lobbyData = await getLobbyList()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/lobby", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(lobbyData).toStrictEqual(lobby)
     })
     it('Should throw http error', async () => {
         (fetch as Mock).mockResolvedValue(createFetchThrow404Error())
 
         await expect(getLobbyList()).rejects.toThrow("HTTP error! Status: 404");
-        expect(fetch).toHaveBeenCalledWith("http://localhost:3000/lobby", { method: "GET" });
+        expect(fetch).toHaveBeenCalledWith(url, { method: "GET" });
     })
 })

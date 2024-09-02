@@ -32,7 +32,8 @@ import {
 	leaveGame,
 	gameOver,
 } from './game.slice';
-import { Socket, io } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+import { addAlert, AlertType } from 'front/store/alert.slice';
 
 export enum SocketEvent {
 	Connect = 'connect',
@@ -53,7 +54,7 @@ export enum SocketEvent {
 	IndestructibleLine = 'indestructible-line',
 	SyncWithServer = 'sync',
 	// On events
-	Error = 'error',
+	Exception = 'exception',
 	SetName = 'set-name',
 }
 
@@ -70,9 +71,17 @@ const socketMiddleware: Middleware = (store) => {
 				});
 
 				// handle all Error events
-				socket.on(SocketEvent.Error, (message) => {
-					console.error(message);
-				});
+				socket.on(
+					SocketEvent.Exception,
+					(data: { message: string; statusCode: number, error: string }) => {
+						console.error(data.message, data.statusCode);
+						if (data.message === 'lobbyError') {
+							store.dispatch(addAlert({ message: data.error, type: AlertType.LOBBY_ERROR}))
+						} else {
+							store.dispatch(addAlert({ message: data.error, type: AlertType.ERROR}))
+						}
+					}
+				);
 
 				// Handle disconnect event
 				socket.on(SocketEvent.Disconnect, (reason) => {

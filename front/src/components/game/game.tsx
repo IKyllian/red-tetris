@@ -3,14 +3,13 @@ import { useAppSelector, useAppDispatch } from "front/store/hook";
 import Board from "front/components/board/board";
 import { gameLoop } from "front/utils/gameLoop";
 import { getPieceIndex } from "front/utils/piece.utils";
-import { addInputToQueue, resetGame } from "front/store/game.slice";
+import { addInputToQueue } from "front/store/game.slice";
 import { getCommand, Commands } from "front/types/command.types";
 import { useNavigate } from "react-router-dom";
 import GameModal from "./game-modal";
 import "./game.css";
 import { ILobby } from "front/types/lobby.type";
 import { GameMode } from "front/types/packet.types";
-// import { useGameLoop } from "front/hooks/useGameLoop";
 
 export default function Game() {
 	const [isKeyUpReleased, setIsKeyUpReleased] = useState(true);
@@ -23,7 +22,6 @@ export default function Game() {
 	const opponentsGames = useAppSelector(
 		(state) => state.game.opponentsGames
 	)?.filter((game) => !game.gameOver);
-	// const opponentsGames = useAppS elector((state) => state.game.opponentsGames);
 	const gameMode = useAppSelector((state) => state.game.gameMode);
 	const playerGameBoard = useAppSelector(
 		(state) => state.game.playerGame?.board
@@ -35,50 +33,21 @@ export default function Game() {
 		(state) => state.game.playerGame?.player.name
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
-	// const tick = useAppSelector((state) => state.game.tick);
-	const fpsRef = useRef<number>(0);
-	// const fps = useGameLoop(gameOver);
-
-	const lastRenderTimeRef = useRef(null);
-	const renderCountRef = useRef<number>(0);
-	const renderArrayRef = useRef<number[]>([]);
-	const renderAverage = useRef<number>(0);
-
-	const now = performance.now();
-	if (!lastRenderTimeRef.current) {
-		lastRenderTimeRef.current = now;
-	}
-	const elapsed = now - lastRenderTimeRef.current;
-	if (elapsed >= 1000) {
-		lastRenderTimeRef.current = now;
-		renderArrayRef.current.push(renderCountRef.current);
-		const sum = renderArrayRef.current.reduce((a, b) => a + b, 0);
-		renderAverage.current = sum / renderArrayRef.current.length;
-		renderCountRef.current = 0;
-	} else {
-		renderCountRef.current++;
-	}
 
 	useEffect(() => {
 		if (!lobby) navigate("/home");
-	}, [lobby])
+	}, [lobby]);
 
 	useEffect(() => {
 		if (gameOver) {
 			console.log("GAME OVER");
 			return;
 		}
-		let cleanup = gameLoop(fpsRef, dispatch);
+		let cleanup = gameLoop(dispatch);
 		return () => {
 			if (cleanup) cleanup();
 		};
 	}, [gameStarted, dispatch, gameOver]);
-
-	useEffect(() => {
-		if (gameOver) {
-		  console.log('GAME OVER');
-		}
-	  }, [gameOver]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);
@@ -113,7 +82,8 @@ export default function Game() {
 	if (lobby) {
 		return (
 			<div className="game-container">
-				{ ((gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) || (gameMode === GameMode.SOLO && gameOver)) && (
+				{((gameMode === GameMode.BATTLEROYAL && !lobby.gameStarted) ||
+					(gameMode === GameMode.SOLO && gameOver)) && (
 					<GameModal lobby={lobby} gameMode={gameMode} />
 				)}
 				<div

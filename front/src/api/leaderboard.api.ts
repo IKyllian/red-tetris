@@ -1,7 +1,7 @@
 import { IPlayerScore } from "front/types/leaderboard.type";
 
 export async function getLeaderboard(): Promise<IPlayerScore[]> {
-    const response = await fetch("http://localhost:3000/leaderboard", {
+    const response = await fetch(`${process.env.IP}:3000/leaderboard`, {
         method: "GET"
     });
     

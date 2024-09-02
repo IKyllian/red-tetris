@@ -4,6 +4,7 @@ import { Mock, describe, expect, it, vi } from 'vitest';
 import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
 import { getLeaderboard } from 'front/api/leaderboard.api';
 
+const url = `${process.env.IP}:3000/leaderboard`
 describe("api/leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {
@@ -21,13 +22,13 @@ describe("api/leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse(leaderboard))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith("http://localhost:3000/leaderboard", { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
         expect(leaderboardData).toStrictEqual(leaderboard)
     })
     it('Should throw http error', async () => {
         (fetch as Mock).mockResolvedValue(createFetchThrow404Error())
 
         await expect(getLeaderboard()).rejects.toThrow("HTTP error! Status: 404");
-        expect(fetch).toHaveBeenCalledWith("http://localhost:3000/leaderboard", { method: "GET" });
+        expect(fetch).toHaveBeenCalledWith(url, { method: "GET" });
     })
 })

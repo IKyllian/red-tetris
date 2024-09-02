@@ -1,16 +1,16 @@
-import { GameMode } from '../type/game.type';
-import { Game } from './game';
-import { Player } from './player';
-import { CellType } from '../type/cell.interface';
-import { IInputsPacket } from '../type/event.enum';
-import { Commands } from '../type/command.types';
-import { Board } from './board';
-import { Piece } from './piece';
-import { defaultBoardSize } from '../type/board.interface';
-import { TetriminosArray } from '../type/tetromino.interface';
-import { Scoring } from '../type/scoring.enum';
+import { Board } from '../../game/board';
+import { Game } from '../../game/game';
+import { Piece } from '../../game/piece';
+import { Player } from '../../game/player';
+import { defaultBoardSize } from '../../type/board.interface';
+import { CellType } from '../../type/cell.interface';
+import { Commands } from '../../type/command.types';
+import { IInputsPacket } from '../../type/event.enum';
+import { GameMode } from '../../type/game.type';
+import { Scoring } from '../../type/scoring.enum';
+import { TetriminosArray } from '../../type/tetromino.interface';
 
-jest.mock('./board');
+jest.mock('../../game/board');
 jest.mock('seedrandom', () => {
 	return () => () => 0.9;
 });
