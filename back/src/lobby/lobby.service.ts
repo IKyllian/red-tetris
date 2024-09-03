@@ -33,7 +33,7 @@ export class LobbyService {
 		server: Server,
 		createLobbyIfNotExists: boolean = false
 	) {
-		if (lobbyId.length > 20) {
+		if (lobbyId.length > 20 && createLobbyIfNotExists) {
 			lobbyId = lobbyId.substring(0, 20);
 		}
 		const lobby: Lobby | undefined = this.lobbys.get(lobbyId);
