@@ -2,9 +2,8 @@ import { waitFor } from '@testing-library/dom';
 import { IPlayerScore } from 'front/types/leaderboard.type';
 import { Mock, describe, expect, it, vi } from 'vitest';
 import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
-import { getLeaderboard } from 'front/api/leaderboard.api';
+import { getLeaderboard,LEADERBOARD_ROUTE } from 'front/api/leaderboard.api';
 
-const url = `${import.meta.env.VITE_IP}:3000/leaderboard`
 describe("api/leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {
@@ -22,13 +21,13 @@ describe("api/leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse(leaderboard))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LEADERBOARD_ROUTE, { method: "GET" }));
         expect(leaderboardData).toStrictEqual(leaderboard)
     })
     it('Should throw http error', async () => {
         (fetch as Mock).mockResolvedValue(createFetchThrow404Error())
 
         await expect(getLeaderboard()).rejects.toThrow("HTTP error! Status: 404");
-        expect(fetch).toHaveBeenCalledWith(url, { method: "GET" });
+        expect(fetch).toHaveBeenCalledWith(LEADERBOARD_ROUTE, { method: "GET" });
     })
 })

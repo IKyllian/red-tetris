@@ -1,12 +1,11 @@
-import { describe, expect, afterEach, test, it, vi, Mock } from "vitest";
-import { render, cleanup, screen, waitFor, findByTestId } from '@testing-library/react';
+import { describe, expect, it, vi, Mock } from "vitest";
+import { render, waitFor } from '@testing-library/react';
 import Leaderboard from 'front/components/leaderboard/leaderboard';
 import React from "react";
-import { getLeaderboard } from "front/api/leaderboard.api";
+import { getLeaderboard, LEADERBOARD_ROUTE } from "front/api/leaderboard.api";
 import { IPlayerScore } from 'front/types/leaderboard.type';
 import { createFetchResponse } from "../fetch-utils";
 
-const url = `${import.meta.env.VITE_IP}:3000/leaderboard`
 describe("Leaderboard", () => {
     const leaderboard: IPlayerScore[] = [
         {
@@ -24,7 +23,7 @@ describe("Leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<IPlayerScore[]>(leaderboard))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LEADERBOARD_ROUTE, { method: "GET" }));
         expect(leaderboardData).toStrictEqual(leaderboard)
 
         const { findAllByTestId } = render(
@@ -49,7 +48,7 @@ describe("Leaderboard", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<IPlayerScore[]>([]))
         const leaderboardData = await getLeaderboard()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LEADERBOARD_ROUTE, { method: "GET" }));
         expect(leaderboardData).toStrictEqual([])
 
         const { findAllByTestId } = render(

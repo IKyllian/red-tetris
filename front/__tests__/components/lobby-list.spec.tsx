@@ -1,15 +1,13 @@
-import { describe, expect, afterEach, test, it, vi, Mock, beforeEach } from "vitest";
-import { render, cleanup, screen, waitFor, findByTestId, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi, Mock, beforeEach } from "vitest";
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import React from "react";
 import { createFetchResponse } from "../fetch-utils";
 import { ILobby } from 'front/types/lobby.type';
 import LobbyList from 'front/components/lobby-list/lobby-list';
-import { getLobbyList } from 'front/api/lobby.api';
+import { getLobbyList, LOBBY_ROUTE } from 'front/api/lobby.api';
 import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { useNavigate } from "react-router-dom";
 import { joinLobby } from 'front/store/lobby.slice';
-
-const url = `${import.meta.env.VITE_IP}:3000/lobby`
 
 // Mock useAppSelector and useAppDispatch
 vi.mock('front/store/hook', () => ({
@@ -64,7 +62,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>(lobbyList))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LOBBY_ROUTE, { method: "GET" }));
         expect(lobbyListData).toStrictEqual(lobbyList)
 
         const { findAllByTestId } = render(
@@ -107,7 +105,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>(lobbyStarted))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LOBBY_ROUTE, { method: "GET" }));
         expect(lobbyListData).toStrictEqual(lobbyStarted)
 
         const { findAllByTestId } = render(
@@ -133,7 +131,7 @@ describe("Looby-list", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse<ILobby[]>([]))
         const lobbyListData = await getLobbyList() as ILobby[]
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LOBBY_ROUTE, { method: "GET" }));
         expect(lobbyListData).toStrictEqual([])
 
         const { findAllByTestId } = render(

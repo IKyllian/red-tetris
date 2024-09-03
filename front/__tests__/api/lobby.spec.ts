@@ -1,10 +1,9 @@
 import { waitFor } from '@testing-library/dom';
 import { Mock, describe, expect, it, vi } from 'vitest';
 import { createFetchResponse, createFetchThrow404Error } from '../fetch-utils';
-import { getLobbyList } from 'front/api/lobby.api';
+import { getLobbyList, LOBBY_ROUTE } from 'front/api/lobby.api';
 import { ILobby } from 'front/types/lobby.type';
 
-const url = `${import.meta.env.VITE_IP}:3000/lobby`
 describe("api/lobby", () => {
     const lobby: ILobby[] = [
         {
@@ -22,13 +21,13 @@ describe("api/lobby", () => {
         (fetch as Mock).mockResolvedValue(createFetchResponse(lobby))
         const lobbyData = await getLobbyList()
         
-        await waitFor(() => expect(fetch).toHaveBeenCalledWith(url, { method: "GET" }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledWith(LOBBY_ROUTE, { method: "GET" }));
         expect(lobbyData).toStrictEqual(lobby)
     })
     it('Should throw http error', async () => {
         (fetch as Mock).mockResolvedValue(createFetchThrow404Error())
 
         await expect(getLobbyList()).rejects.toThrow("HTTP error! Status: 404");
-        expect(fetch).toHaveBeenCalledWith(url, { method: "GET" });
+        expect(fetch).toHaveBeenCalledWith(LOBBY_ROUTE, { method: "GET" });
     })
 })
