@@ -44,9 +44,6 @@ export class SoloGame {
 	}
 
 	private sendUpdates() {
-		// if (this.game.hasQuit) {
-		// 	console.log('game has quit');
-		// }
 		let gamePackets: IGameUpdatePacket[] = [];
 		if (this.game.positionChanged || this.game.boardChanged) {
 			gamePackets.push({

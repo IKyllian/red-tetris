@@ -80,11 +80,11 @@
     opacity: 0.2;
 }
 
-.countdown-container[data-isSolo = '1'] {
+.countdown-container[data-is-solo = '1'] {
     left: 20px;
 }
 
-.countdown-container[data-isSolo = '0'] {
+.countdown-container[data-is-solo = '0'] {
     left: -115px;
 }
 
@@ -131,14 +131,16 @@
 }
 
 .score-container  {
+    width: 150px;
     margin-bottom: 20px;
     margin-right: 10px;
-    text-align: center;
+    text-align: right;
     flex-direction: column-reverse;
+    margin-bottom: 50px;
 }
 
 .score-container > span {
-    font-size: 35px;
+    font-size: 2vw;
     font-weight: bold;
 }
 
@@ -179,10 +181,12 @@
 }
 
 
-
 @media screen and (max-width: 650px) {
+    .score-container {
+        width: 100px; 
+    }
     .score-container > span {
-        font-size: 18px;
+        font-size: 15px;
     }
 
     .playerName {
@@ -194,21 +198,30 @@
         top: 0;
     }
 
-    .countdown-container[data-isSolo = '1'] {
+    .countdown-container[data-is-solo = '1'] {
         left: 15px;
     }
     
-    .countdown-container[data-isSolo = '0'] {
+    .countdown-container[data-is-solo = '0'] {
         left: -80px;
     }
 }
 
+@media screen and (min-width: 1200px) {
+    .score-container > span {
+        font-size: 25px;
+    }
+    .score-container {
+        width: 200px;
+    }
+}
+
 @media screen and (min-width: 1500px) {
-    .countdown-container[data-isSolo = '1'] {
+    .countdown-container[data-is-solo = '1'] {
         left: -50px;
     }
     
-    .countdown-container[data-isSolo = '0'] {
+    .countdown-container[data-is-solo = '0'] {
         left: -170px;
     }
 }

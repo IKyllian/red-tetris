@@ -71,7 +71,7 @@ const Board = ({
 		<div className="inline-flex" style={{ position: "relative" }} autoFocus={true}>
 			{
 				!isOpponentBoards && count > -1 &&
-				<span data-testid="countdown" className="countdown-container" data-isSolo={+isSolo}> {count > 0 ? count : "GO"} </span>
+				<span data-testid="countdown" className="countdown-container" data-is-solo={+isSolo}> {count > 0 ? count : "GO"} </span>
 			}
 			{	
 				isSolo &&

@@ -18,7 +18,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 			database: process.env.POSTGRES_DB,
 			entities: [Leaderboard],
 			synchronize: true,
-			dropSchema: true,
 		}),
 
 		GatewayModule,

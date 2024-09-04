@@ -40,7 +40,6 @@ export default function Game() {
 
 	useEffect(() => {
 		if (gameOver) {
-			console.log("GAME OVER");
 			return;
 		}
 		let cleanup = gameLoop(dispatch);
