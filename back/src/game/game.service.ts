@@ -75,8 +75,9 @@ export class GameService {
 			adjustmentIteration === game.adjustmentIteration
 		) {
 			game.adjustmentIteration++;
+			game.tickAdjustment = gameLobby.tick - tick + 30;
 			const packet: ITickAdjustmentPacket = {
-				tickAdjustment: gameLobby.tick - tick + 15,
+				tickAdjustment: game.tickAdjustment,
 				adjustmentIteration: game.adjustmentIteration,
 			};
 			socket.emit(SocketEvent.SyncWithServer, packet);

@@ -101,9 +101,19 @@ export const gameSlice = createSlice({
 	reducers: {
 		leaveGame: () => {},
 		addInputToQueue(state, action) {
-			if (state.tick >= 90) {
+			// if (state.tick >= 90) {
 				state.inputQueue.push(action.payload);
-			}
+				const instance = SocketFactory.Instance();
+						const data = {
+							tick: state.tick,
+							adjustmentIteration: state.adjustmentIteration,
+							inputs: [...state.inputQueue],
+						};
+						instance.emit(SocketEvent.CommandPressed, {
+							data: data,
+						});
+						state.inputQueue.length = 0;
+			// }
 		},
 		resetGame: () => defaultGameState,
 		setGameStartingState: (
@@ -181,11 +191,40 @@ export const gameSlice = createSlice({
 
 			for (const gamePacket of gamePackets) {
 				if (gamePacket.state.player.id === state.playerGame.player.id) {
-					state.lastServerState = {
-						tick: packetWhithHeader.tick,
-						packet: gamePacket,
-					};
-					continue;
+				// 	state.lastServerState = {
+				// 		tick: packetWhithHeader.tick,
+				// 		packet: gamePacket,
+				// 	};
+				// 	continue;
+
+
+				if (
+					gamePacket.updateType === UpdateType.GAME
+				) {
+					const newState = gamePacket.state as IGame;
+					const piece = newState.piece;
+					state.playerGame = newState;
+					let shape = getShape(piece.type, piece.rotationState);
+
+					clearOldPosition(
+						piece,
+						shape,
+						state.playerGame.board
+					);
+					if (piece.rotationState !== newState.piece.rotationState) {
+						shape = getShape(
+							newState.piece.type,
+							newState.piece.rotationState
+						);
+					}
+					transferPieceToBoard(
+						state.playerGame.board,
+						newState.piece,
+						shape,
+						false
+					);
+					state.playerGame.piece = newState.piece;
+				}
 				}
 
 				const index = state.opponentsGames.findIndex(
@@ -270,6 +309,7 @@ export const gameSlice = createSlice({
 				for (let i = 0; i < state.indestructibleQueue.length; i++) {
 					const indestructible = state.indestructibleQueue[i];
 					if (indestructible.tick === state.tick) {
+						console.log("tick adding indestructible", state.tick);
 						addIndestructibleLines(state, indestructible.nb);
 						state.indestructibleQueue.splice(i, 1);
 						i--;
@@ -315,6 +355,8 @@ export const gameSlice = createSlice({
 			state,
 			action: { payload: IIndestructiblePacket }
 		) {
+			console.log("current tick: " + state.tick);
+			console.log("indestructible tick", action.payload.tick);
 			state.indestructibleQueue.push(action.payload);
 		},
 		updateTickAdjustments(

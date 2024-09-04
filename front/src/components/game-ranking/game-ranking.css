@@ -10,7 +10,7 @@ h2 {
 }
 
 .gameranking-wrapper {
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 350px;
 }
 

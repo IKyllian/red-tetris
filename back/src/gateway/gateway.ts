@@ -96,6 +96,7 @@ export class Gateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: InputsPacketDto
 	) {
+		console.log('commandPressed')
 		this.gameService.pushInputs(socket.id, data);
 	}
 

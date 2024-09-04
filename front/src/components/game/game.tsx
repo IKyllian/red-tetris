@@ -33,11 +33,12 @@ export default function Game() {
 		(state) => state.game.playerGame?.player.name
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
-
+	// console.info('playerGamePieceIndex = ', playerGamePieceIndex)
 	useEffect(() => {
 		if (!lobby) navigate("/home");
 	}, [lobby]);
 
+<<<<<<< Updated upstream
 	useEffect(() => {
 		if (gameOver) {
 			console.log("GAME OVER");
@@ -48,6 +49,17 @@ export default function Game() {
 			if (cleanup) cleanup();
 		};
 	}, [gameStarted, dispatch, gameOver]);
+=======
+	// useEffect(() => {
+	// 	if (gameOver) {
+	// 		return;
+	// 	}
+	// 	let cleanup = gameLoop(dispatch);
+	// 	return () => {
+	// 		if (cleanup) cleanup();
+	// 	};
+	// }, [gameStarted, dispatch, gameOver]);
+>>>>>>> Stashed changes
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);

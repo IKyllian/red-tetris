@@ -38,6 +38,13 @@ const Board = ({
 	const score = useAppSelector((state) => state.game.playerGame.score);
 	const level = useAppSelector((state) => state.game.playerGame.level);
 	const count = useAppSelector((state) => state.game.countdown);
+	// console.info('isOpponentBoards = ', isOpponentBoards)
+	// console.info('nextPieces = ', nextPieces)
+	useEffect(() => {
+		if (boardRef.current) {
+			boardRef.current.focus();
+		}
+	}, [board])
 
 	useEffect(() => {
 		const handleResize = () => {

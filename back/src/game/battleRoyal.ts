@@ -52,6 +52,7 @@ export class BattleRoyal {
 				0
 			);
 			const tickOffset = this.tick + maxTickOffset + 30;
+			console.log("tick offset: " + tickOffset);
 			if (otherGame.player.id !== game.player.id && !otherGame.gameOver) {
 				const indestructiblePacket: IIndestructiblePacket = {
 					tick: tickOffset,

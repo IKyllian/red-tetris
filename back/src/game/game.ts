@@ -130,25 +130,25 @@ export class Game {
 	public processInputs(tick: number) {
 		while (this.inputsQueue.length > 0) {
 			const packet = this.inputsQueue[0];
-			if (packet.tick > tick) {
-				if (
-					packet.tick - tick > 15 &&
-					this.adjustmentIteration === packet.adjustmentIteration
-				) {
-					this.adjustmentIteration++;
-					this.tickAdjustment = -1;
-				}
-				break;
-			} else if (packet.tick === tick) {
+			// if (packet.tick > tick) {
+			// 	if (
+			// 		packet.tick - tick > 50 &&
+			// 		this.adjustmentIteration === packet.adjustmentIteration
+			// 	) {
+			// 		this.adjustmentIteration++;
+			// 		this.tickAdjustment = -1;
+			// 	}
+			// 	break;
+			// } else if (packet.tick === tick) {
 				this.handleInputs(packet.inputs);
 				this.inputsQueue.shift();
-			} else if (tick > packet.tick) {
-				if (this.adjustmentIteration === packet.adjustmentIteration) {
-					this.adjustmentIteration++;
-					this.tickAdjustment = tick - packet.tick + 15;
-				}
-				this.inputsQueue.shift();
-			}
+			// } else if (tick > packet.tick) {
+			// 	if (this.adjustmentIteration === packet.adjustmentIteration) {
+			// 		this.adjustmentIteration++;
+			// 		this.tickAdjustment = tick - packet.tick + 30;
+			// 	}
+			// 	this.inputsQueue.shift();
+			// }
 		}
 	}
 

@@ -31,6 +31,24 @@ export function handleServerReconciliation(state: IGameState) {
 				serverGameState.piece
 			)
 		) {
+			console.log("Tick in reconciliation: ", state.tick);
+			console.log("Tick being processed: ", state.clientStateBuffer[index].tick);
+			if (
+				!compareCells(
+					state.clientStateBuffer[index].game.board.cells,
+					serverGameState.board.cells,
+					state.clientStateBuffer[index].game.piece
+				)) {
+					console.log("Board mismatch !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				}
+			if (!isEqual(
+                state.clientStateBuffer[index].game.piece,
+                serverGameState.piece
+            )) {
+				console.log("Piece mismatch !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				console.log("piece index", state.clientStateBuffer[index].game.currentPieceIndex)
+			}
+
 			// state.clientStateBuffer[index] = { ...serverGameState };
 			state.clientStateBuffer[index] = {
 				tick: state.lastServerState.tick,
