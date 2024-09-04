@@ -30,7 +30,7 @@ const TETRIS = [
 	},
 ];
 
-export default function Header() {
+export default function Header({ handleTutoClick }: { handleTutoClick: () => void }) {
 	const player = useAppSelector((state) => state.player);
 	const lobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
@@ -55,6 +55,11 @@ export default function Header() {
 					</span>	
 				)}
 			</div>
+			<div data-testid="header-left-container" className="flex flex-row items-center gap12">
+                <button data-testid="tuto-button" onClick={handleTutoClick} className="button">
+                    Comment jouer ?
+                </button>
+            </div>
 			<div data-testid="header-right-container" className="flex flex-row items-center gap12">
 				{lobby?.gameStarted && (
 					<button data-testid="leave-button" onClick={handleLeave} className="button">
