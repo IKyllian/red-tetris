@@ -9,8 +9,8 @@ import {
 	JoinLobbyDto,
 	StartGameDto,
 	InputsPacketDto,
-	TickAdjustmentPacketDto,
 } from '../../utils/dto/gateway.dto';
+import { Commands } from '../../type/command.types';
 
 describe('Gateway', () => {
 	let gateway: Gateway;
@@ -116,7 +116,7 @@ describe('Gateway', () => {
 			const data: JoinLobbyDto = {
 				playerName: 'Player1',
 				lobbyId: 'lobbyId',
-				createLobbyIfNotExists: false
+				createLobbyIfNotExists: false,
 			};
 
 			gateway.joinLobby(socket, data);
@@ -157,32 +157,14 @@ describe('Gateway', () => {
 	describe('commandPressed', () => {
 		it('should handle command pressed', () => {
 			const data: InputsPacketDto = {
-				tick: 10,
-				inputs: [],
-				adjustmentIteration: 0,
+				input: Commands.HARD_DROP,
 			};
 
 			gateway.commandPressed(socket, data);
 
 			expect(gameService.pushInputs).toHaveBeenCalledWith(
 				socket.id,
-				data
-			);
-		});
-	});
-
-	describe('syncWithServer', () => {
-		it('should handle sync with server', () => {
-			const data: TickAdjustmentPacketDto = {
-				tick: 10,
-				adjustmentIteration: 0,
-			};
-
-			gateway.syncWithServer(socket, data);
-
-			expect(gameService.syncWithServer).toHaveBeenCalledWith(
-				socket,
-				data
+				data.input
 			);
 		});
 	});

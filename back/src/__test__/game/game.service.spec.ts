@@ -7,11 +7,8 @@ import { SoloGame } from '../../game/solo-game';
 import { GatewayService } from '../../gateway/gateway.service';
 import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 import { LobbyService } from '../../lobby/lobby.service';
-import { ITickAdjustmentPacket, SocketEvent } from '../../type/event.enum';
-import {
-	InputsPacketDto,
-	TickAdjustmentPacketDto,
-} from '../../utils/dto/gateway.dto';
+import { InputsPacketDto } from '../../utils/dto/gateway.dto';
+import { Commands } from '../../type/command.types';
 
 jest.mock('../../game/battleRoyal');
 jest.mock('../../game/solo-game');
@@ -121,53 +118,13 @@ describe('GameService', () => {
 
 			(gameService as any).gameSocketMap = gameSocketManager;
 
-			const inputsPacket: InputsPacketDto = {
-				inputs: [],
-				tick: 0,
-				adjustmentIteration: 0,
+			const inputPacket: InputsPacketDto = {
+				input: Commands.MOVE_DOWN,
 			};
-			gameService.pushInputs('socketId', inputsPacket);
+			gameService.pushInputs('socketId', inputPacket.input);
 
-			expect(game.pushInputsInQueue).toHaveBeenCalledWith(inputsPacket);
-		});
-	});
-
-	describe('syncWithServer', () => {
-		it('should sync the game state with the server', () => {
-			const mockGame = {
-				adjustmentIteration: 0,
-			};
-			const mockGameLobby: Partial<SoloGame> = {
-				getPlayerGame: jest.fn().mockReturnValue(mockGame),
-				tick: 20,
-			};
-
-			const gameSocketManager = new GameSocketManager();
-			gameSocketManager.setGameToSocket(
-				'socketId',
-				mockGameLobby as SoloGame
-			);
-
-			(gameService as any).gameSocketMap = gameSocketManager;
-
-			const tickAdjustmentPacket: TickAdjustmentPacketDto = {
-				tick: 19,
-				adjustmentIteration: 0,
-			};
-
-			gameService.syncWithServer(
-				mockSocket as Socket,
-				tickAdjustmentPacket
-			);
-
-			const expectedPacket: ITickAdjustmentPacket = {
-				tickAdjustment: 16,
-				adjustmentIteration: 1,
-			};
-
-			expect(mockSocket.emit).toHaveBeenCalledWith(
-				SocketEvent.SyncWithServer,
-				expectedPacket
+			expect(game.pushInputsInQueue).toHaveBeenCalledWith(
+				inputPacket.input
 			);
 		});
 	});

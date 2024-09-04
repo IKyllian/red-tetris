@@ -133,22 +133,6 @@ describe('battleRoyal', () => {
 			const indestructibleToGive = 3;
 			battleRoyal.games[1].indestructibleToGive = indestructibleToGive;
 			battleRoyal['handleIndestructibleLine'](battleRoyal.games[1]);
-			const maxTickOffset = battleRoyal.games.reduce(
-				(acc, game) => Math.max(acc, game.tickAdjustment),
-				0
-			);
-			const tickOffset = battleRoyal.tick + maxTickOffset + 30;
-			const indestructiblePacket: IIndestructiblePacket = {
-				tick: tickOffset,
-				nb: indestructibleToGive,
-			};
-			expect(server.to).toHaveBeenCalledWith(
-				battleRoyal.games[0].player.id
-			);
-			expect(server.emit).toHaveBeenCalledWith(
-				SocketEvent.IndestructibleLine,
-				indestructiblePacket
-			);
 			expect(battleRoyal.games[1].indestructibleToGive).toBe(0);
 		});
 

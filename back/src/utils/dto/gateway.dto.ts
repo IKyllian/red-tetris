@@ -32,5 +32,5 @@ export class StartGameDto {
 
 export class InputsPacketDto {
 	@IsEnum(Commands)
-	inputs: Commands;
+	input: Commands;
 }

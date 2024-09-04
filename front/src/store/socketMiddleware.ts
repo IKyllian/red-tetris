@@ -101,7 +101,6 @@ const socketMiddleware: Middleware = (store) => {
 				socket.on(
 					SocketEvent.GamesUpdate,
 					(data: IGameUpdatePacket[]) => {
-						console.info('Update', data);
 						store.dispatch(updateGamesBoard(data));
 					}
 				);

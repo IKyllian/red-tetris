@@ -95,7 +95,7 @@ export class Gateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: InputsPacketDto
 	) {
-		this.gameService.pushInputs(socket.id, data.inputs);
+		this.gameService.pushInputs(socket.id, data.input);
 	}
 
 	@SubscribeMessage(SocketEvent.LeaveGame)
