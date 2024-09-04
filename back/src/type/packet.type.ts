@@ -7,14 +7,8 @@ export enum UpdateType {
 	GAME,
 }
 
-export interface IGameUpdatePacketHeader {
-	tick: number;
-	tickAdjustment: number;
-	adjustmentIteration: number;
-	gamePackets: IGameUpdatePacket[];
-}
 export interface IGameUpdatePacket {
-	updateType: number;
+	updateType: UpdateType;
 	state: IGame | { player: Player; piece: Piece };
 }
 

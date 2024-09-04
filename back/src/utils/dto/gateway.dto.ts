@@ -1,4 +1,10 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+	IsBoolean,
+	IsEnum,
+	IsNotEmpty,
+	IsNumber,
+	IsString,
+} from 'class-validator';
 import { Commands } from '../../type/command.types';
 import { Optional } from '@nestjs/common';
 
@@ -25,17 +31,6 @@ export class StartGameDto {
 }
 
 export class InputsPacketDto {
-	@IsNumber()
-	tick: number;
-	@IsNumber()
-	adjustmentIteration: number;
-	@IsEnum(Commands, { each: true })
-	inputs: Commands[];
-}
-
-export class TickAdjustmentPacketDto {
-	@IsNumber()
-	tick: number;
-	@IsNumber()
-	adjustmentIteration: number;
+	@IsEnum(Commands)
+	inputs: Commands;
 }

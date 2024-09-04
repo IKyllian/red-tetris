@@ -33,24 +33,24 @@ services:
   #     - frontend
   #     - red_tetris_db
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - red_tetris_network
-    environment:
-      IP: ${IP}
-      VITE_IP: ${VITE_IP}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: red_tetris_db
-      FRONT_DIST_PATH: ${FRONT_DIST_PATH}
-    ports:
-      - "3000:3000"
-    depends_on:
-      - red_tetris_db
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     - red_tetris_network
+  #   environment:
+  #     IP: ${IP}
+  #     VITE_IP: ${VITE_IP}
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #     POSTGRES_HOST: red_tetris_db
+  #     FRONT_DIST_PATH: ${FRONT_DIST_PATH}
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - red_tetris_db
 
   # Database
   red_tetris_db:

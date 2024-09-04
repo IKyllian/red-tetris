@@ -1,6 +1,4 @@
 export interface ITetromino {
-	// shape: number[][];
-	// className: string;
 	type: CellType;
 	position: IPosition;
 	rotationState: number;

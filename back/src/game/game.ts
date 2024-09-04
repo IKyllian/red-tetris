@@ -7,7 +7,6 @@ import seedrandom from 'seedrandom';
 import { IPosition, TetriminosArray } from '../type/tetromino.interface';
 import { GameMode } from '../type/game.type';
 import { Commands } from '../type/command.types';
-import { IInputsPacket } from '../type/event.enum';
 
 export interface IGame {
 	player: Player;
@@ -33,13 +32,11 @@ export class Game {
 	public lastPacketSendAt: number = 0;
 	public positionChanged: boolean = false;
 	public boardChanged: boolean = false;
-	public tickAdjustment = 0;
-	public adjustmentIteration = 0;
-	public indestructibleQueue: { tick: number; nb: number }[] = [];
+	public indestructibleQueue: number[] = [];
 	public hasQuit: boolean = false;
 
 	private gameMode: GameMode;
-	private inputsQueue: IInputsPacket[] = [];
+	private inputsQueue: Commands[] = [];
 	private linesCleared: number = 0;
 	public board: Board;
 	private tickToMoveDown: number = 0;
@@ -87,16 +84,12 @@ export class Game {
 			this.boardChanged = true;
 			return;
 		}
-		for (let i = 0; i < this.indestructibleQueue.length; i++) {
-			const indestructible = this.indestructibleQueue[i];
-			if (indestructible.tick === tick) {
-				this.addIndestructibleLines(indestructible.nb);
-				this.indestructibleQueue.splice(i, 1);
-				i--;
-			}
+		for (const indestructible of this.indestructibleQueue) {
+			this.addIndestructibleLines(indestructible);
 		}
+		this.indestructibleQueue = [];
 
-		this.processInputs(tick);
+		this.processInputs();
 		switch (this.gameMode) {
 			case GameMode.BATTLEROYAL:
 				if (this.tickToMoveDown >= 1) {
@@ -121,58 +114,38 @@ export class Game {
 		}
 	}
 
-	public pushInputsInQueue(inputs: IInputsPacket) {
+	public pushInputsInQueue(input: Commands) {
 		if (!this.gameOver) {
-			this.inputsQueue.push(inputs);
+			this.inputsQueue.push(input);
 		}
 	}
 
-	public processInputs(tick: number) {
+	public processInputs() {
 		while (this.inputsQueue.length > 0) {
-			const packet = this.inputsQueue[0];
-			// if (packet.tick > tick) {
-			// 	if (
-			// 		packet.tick - tick > 50 &&
-			// 		this.adjustmentIteration === packet.adjustmentIteration
-			// 	) {
-			// 		this.adjustmentIteration++;
-			// 		this.tickAdjustment = -1;
-			// 	}
-			// 	break;
-			// } else if (packet.tick === tick) {
-				this.handleInputs(packet.inputs);
-				this.inputsQueue.shift();
-			// } else if (tick > packet.tick) {
-			// 	if (this.adjustmentIteration === packet.adjustmentIteration) {
-			// 		this.adjustmentIteration++;
-			// 		this.tickAdjustment = tick - packet.tick + 30;
-			// 	}
-			// 	this.inputsQueue.shift();
-			// }
+			const input = this.inputsQueue.shift();
+			this.handleInputs(input);
 		}
 	}
 
-	public handleInputs(commands: Commands[]) {
-		for (const command of commands) {
-			if (this.gameOver) return;
+	public handleInputs(command: Commands) {
+		if (this.gameOver) return;
 
-			switch (command) {
-				case Commands.ROTATE:
-					this.rotate();
-					break;
-				case Commands.MOVE_LEFT:
-					this.moveSideway(this.getPosLeft(this.piece.position));
-					break;
-				case Commands.MOVE_RIGHT:
-					this.moveSideway(this.getPosRight(this.piece.position));
-					break;
-				case Commands.MOVE_DOWN:
-					this.moveDown();
-					break;
-				default:
-					this.hardDrop();
-					break;
-			}
+		switch (command) {
+			case Commands.ROTATE:
+				this.rotate();
+				break;
+			case Commands.MOVE_LEFT:
+				this.moveSideway(this.getPosLeft(this.piece.position));
+				break;
+			case Commands.MOVE_RIGHT:
+				this.moveSideway(this.getPosRight(this.piece.position));
+				break;
+			case Commands.MOVE_DOWN:
+				this.moveDown();
+				break;
+			default:
+				this.hardDrop();
+				break;
 		}
 	}
 
