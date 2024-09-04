@@ -5,7 +5,6 @@ import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 import { Lobby } from '../../lobby/lobby';
 import { SocketEvent } from '../../type/event.enum';
 import { GameMode } from '../../type/game.type';
-import { IIndestructiblePacket } from '../../type/packet.type';
 
 describe('battleRoyal', () => {
 	const mockPlayer = {
@@ -87,7 +86,6 @@ describe('battleRoyal', () => {
 
 		it('should does nothing if the player id does not exist', () => {
 			battleRoyal.leave('777');
-			expect(battleRoyal.games[1].hasQuit).toBe(false);
 			expect(battleRoyal.games[1].hasQuit).toBe(false);
 		});
 	});
