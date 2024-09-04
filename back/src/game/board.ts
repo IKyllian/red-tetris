@@ -104,16 +104,4 @@ export class Board {
 		}
 		return false;
 	}
-
-	// public printBoard() {
-	// 	for (let i = 0; i < this.cells.length; i++) {
-	// 		let rowString = '';
-	// 		for (let j = 0; j < this.cells[i].length; j++) {
-	// 			const cell = this.cells[i][j];
-	// 			rowString += cell.occupied ? 'X ' : 'O ';
-	// 		}
-	// 		console.log(rowString + ' y: ', i);
-	// 	}
-	// 	console.log('');
-	// }
 }

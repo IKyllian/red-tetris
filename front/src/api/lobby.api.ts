@@ -1,8 +1,8 @@
-import { IPlayerScore } from "front/types/leaderboard.type";
 import { ILobby } from "front/types/lobby.type";
 
+export const LOBBY_ROUTE = `${import.meta.env.VITE_IP}:3000/api/lobby`
 export async function getLobbyList(): Promise<ILobby[]> {
-    const response = await fetch("http://localhost:3000/lobby", {
+    const response = await fetch(LOBBY_ROUTE, {
         method: "GET"
     });
     

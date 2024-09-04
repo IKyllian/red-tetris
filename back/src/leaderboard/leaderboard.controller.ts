@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
 
-@Controller('leaderboard')
+@Controller('api/leaderboard')
 export class LeaderboardController {
 	constructor(private lbService: LeaderboardService) {}
 

@@ -99,10 +99,6 @@ export class BattleRoyal {
 				}
 			}
 			if (gamePackets.length > 0) {
-				// console.log('tick: ', this.tick);
-				// console.log('player Piece: ', playerGame.piece);
-				// playerGame.board.printBoard();
-				// console.log('--------------------------------------------');
 				const dataToSend: IGameUpdatePacketHeader = {
 					tick: this.tick,
 					tickAdjustment: playerGame.tickAdjustment,

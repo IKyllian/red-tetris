@@ -12,23 +12,22 @@ import 'dotenv/config'
 	imports: [
 		TypeOrmModule.forRoot({
 			type: 'postgres',
-			host: 'localhost',
+			host: process.env.POSTGRES_HOST,
 			port: 5432,
-			username: 'red_tetris_user',
-			password: 'red_tetris_pwd',
-			database: 'red_tetris',
+			username: process.env.POSTGRES_USER,
+			password: process.env.POSTGRES_PASSWORD,
+			database: process.env.POSTGRES_DB,
 			entities: [Leaderboard],
 			synchronize: true,
-			dropSchema: true,
 		}),
 
 		GatewayModule,
 		GameModule,
 		LobbyModule,
 		LeaderboardModule,
-		// ServeStaticModule.forRoot({
-		//   rootPath: '/home/kdelport/Documents/red-tetris/front/dist',
-		// }),
+		ServeStaticModule.forRoot({
+		  rootPath: process.env.FRONT_DIST_PATH
+		}),
 	],
 })
 export class AppModule {

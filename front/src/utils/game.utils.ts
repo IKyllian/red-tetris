@@ -6,7 +6,7 @@ import { moveDown } from 'front/utils/piece-move.utils';
 import { getShape, setDropPreview, transferPieceToBoard } from './piece.utils';
 import { generatePieces } from 'front/utils/piece-generation.utils';
 import { GameMode } from 'front/types/packet.types';
-import { handleInput } from './handle-inputs.utils';
+import { handleInput } from 'front/utils/handle-inputs.utils';
 
 export const PIECES_BUFFER_SIZE = 100;
 export const MIN_TIME_BETWEEN_TICKS = 1000 / 30;
