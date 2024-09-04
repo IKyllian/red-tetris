@@ -1,8 +1,9 @@
 .home-container {
-    height: calc(100vh - var(--main-header-height));
+    min-height: calc(100vh - var(--main-header-height));
     position: relative;
     padding-top: 22px;
     overflow: hidden;
+    padding-bottom: 42px;
 }
 
 .buttons-container {

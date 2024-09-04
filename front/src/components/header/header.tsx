@@ -55,11 +55,6 @@ export default function Header({ handleTutoClick }: { handleTutoClick: () => voi
 					</span>	
 				)}
 			</div>
-			<div data-testid="header-left-container" className="flex flex-row items-center gap12">
-                <button data-testid="tuto-button" onClick={handleTutoClick} className="button">
-                    Comment jouer ?
-                </button>
-            </div>
 			<div data-testid="header-right-container" className="flex flex-row items-center gap12">
 				{lobby?.gameStarted && (
 					<button data-testid="leave-button" onClick={handleLeave} className="button">

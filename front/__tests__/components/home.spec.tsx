@@ -135,7 +135,7 @@ describe('Home', () => {
 
             const gameModes = await findAllByTestId('tetris-letter');
 
-            expect(gameModes).toHaveLength(3)
+            expect(gameModes).toHaveLength(4)
             
             fireEvent.click(gameModes[0])
             expect(mockDispatch).toHaveBeenCalledWith(sendStartGame({

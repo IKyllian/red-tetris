@@ -3,7 +3,10 @@ import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { createLobby, joinLobby, sendStartGame } from "front/store/lobby.slice";
 import { useForm } from "react-hook-form";
 import "./home.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import ModalTuto from 'front/components/modal-tuto/modal-tuto';
+import React from 'react';
+
 interface JoinFormValues {
 	lobbyId: string;
 }
@@ -36,7 +39,7 @@ export function CreateGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Name"
-				style={{ borderColor: "#88afff" }}
+				style={{ borderColor: "#bab8df" }}
 				{...register("lobbyName", { required: true })}
 			/>
 			{errors.lobbyName && errors.lobbyName.message && (
@@ -74,7 +77,7 @@ export function JoinGameButton({ playerName }: { playerName: string }) {
 				className="input"
 				type="text"
 				placeholder="Lobby Id"
-				style={{ borderColor: "#88afff" }}
+				style={{ borderColor: "#bab8df" }}
 				{...register("lobbyId", { required: true })}
 			/>
 			{errors.lobbyId && errors.lobbyId.message && (
@@ -97,20 +100,27 @@ export const GAME_MODE = [
 	{
 		title: "liste des lobby",
 		description: "Liste de tous les lobby",
-		color: "#1e1d2d",
-		textColor: "#bab8df",
+		color: "#1c263e",
+		textColor: "#88afff",
 		path: "/lobby-list",
 	},
 	{
 		title: "leaderboard",
 		description: "Top 10 des meilleurs scores en solo",
-		color: "#4499B0",
-		textColor: "#bab8df",
+		color: "#3b4746",
+		textColor: "#a7d1cf",
 		path: "/leaderboard",
+	},
+	{
+		title: "Comment jouer ?",
+		description: "Liste des touches pour jouer à Tetris",
+		color: "#212121",
+		textColor: "#bfbfbf",
 	},
 ];
 
 export default function Home() {
+	const [modalOpen, setModalOpen] = useState<boolean>(false);
 	const playerName = useAppSelector((state) => state.player.name);
 	const lobby = useAppSelector((state) => state.lobby);
 	const navigate = useNavigate();
@@ -131,49 +141,57 @@ export default function Home() {
 			dispatch(sendStartGame({ playerName }));
 		}
 	};
+
+	const handleClickModal = () => setModalOpen(prev => !prev)
+	const renderLobbyButton = () => (
+		<div
+			className="game-mode-item flex flex-row content-evenly"
+			style={{
+				backgroundColor: "#1e1d2d",
+				color: "#bab8df",
+				border: "1px solid #bab8df",
+			}}
+		>
+			<div className="flex flex-col">
+				<span className="game-mode-title">Creer un lobby</span>
+				<CreateGameButton playerName={playerName} />
+			</div>
+
+			<div className="flex flex-col">
+				<span className="game-mode-title">
+					Rejoindre un lobby
+				</span>
+				<JoinGameButton playerName={playerName} />
+			</div>
+		</div>
+	)
+
 	return (
 		<div className="home-container">
+			{ modalOpen && <ModalTuto onClose={handleClickModal} /> }
 			<div className="game-mode-list flex flex-col gap12">
 				{GAME_MODE.map((gameMode, index) => (
-					<div
-					    data-testid="tetris-letter"
-						onClick={() => handleClick(gameMode.path)}
-						key={index}
-						className="game-mode-item flex flex-col"
-						style={{
-							backgroundColor: gameMode.color,
-							color: gameMode.textColor,
-							border: "1px solid " + gameMode.textColor,
-						}}
-					>
-						<span className="game-mode-title">
-							{gameMode.title}
-						</span>
-						<span className="game-mode-description">
-							{gameMode.description}
-						</span>
-					</div>
+					<React.Fragment key={index}>
+						<div
+							data-testid="tetris-letter"
+							onClick={() => index === GAME_MODE.length - 1 ? handleClickModal() : handleClick(gameMode.path)}
+							className="game-mode-item flex flex-col"
+							style={{
+								backgroundColor: gameMode.color,
+								color: gameMode.textColor,
+								border: "1px solid " + gameMode.textColor,
+							}}
+						>
+							<span className="game-mode-title">
+								{gameMode.title}
+							</span>
+							<span className="game-mode-description">
+								{gameMode.description}
+							</span>
+						</div>
+						{ index === 0 ? renderLobbyButton() : null}
+					</React.Fragment>
 				))}
-				<div
-					className="game-mode-item flex flex-row content-evenly"
-					style={{
-						backgroundColor: "#1c263e",
-						color: "#88afff",
-						border: "1px solid #88afff",
-					}}
-				>
-					<div className="flex flex-col">
-						<span className="game-mode-title">Creer un lobby</span>
-						<CreateGameButton playerName={playerName} />
-					</div>
-
-					<div className="flex flex-col">
-						<span className="game-mode-title">
-							Rejoindre un lobby
-						</span>
-						<JoinGameButton playerName={playerName} />
-					</div>
-				</div>
 			</div>
 		</div>
 	);
