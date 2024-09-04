@@ -30,7 +30,7 @@ const TETRIS = [
 	},
 ];
 
-export default function Header({ handleTutoClick }: { handleTutoClick: () => void }) {
+export default function Header() {
 	const player = useAppSelector((state) => state.player);
 	const lobby = useAppSelector((state) => state.lobby);
 	const dispatch = useAppDispatch();
