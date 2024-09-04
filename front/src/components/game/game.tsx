@@ -38,18 +38,6 @@ export default function Game() {
 		if (!lobby) navigate("/home");
 	}, [lobby]);
 
-<<<<<<< Updated upstream
-	useEffect(() => {
-		if (gameOver) {
-			console.log("GAME OVER");
-			return;
-		}
-		let cleanup = gameLoop(dispatch);
-		return () => {
-			if (cleanup) cleanup();
-		};
-	}, [gameStarted, dispatch, gameOver]);
-=======
 	// useEffect(() => {
 	// 	if (gameOver) {
 	// 		return;
@@ -59,7 +47,6 @@ export default function Game() {
 	// 		if (cleanup) cleanup();
 	// 	};
 	// }, [gameStarted, dispatch, gameOver]);
->>>>>>> Stashed changes
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);

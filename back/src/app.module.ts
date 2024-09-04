@@ -5,11 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Leaderboard } from './entity/leaderboard.entity';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { GatewayModule } from './gateway/gateway.module';
-<<<<<<< Updated upstream
-=======
 import { ServeStaticModule } from '@nestjs/serve-static';
 import 'dotenv/config'
->>>>>>> Stashed changes
 
 @Module({
 	imports: [
