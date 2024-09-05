@@ -9,7 +9,9 @@ import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-d
 
 vi.mock('front/store/hook', () => ({
     useAppSelector: vi.fn(),
+    useAppDispatch: vi.fn()
 }));
+
 
 vi.mock('front/utils/board-size-display.utils', () => {
     const mockGetBoardStyleSize = vi.fn(() => ({ width: 100, height: 200 }));

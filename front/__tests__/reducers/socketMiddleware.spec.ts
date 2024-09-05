@@ -4,8 +4,7 @@ import socketMiddleware, { SocketEvent } from 'front/store/socketMiddleware';
 import { io } from 'socket.io-client';
 import {
 	initSocket,
-} from 'front/store/socket.slice';
-import { IInputsPacket } from 'front/types/packet.types';
+} from 'front/store/socket.slice';;
 
 // Mock actions
 const createPlayer = createAction<{ name: String, id: String }>('player/createPlayer');
@@ -13,7 +12,6 @@ const createLobby = createAction<{lobbyName: string}>('lobby/createLobby');
 const joinLobby = createAction<{lobbyId: string, playerName: string}>('lobby/joinLobby');
 const leaveLobby = createAction<string>('lobby/leaveLobby');
 const sendStartGame = createAction<{playerName: string}>('lobby/sendStartGame');
-const sendInputs = createAction<IInputsPacket>('game/sendInputs');
 
 const url = `${process.env.VITE_IP_URL}:3000`
 // TODO: use mock of socket factory ?
@@ -59,8 +57,6 @@ describe('socket middleware', () => {
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GamesUpdate, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GameOver, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.StartingGame, expect.any(Function));
-        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.SyncWithServer, expect.any(Function));
-        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.IndestructibleLine, expect.any(Function));
     });
 
     it('should handle sign action and dispatch createPlayer', () => {

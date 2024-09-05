@@ -26,7 +26,7 @@ import {
 	gameOver,
 	addInputToQueue,
 } from './game.slice';
-import { Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { addAlert, AlertType } from 'front/store/alert.slice';
 
 export enum SocketEvent {
@@ -56,8 +56,7 @@ const socketMiddleware: Middleware = (store) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
 			if (!socket) {
-				console.info('INIT SOCKET')
-				socket = socketInstance();
+				socket = io(`${process.env.VITE_IP_URL}:3000`);
 				socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());
 				});

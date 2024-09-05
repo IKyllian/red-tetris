@@ -15,7 +15,7 @@ vi.mock('front/store/hook', () => ({
     useAppSelector: vi.fn(),
     useAppDispatch: vi.fn()
 }));
-  
+
 // Mock the useNavigate hook
 vi.mock('react-router-dom', () => ({
     useNavigate: vi.fn()
