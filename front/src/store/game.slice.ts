@@ -21,7 +21,7 @@ import { ITetromino } from 'front/types/tetrominoes.type';
 import { handleInput } from 'front/utils/handle-inputs.utils';
 import seedrandom from 'seedrandom';
 import { addIndestructibleLines } from 'front/utils/board.utils';
-import SocketFactory from 'front/store/socketFactory';
+import socketInstance from 'front/store/socketFactory';
 import { SocketEvent } from 'front/store/socketMiddleware';
 import { cloneDeep } from 'lodash';
 import {
@@ -103,7 +103,7 @@ export const gameSlice = createSlice({
 		addInputToQueue(state, action) {
 			// if (state.tick >= 90) {
 				state.inputQueue.push(action.payload);
-				const instance = SocketFactory.Instance();
+				const instance = socketInstance();
 						const data = {
 							tick: state.tick,
 							adjustmentIteration: state.adjustmentIteration,
@@ -291,7 +291,7 @@ export const gameSlice = createSlice({
 					state.countdown = 3 - state.tick / 30;
 				}
 				while (state.timer >= MIN_TIME_BETWEEN_TICKS) {
-					const instance = SocketFactory.Instance();
+					const instance = socketInstance();
 					const data = {
 						tick: state.tick,
 						adjustmentIteration: state.adjustmentIteration,
@@ -323,7 +323,7 @@ export const gameSlice = createSlice({
 						...state.inputQueue,
 					];
 
-					const instance = SocketFactory.Instance();
+					const instance = socketInstance();
 					const data = {
 						tick: state.tick,
 						adjustmentIteration: state.adjustmentIteration,

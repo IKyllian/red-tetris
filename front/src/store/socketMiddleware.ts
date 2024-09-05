@@ -1,5 +1,5 @@
 import { Middleware } from '@reduxjs/toolkit';
-import SocketFactory from 'front/store/socketFactory';
+import socketInstance from 'front/store/socketFactory';
 import {
 	connectionEstablished,
 	connectionLost,
@@ -64,8 +64,7 @@ const socketMiddleware: Middleware = (store) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
 			if (!socket) {
-				// Create Socket
-				socket = SocketFactory.Instance();
+				socket = socketInstance();
 				socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());
 				});
