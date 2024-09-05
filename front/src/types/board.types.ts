@@ -62,7 +62,3 @@ export const defaultGame: IGame = {
 	currentPieceIndex: 0,
 	tickToMoveDown: 0,
 };
-
-export const NbOfLinesForNextLevel = 10;
-
-export const Scoring = [100, 300, 500, 800];

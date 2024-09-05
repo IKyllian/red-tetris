@@ -4,7 +4,7 @@ import { SoloGame } from '../../game/solo-game';
 import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 import { SocketEvent } from '../../type/event.enum';
 import { GameMode } from '../../type/game.type';
-import { UpdateType, IGameUpdatePacketHeader } from '../../type/packet.type';
+import { UpdateType } from '../../type/packet.type';
 
 describe('solo-games', () => {
 	const mockPlayer = {
@@ -110,38 +110,30 @@ describe('solo-games', () => {
 		it('Should emit game update because positionChanged', () => {
 			soloGame.game.positionChanged = true;
 			soloGame['sendUpdates']();
-			const gamePacket = {
-				updateType: UpdateType.GAME,
-				state: soloGame.game.getDataToSend(),
-			};
-			const dataToSend: IGameUpdatePacketHeader = {
-				tick: soloGame.tick,
-				tickAdjustment: soloGame.game.tickAdjustment,
-				adjustmentIteration: soloGame.game.adjustmentIteration,
-				gamePackets: [gamePacket],
-			};
+			const gamePacket = [
+				{
+					updateType: UpdateType.GAME,
+					state: soloGame.game.getDataToSend(),
+				},
+			];
 			expect(server.emit).toHaveBeenCalledWith(
 				SocketEvent.GamesUpdate,
-				dataToSend
+				gamePacket
 			);
 		});
 
 		it('Should emit game update because boardChanged', () => {
 			soloGame.game.boardChanged = true;
 			soloGame['sendUpdates']();
-			const gamePacket = {
-				updateType: UpdateType.GAME,
-				state: soloGame.game.getDataToSend(),
-			};
-			const dataToSend: IGameUpdatePacketHeader = {
-				tick: soloGame.tick,
-				tickAdjustment: soloGame.game.tickAdjustment,
-				adjustmentIteration: soloGame.game.adjustmentIteration,
-				gamePackets: [gamePacket],
-			};
+			const gamePacket = [
+				{
+					updateType: UpdateType.GAME,
+					state: soloGame.game.getDataToSend(),
+				},
+			];
 			expect(server.emit).toHaveBeenCalledWith(
 				SocketEvent.GamesUpdate,
-				dataToSend
+				gamePacket
 			);
 		});
 	});

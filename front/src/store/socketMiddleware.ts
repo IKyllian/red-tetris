@@ -18,19 +18,13 @@ import {
 import { ILobby } from 'front/types/lobby.type';
 import { createPlayer, sign } from 'front/store/player.slice';
 import { IPlayer } from 'front/types/player.type';
-import {
-	GameMode,
-	IGameUpdatePacketHeader,
-	IIndestructiblePacket,
-	ITickAdjustmentPacket,
-} from 'front/types/packet.types';
+import { GameMode, IGameUpdatePacket } from 'front/types/packet.types';
 import {
 	setGameStartingState,
 	updateGamesBoard,
-	updateIndestructibleLines,
-	updateTickAdjustments,
 	leaveGame,
 	gameOver,
+	addInputToQueue,
 } from './game.slice';
 import { Socket } from 'socket.io-client';
 import { addAlert, AlertType } from 'front/store/alert.slice';
@@ -51,8 +45,6 @@ export enum SocketEvent {
 	StartingGame = 'starting-game',
 	LeaveGame = 'leave-game',
 	GameOver = 'game-over',
-	IndestructibleLine = 'indestructible-line',
-	SyncWithServer = 'sync',
 	// On events
 	Exception = 'exception',
 	SetName = 'set-name',
@@ -64,6 +56,7 @@ const socketMiddleware: Middleware = (store) => {
 		// Middleware logic for the `initSocket` action
 		if (initSocket.match(action)) {
 			if (!socket) {
+				console.info('INIT SOCKET')
 				socket = socketInstance();
 				socket.on(SocketEvent.Connect, () => {
 					store.dispatch(connectionEstablished());
@@ -72,12 +65,26 @@ const socketMiddleware: Middleware = (store) => {
 				// handle all Error events
 				socket.on(
 					SocketEvent.Exception,
-					(data: { message: string; statusCode: number, error: string }) => {
+					(data: {
+						message: string;
+						statusCode: number;
+						error: string;
+					}) => {
 						console.error(data.message, data.statusCode);
 						if (data.message === 'lobbyError') {
-							store.dispatch(addAlert({ message: data.error, type: AlertType.LOBBY_ERROR}))
+							store.dispatch(
+								addAlert({
+									message: data.error,
+									type: AlertType.LOBBY_ERROR,
+								})
+							);
 						} else {
-							store.dispatch(addAlert({ message: data.error, type: AlertType.ERROR}))
+							store.dispatch(
+								addAlert({
+									message: data.error,
+									type: AlertType.ERROR,
+								})
+							);
 						}
 					}
 				);
@@ -94,23 +101,14 @@ const socketMiddleware: Middleware = (store) => {
 
 				socket.on(
 					SocketEvent.GamesUpdate,
-					(data: IGameUpdatePacketHeader) => {
-						console.info('Update', data)
+					(data: IGameUpdatePacket[]) => {
 						store.dispatch(updateGamesBoard(data));
 					}
 				);
-
-				socket.on(
-					SocketEvent.SyncWithServer,
-					(packet: ITickAdjustmentPacket) => {
-						store.dispatch(updateTickAdjustments(packet));
-					}
-				);
-
 				socket.on(SocketEvent.GameOver, (data: IPlayer[]) => {
 					store.dispatch(onAllGamesOver(data));
 					store.dispatch(gameOver());
-				});
+				}); //TODO
 
 				socket.on(
 					SocketEvent.StartingGame,
@@ -124,13 +122,6 @@ const socketMiddleware: Middleware = (store) => {
 						store.dispatch(setGameStartingState(data));
 					}
 				);
-
-				socket.on(
-					SocketEvent.IndestructibleLine,
-					(packet: IIndestructiblePacket) => {
-						store.dispatch(updateIndestructibleLines(packet));
-					}
-				);
 			}
 		}
 
@@ -139,6 +130,15 @@ const socketMiddleware: Middleware = (store) => {
 				store.dispatch(
 					createPlayer({ name: action.payload, id: socket.id })
 				);
+			}
+
+			if (addInputToQueue.match(action)) {
+				const data = {
+					input: action.payload,
+				};
+				socket.emit(SocketEvent.CommandPressed, {
+					data: data,
+				});
 			}
 
 			if (createLobby.match(action)) {

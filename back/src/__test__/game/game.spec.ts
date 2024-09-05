@@ -5,7 +5,6 @@ import { Player } from '../../game/player';
 import { defaultBoardSize } from '../../type/board.interface';
 import { CellType } from '../../type/cell.interface';
 import { Commands } from '../../type/command.types';
-import { IInputsPacket } from '../../type/event.enum';
 import { GameMode } from '../../type/game.type';
 import { Scoring } from '../../type/scoring.enum';
 import { TetriminosArray } from '../../type/tetromino.interface';
@@ -65,7 +64,7 @@ describe('Game', () => {
 		});
 
 		it('should call addIndestructibleLines', () => {
-			game['indestructibleQueue'] = [{ tick: 3, nb: 2 }];
+			game['indestructibleQueue'] = [2];
 			jest.spyOn(game, 'addIndestructibleLines');
 			game.updateState(3);
 			expect(game.addIndestructibleLines).toHaveBeenCalledWith(2);
@@ -73,94 +72,50 @@ describe('Game', () => {
 	});
 
 	it('should push inputs into queue', () => {
-		const inputsPacket: IInputsPacket = {
-			tick: 1,
-			inputs: [Commands.MOVE_LEFT],
-			adjustmentIteration: 0,
-		};
-		game.pushInputsInQueue(inputsPacket);
+		const input = Commands.MOVE_LEFT;
+		game.pushInputsInQueue(input);
 
-		expect(game['inputsQueue']).toContain(inputsPacket);
+		expect(game['inputsQueue']).toContain(input);
 	});
 
 	describe('process inputs', () => {
-		it('should skip inputs if tick is greater than current tick', () => {
-			const inputsPacket: IInputsPacket = {
-				tick: 2,
-				inputs: [Commands.MOVE_LEFT],
-				adjustmentIteration: 0,
-			};
-			game.pushInputsInQueue(inputsPacket);
-			game.processInputs(1);
-
-			expect(game['inputsQueue']).toContain(inputsPacket);
-		});
-
-		it('should skip inputs if tick is greater than current tick and make tick adjustement if packet is early by +15 tick', () => {
-			const inputsPacket: IInputsPacket = {
-				tick: 30,
-				inputs: [Commands.MOVE_LEFT],
-				adjustmentIteration: 0,
-			};
-			game.pushInputsInQueue(inputsPacket);
-			game.processInputs(1);
-
-			expect(game['inputsQueue']).toContain(inputsPacket);
-			expect(game.adjustmentIteration).toBe(1);
-			expect(game.tickAdjustment).toBe(-1);
-		});
-
 		it('should process inputs and execute commands', () => {
-			const inputsPacket: IInputsPacket = {
-				tick: 1,
-				inputs: [Commands.MOVE_LEFT, Commands.MOVE_DOWN],
-				adjustmentIteration: 0,
-			};
+			const input = Commands.MOVE_LEFT;
+			const input2 = Commands.MOVE_RIGHT;
 			jest.spyOn(game, 'handleInputs');
-			game.pushInputsInQueue(inputsPacket);
-			game.processInputs(1);
+			game.pushInputsInQueue(input);
+			game.pushInputsInQueue(input2);
+			game.processInputs();
 
-			expect(game.handleInputs).toHaveBeenCalledWith(inputsPacket.inputs);
-			expect(game['inputsQueue']).not.toContain(inputsPacket);
-		});
-
-		it('should discard late inputs and make tick adjustement', () => {
-			const inputsPacket: IInputsPacket = {
-				tick: 1,
-				inputs: [Commands.MOVE_LEFT],
-				adjustmentIteration: 0,
-			};
-			game.pushInputsInQueue(inputsPacket);
-			game.processInputs(2);
-
-			expect(game.adjustmentIteration).toBe(1);
-			expect(game.tickAdjustment).toBe(16);
-			expect(game['inputsQueue']).not.toContain(inputsPacket);
+			expect(game.handleInputs).toHaveBeenCalledWith(input);
+			expect(game.handleInputs).toHaveBeenCalledWith(input2);
+			expect(game['inputsQueue']).not.toContain(input);
+			expect(game['inputsQueue']).not.toContain(input2);
 		});
 	});
 
 	describe('handle inputs', () => {
 		it('should rotate piece', () => {
 			jest.spyOn(game, 'rotate');
-			game.handleInputs([Commands.ROTATE]);
+			game.handleInputs(Commands.ROTATE);
 			expect(game.rotate).toHaveBeenCalled();
 		});
 
 		it('should move piece left', () => {
 			jest.spyOn(game, 'moveSideway');
-			game.handleInputs([Commands.MOVE_LEFT]);
+			game.handleInputs(Commands.MOVE_LEFT);
 			expect(game.moveSideway).toHaveBeenCalled();
 		});
 
 		it('should move piece right', () => {
 			jest.spyOn(game, 'moveSideway');
-			game.handleInputs([Commands.MOVE_RIGHT]);
+			game.handleInputs(Commands.MOVE_RIGHT);
 			expect(game.moveSideway).toHaveBeenCalled();
 		});
 
 		it('should move piece down', () => {
 			jest.spyOn(game, 'moveDown');
-			game.handleInputs([Commands.MOVE_DOWN]);
+			game.handleInputs(Commands.MOVE_DOWN);
 			expect(game.moveDown).toHaveBeenCalled();
 		});
 	});

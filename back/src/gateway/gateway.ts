@@ -16,7 +16,6 @@ import {
 	InputsPacketDto,
 	JoinLobbyDto,
 	StartGameDto,
-	TickAdjustmentPacketDto,
 } from '../utils/dto/gateway.dto';
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WsExceptionFilter } from '../utils/exceptionFilter';
@@ -96,17 +95,7 @@ export class Gateway
 		@ConnectedSocket() socket: Socket,
 		@MessageBody('data') data: InputsPacketDto
 	) {
-		console.log('commandPressed')
-		this.gameService.pushInputs(socket.id, data);
-	}
-
-	@SubscribeMessage(SocketEvent.SyncWithServer)
-	syncWithServer(
-		@ConnectedSocket() socket: Socket,
-		@MessageBody('data')
-		data: TickAdjustmentPacketDto
-	) {
-		this.gameService.syncWithServer(socket, data);
+		this.gameService.pushInputs(socket.id, data.input);
 	}
 
 	@SubscribeMessage(SocketEvent.LeaveGame)

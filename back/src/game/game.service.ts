@@ -2,16 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { GameSocketManager } from './game-socket-manager';
 import { SoloGame } from './solo-game';
 import { Player } from './player';
-import { Socket } from 'socket.io';
 import { BattleRoyal } from './battleRoyal';
 import { GatewayService } from '../gateway/gateway.service';
-import {
-	InputsPacketDto,
-	TickAdjustmentPacketDto,
-} from '../utils/dto/gateway.dto';
-import { ITickAdjustmentPacket, SocketEvent } from '../type/event.enum';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { LobbyService } from '../lobby/lobby.service';
+import { Commands } from 'src/type/command.types';
 
 @Injectable()
 export class GameService {
@@ -57,30 +52,11 @@ export class GameService {
 		}
 	}
 
-	pushInputs(socketId: string, inputsPacket: InputsPacketDto) {
-		this.gameSocketMap
-			.getGameFromSocket(socketId)
-			?.getPlayerGame(socketId)
-			?.pushInputsInQueue(inputsPacket);
-	}
-
-	syncWithServer(socket: Socket, data: TickAdjustmentPacketDto) {
-		const gameLobby = this.gameSocketMap.getGameFromSocket(socket.id);
-		const game = gameLobby?.getPlayerGame(socket.id);
-		const { tick, adjustmentIteration } = data;
-		if (
-			game &&
-			gameLobby &&
-			gameLobby.tick + 1 > tick &&
-			adjustmentIteration === game.adjustmentIteration
-		) {
-			game.adjustmentIteration++;
-			game.tickAdjustment = gameLobby.tick - tick + 30;
-			const packet: ITickAdjustmentPacket = {
-				tickAdjustment: game.tickAdjustment,
-				adjustmentIteration: game.adjustmentIteration,
-			};
-			socket.emit(SocketEvent.SyncWithServer, packet);
+	pushInputs(socketId: string, input: Commands) {
+		const gameLobby = this.gameSocketMap.getGameFromSocket(socketId);
+		if (gameLobby?.tick < 90) {
+			return;
 		}
+		gameLobby?.getPlayerGame(socketId)?.pushInputsInQueue(input);
 	}
 }

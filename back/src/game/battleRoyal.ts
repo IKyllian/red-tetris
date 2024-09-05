@@ -5,7 +5,6 @@ import { Server } from 'socket.io';
 import { SocketEvent } from '../type/event.enum';
 import {
 	IGameUpdatePacket,
-	IGameUpdatePacketHeader,
 	IIndestructiblePacket,
 	UpdateType,
 } from '../type/packet.type';
@@ -47,21 +46,8 @@ export class BattleRoyal {
 
 	private handleIndestructibleLine(game: Game) {
 		for (const otherGame of this.games) {
-			const maxTickOffset = this.games.reduce(
-				(acc, game) => Math.max(acc, game.tickAdjustment),
-				0
-			);
-			const tickOffset = this.tick + maxTickOffset + 30;
-			console.log("tick offset: " + tickOffset);
 			if (otherGame.player.id !== game.player.id && !otherGame.gameOver) {
-				const indestructiblePacket: IIndestructiblePacket = {
-					tick: tickOffset,
-					nb: game.indestructibleToGive,
-				};
-				otherGame.indestructibleQueue.push(indestructiblePacket);
-				this.server
-					.to(otherGame.player.id)
-					.emit(SocketEvent.IndestructibleLine, indestructiblePacket);
+				otherGame.indestructibleQueue.push(game.indestructibleToGive);
 			}
 		}
 		game.indestructibleToGive = 0;
@@ -99,15 +85,9 @@ export class BattleRoyal {
 				}
 			}
 			if (gamePackets.length > 0) {
-				const dataToSend: IGameUpdatePacketHeader = {
-					tick: this.tick,
-					tickAdjustment: playerGame.tickAdjustment,
-					adjustmentIteration: playerGame.adjustmentIteration,
-					gamePackets: gamePackets,
-				};
 				this.server
 					.to(playerGame.player.id)
-					.emit(SocketEvent.GamesUpdate, dataToSend);
+					.emit(SocketEvent.GamesUpdate, gamePackets);
 			}
 		}
 	}

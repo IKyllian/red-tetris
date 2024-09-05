@@ -4,17 +4,21 @@ import { IBoard } from "front/types/board.types";
 import { getTetrominoClassName } from "front/utils/piece.utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import PiecePreview from "./piece-preview";
-import { useAppSelector } from "front/store/hook";
+import { useAppDispatch, useAppSelector } from "front/store/hook";
 import { GameMode } from "front/types/packet.types";
-import { getBoardStyleSize, getPiecePreviewSize } from 'front/utils/board-size-display.utils'
+import {
+	getBoardStyleSize,
+	getPiecePreviewSize,
+} from "front/utils/board-size-display.utils";
+import { updateCountdown } from "front/store/game.slice";
 interface BoardProps {
 	board: IBoard;
 	playerName: string;
 	isGameOver: boolean;
-	nextPieces: Array<ITetromino>;
+	nextPieces?: Array<ITetromino>;
 	isOpponentBoards: boolean;
 	opponentsLength?: number;
-	gameMode: GameMode
+	gameMode: GameMode;
 }
 
 const Board = ({
@@ -24,7 +28,7 @@ const Board = ({
 	nextPieces,
 	isOpponentBoards,
 	opponentsLength = 0,
-	gameMode
+	gameMode,
 }: BoardProps) => {
 	const [boardSize, setBoardSize] = useState(
 		getBoardStyleSize(isOpponentBoards, opponentsLength)
@@ -33,18 +37,28 @@ const Board = ({
 		getPiecePreviewSize(boardSize)
 	);
 	const boardRef = useRef<HTMLDivElement>(null);
+	const dispatch = useAppDispatch();
 
 	const isSolo = gameMode === GameMode.SOLO;
 	const score = useAppSelector((state) => state.game.playerGame.score);
 	const level = useAppSelector((state) => state.game.playerGame.level);
 	const count = useAppSelector((state) => state.game.countdown);
-	// console.info('isOpponentBoards = ', isOpponentBoards)
-	// console.info('nextPieces = ', nextPieces)
+
+	useEffect(() => {
+		if (count > -1) {
+			const timer = setTimeout(() => {
+				dispatch(updateCountdown());
+			}, 1000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [count, dispatch]);
+
 	useEffect(() => {
 		if (boardRef.current) {
 			boardRef.current.focus();
 		}
-	}, [board])
+	}, [board]);
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -65,28 +79,42 @@ const Board = ({
 		};
 	}, []);
 
-	const boardStyles = useMemo(() => ({
-		gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
-		gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
-		width: `${boardSize.width}px`,
-		height: `${boardSize.height}px`,
-		minWidth: "110px",
-		minHeight: "190px",
-	}), [board.size.rows, board.size.columns, boardSize]);
+	const boardStyles = useMemo(
+		() => ({
+			gridTemplateRows: `repeat(${board.size.rows}, 1fr)`,
+			gridTemplateColumns: `repeat(${board.size.columns}, 1fr)`,
+			width: `${boardSize.width}px`,
+			height: `${boardSize.height}px`,
+			minWidth: "110px",
+			minHeight: "190px",
+		}),
+		[board.size.rows, board.size.columns, boardSize]
+	);
 
 	return (
-		<div className="inline-flex" style={{ position: "relative" }} autoFocus={true}>
-			{
-				!isOpponentBoards && count > -1 &&
-				<span data-testid="countdown" className="countdown-container" data-is-solo={+isSolo}> {count > 0 ? count : "GO"} </span>
-			}
-			{	
-				isSolo &&
-				<div data-testid="score-container" className="score-container flex gap16">
+		<div
+			className="inline-flex"
+			style={{ position: "relative" }}
+			autoFocus={true}
+		>
+			{!isOpponentBoards && count > -1 && (
+				<span
+					data-testid="countdown"
+					className="countdown-container"
+					data-is-solo={+isSolo}
+				>
+					{count > 0 ? count : "GO"}
+				</span>
+			)}
+			{isSolo && (
+				<div
+					data-testid="score-container"
+					className="score-container flex gap16"
+				>
 					<span> Score: {score} </span>
 					<span> Level: {level} </span>
-				</div>		
-			}
+				</div>
+			)}
 			<div className="flex flex-col">
 				<div
 					data-testid="board"
@@ -96,9 +124,12 @@ const Board = ({
 					ref={boardRef}
 				>
 					{isGameOver && (
-						<span data-testid="gameOver" className="gameOver"> Game Over </span>
+						<span data-testid="gameOver" className="gameOver">
+							{" "}
+							Game Over{" "}
+						</span>
 					)}
-					
+
 					{board.cells.map((row) =>
 						row.map((cell, cellIndex) => (
 							<div
@@ -116,14 +147,13 @@ const Board = ({
 						))
 					)}
 				</div>
-				<span
-					className="playerName"
-				>
-					{playerName}
-				</span>
+				<span className="playerName">{playerName}</span>
 			</div>
-			{!isOpponentBoards && nextPieces.length > 0 && (
-				<div data-testid="next-pieces-container" className="board-box-container">
+			{!isOpponentBoards && nextPieces?.length > 0 && (
+				<div
+					data-testid="next-pieces-container"
+					className="board-box-container"
+				>
 					<div className="box-title"> NEXT </div>
 					<div className="flex flex-col box-border">
 						{nextPieces.map((piece, index) => (
