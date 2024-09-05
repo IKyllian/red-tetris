@@ -5,7 +5,6 @@ import { LeaderboardService } from '../../leaderboard/leaderboard.service';
 import { Lobby } from '../../lobby/lobby';
 import { SocketEvent } from '../../type/event.enum';
 import { GameMode } from '../../type/game.type';
-import { IIndestructiblePacket } from '../../type/packet.type';
 
 describe('battleRoyal', () => {
 	const mockPlayer = {
@@ -88,7 +87,6 @@ describe('battleRoyal', () => {
 		it('should does nothing if the player id does not exist', () => {
 			battleRoyal.leave('777');
 			expect(battleRoyal.games[1].hasQuit).toBe(false);
-			expect(battleRoyal.games[1].hasQuit).toBe(false);
 		});
 	});
 
@@ -133,22 +131,6 @@ describe('battleRoyal', () => {
 			const indestructibleToGive = 3;
 			battleRoyal.games[1].indestructibleToGive = indestructibleToGive;
 			battleRoyal['handleIndestructibleLine'](battleRoyal.games[1]);
-			const maxTickOffset = battleRoyal.games.reduce(
-				(acc, game) => Math.max(acc, game.tickAdjustment),
-				0
-			);
-			const tickOffset = battleRoyal.tick + maxTickOffset + 30;
-			const indestructiblePacket: IIndestructiblePacket = {
-				tick: tickOffset,
-				nb: indestructibleToGive,
-			};
-			expect(server.to).toHaveBeenCalledWith(
-				battleRoyal.games[0].player.id
-			);
-			expect(server.emit).toHaveBeenCalledWith(
-				SocketEvent.IndestructibleLine,
-				indestructiblePacket
-			);
 			expect(battleRoyal.games[1].indestructibleToGive).toBe(0);
 		});
 

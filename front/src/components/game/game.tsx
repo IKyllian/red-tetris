@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "front/store/hook";
 import Board from "front/components/board/board";
-import { gameLoop } from "front/utils/gameLoop";
-import { getPieceIndex } from "front/utils/piece.utils";
 import { addInputToQueue } from "front/store/game.slice";
 import { getCommand, Commands } from "front/types/command.types";
 import { useNavigate } from "react-router-dom";
@@ -33,21 +31,9 @@ export default function Game() {
 		(state) => state.game.playerGame?.player.name
 	);
 	const pieces = useAppSelector((state) => state.game.pieces);
-
 	useEffect(() => {
 		if (!lobby) navigate("/home");
 	}, [lobby]);
-
-	useEffect(() => {
-		if (gameOver) {
-			console.log("GAME OVER");
-			return;
-		}
-		let cleanup = gameLoop(dispatch);
-		return () => {
-			if (cleanup) cleanup();
-		};
-	}, [gameStarted, dispatch, gameOver]);
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		const command: Commands | null = getCommand(event.code);
@@ -118,10 +104,7 @@ export default function Game() {
 									board={playerGameBoard}
 									playerName={playerName}
 									isGameOver={gameOver}
-									nextPieces={pieces.slice(
-										getPieceIndex(playerGamePieceIndex + 1),
-										getPieceIndex(playerGamePieceIndex + 4)
-									)}
+									nextPieces={pieces.slice(1)}
 									isOpponentBoards={false}
 									gameMode={gameMode}
 								/>
@@ -145,20 +128,6 @@ export default function Game() {
 											board={game.board}
 											playerName={game.player.name}
 											isGameOver={game.gameOver}
-											nextPieces={
-												game.currentPieceIndex
-													? pieces.slice(
-															getPieceIndex(
-																game.currentPieceIndex +
-																	1
-															),
-															getPieceIndex(
-																game.currentPieceIndex +
-																	4
-															)
-													  )
-													: []
-											}
 											isOpponentBoards={true}
 											opponentsLength={
 												opponentsGames.length

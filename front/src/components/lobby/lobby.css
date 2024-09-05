@@ -10,13 +10,10 @@
 h1 {
     margin: 0;
     text-align: center;
-    /* color: white; */
-    /* text-transform: uppercase; */
 }
 
 .player-list-title {
     font-size: 25px;
-    /* color: white; */
     text-transform: uppercase;
     font-weight: bold;
 }
@@ -27,10 +24,6 @@ h1 {
     padding: 5px 10px;
     font-size: 20px;
     border-radius: 10px;
-    /* color: white; */
-    /* border-radius: 2px; */
-    /* background-color: #615EB3; */
-    /* background-color: var(--main-color); */
     text-transform: uppercase;
 }
 

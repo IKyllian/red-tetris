@@ -13,7 +13,7 @@ import {
 } from 'front/types/tetrominoes.type';
 import { IBoard, ICell, defaultCell } from 'front/types/board.types';
 import seedrandom from 'seedrandom';
-import { PIECES_BUFFER_SIZE } from './game.utils';
+// import { PIECES_BUFFER_SIZE } from './game.utils';
 import { getDropPosition } from 'front/utils/drop.utils';
 
 export function getTetrominoClassName(
@@ -77,7 +77,9 @@ export function getPosDown(position: IPosition): IPosition {
 
 export function getNextPiece(rng: seedrandom.PRNG): ITetromino {
 	const index = Math.floor(rng() * TetriminosArray.length);
-	const piece = TetriminosArray[index] ? { ...TetriminosArray[index] } : { ...TetriminosArray[0] };
+	const piece = TetriminosArray[index]
+		? { ...TetriminosArray[index] }
+		: { ...TetriminosArray[0] };
 	return piece;
 }
 
@@ -198,7 +200,6 @@ export function clearOldDropPosition(
 	return cells;
 }
 
-
 export function clearDropPreview(
 	board: IBoard,
 	shape: number[][],
@@ -219,8 +220,4 @@ export function setDropPreview(
 		{ ...piece, position: dropPosition },
 		shape
 	);
-}
-
-export function getPieceIndex(currentPieceIndex: number): number {
-	return currentPieceIndex % PIECES_BUFFER_SIZE;
 }

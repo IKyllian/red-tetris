@@ -4,8 +4,7 @@ import socketMiddleware, { SocketEvent } from 'front/store/socketMiddleware';
 import { io } from 'socket.io-client';
 import {
 	initSocket,
-} from 'front/store/socket.slice';
-import { IInputsPacket } from 'front/types/packet.types';
+} from 'front/store/socket.slice';;
 
 // Mock actions
 const createPlayer = createAction<{ name: String, id: String }>('player/createPlayer');
@@ -13,8 +12,8 @@ const createLobby = createAction<{lobbyName: string}>('lobby/createLobby');
 const joinLobby = createAction<{lobbyId: string, playerName: string}>('lobby/joinLobby');
 const leaveLobby = createAction<string>('lobby/leaveLobby');
 const sendStartGame = createAction<{playerName: string}>('lobby/sendStartGame');
-const sendInputs = createAction<IInputsPacket>('game/sendInputs');
 
+const url = `${process.env.VITE_IP_URL}:3000`
 // TODO: use mock of socket factory ?
 vi.mock('socket.io-client', () => ({
     io: vi.fn(() => mockSocket)
@@ -50,7 +49,7 @@ describe('socket middleware', () => {
       store.dispatch(initSocket());
     });
     it('should initialize socket and set up listeners on initSocket action', () => {
-        expect(io).toHaveBeenCalledWith('http://localhost:3000'); // Ensure socket.io-client is initialized with correct endpoint
+        expect(io).toHaveBeenCalledWith(url); // Ensure socket.io-client is initialized with correct endpoint
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Connect , expect.any(Function)); // Ensure socket event listeners are set up
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Exception, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.Disconnect, expect.any(Function));
@@ -58,8 +57,6 @@ describe('socket middleware', () => {
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GamesUpdate, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.GameOver, expect.any(Function));
         expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.StartingGame, expect.any(Function));
-        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.SyncWithServer, expect.any(Function));
-        expect(mockSocket.on).toHaveBeenCalledWith(SocketEvent.IndestructibleLine, expect.any(Function));
     });
 
     it('should handle sign action and dispatch createPlayer', () => {

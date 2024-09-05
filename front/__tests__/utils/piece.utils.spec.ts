@@ -6,7 +6,6 @@ import {
     getPosLeft,
     getPosDown,
     getNextPiece,
-    getPieceIndex,
     clearOldPosition,
     checkCollision,
     transferPieceToBoard,
@@ -303,12 +302,4 @@ describe('utils/piece', () => {
             expect(result[2][2]).toEqual({ type: CellType.O, occupied: false, isPreview: true });
         });
     });
-
-    describe('getPieceIndex', () => {
-        it('should return the index of the piece in the array', () => {
-            const pieceIndex = 4;
-            const result = pieceIndex % PIECES_BUFFER_SIZE
-            expect(getPieceIndex(pieceIndex)).toEqual(result)
-        })
-    })
 })

@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { LobbyService } from './lobby.service';
 
-@Controller('lobby')
+@Controller('api/lobby')
 export class LobbyController {
 	constructor(private LobbyService: LobbyService) {}
 

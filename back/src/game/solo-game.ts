@@ -2,11 +2,7 @@ import { Game } from './game';
 import { Player } from './player';
 import { Server } from 'socket.io';
 import { SocketEvent } from '../type/event.enum';
-import {
-	IGameUpdatePacket,
-	IGameUpdatePacketHeader,
-	UpdateType,
-} from '../type/packet.type';
+import { IGameUpdatePacket, UpdateType } from '../type/packet.type';
 import { GameMode, MIN_TIME_BETWEEN_TICKS } from '../type/game.type';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
@@ -44,9 +40,6 @@ export class SoloGame {
 	}
 
 	private sendUpdates() {
-		// if (this.game.hasQuit) {
-		// 	console.log('game has quit');
-		// }
 		let gamePackets: IGameUpdatePacket[] = [];
 		if (this.game.positionChanged || this.game.boardChanged) {
 			gamePackets.push({
@@ -55,15 +48,9 @@ export class SoloGame {
 			});
 		}
 		if (gamePackets.length > 0) {
-			const dataToSend: IGameUpdatePacketHeader = {
-				tick: this.tick,
-				tickAdjustment: this.game.tickAdjustment,
-				adjustmentIteration: this.game.adjustmentIteration,
-				gamePackets: gamePackets,
-			};
 			this.server
 				.to(this.game.player.id)
-				.emit(SocketEvent.GamesUpdate, dataToSend);
+				.emit(SocketEvent.GamesUpdate, gamePackets);
 		}
 	}
 
@@ -71,7 +58,9 @@ export class SoloGame {
 		if (this.game.hasQuit) {
 			return true;
 		} else if (this.game.gameOver) {
-			this.server.emit(SocketEvent.GameOver, this.ranking);
+			this.server
+				.to(this.game.player.id)
+				.emit(SocketEvent.GameOver, this.ranking);
 			if (this.game.score > 0) {
 				try {
 					this.leaderboardService.create(
@@ -93,6 +82,9 @@ export class SoloGame {
 		this.lastUpdate = now;
 		this.timer += deltaTime;
 		while (this.timer >= MIN_TIME_BETWEEN_TICKS) {
+			if (this.checkGameOver()) {
+				return;
+			}
 			if (this.tick < 90) {
 				this.tick++;
 				this.timer -= MIN_TIME_BETWEEN_TICKS;
@@ -104,9 +96,9 @@ export class SoloGame {
 			}
 
 			this.sendUpdates();
-			if (this.checkGameOver()) {
-				return;
-			}
+			// if (this.checkGameOver()) {
+			// 	return;
+			// }
 			this.timer -= MIN_TIME_BETWEEN_TICKS;
 			this.tick++;
 		}
